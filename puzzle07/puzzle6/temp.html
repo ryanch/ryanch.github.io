@@ -11,10 +11,11 @@
         .text-container {
             position: absolute;
             color: rgb(255, 255, 255);
-            left: 0px;
+            right: 0px;
             bottom: 0px;
-            background-color: rgb(41, 41, 41, 0.8);
-            padding: 0 1rem;
+            background-color: rgb(41, 41, 41, 0.7);
+            padding: 2px;
+            height: 40px;
         }
 </style>
 
@@ -23,18 +24,29 @@
 
 var s = "";
 
+
+// 3, 5, 7, 11, 13, 17, 19, 23
+
+var numbers = [
+  100, 104, 107 , 111, 113 , 
+  120, 127 , 132, 135, 136, 
+  137 , 147, 149 , 157, 158, 
+  160, 173 , 175, 179 , 180, 
+  182, 183, 191 , 197, 198, 
+];
+
   for (var i =0; i < 25; i++) {
 
    
     
-    var num = i+1;
+    var label = numbers[i];
 
+    var num = i + 1;
 
-
-s += '<div class="gfg" >';
-  s += '<img src="assets/'+num+'.jpg" width="150" height="150" />';
-  s += '<div class="text-container">';
-    s += '<h3>'+num+'</h3>';
+    s += '<div class="gfg" >';
+    s += '<img src="assets/'+num+'.jpg" width="150" height="150" />';
+    s += '<div class="text-container">';
+    s += '<h3>'+label+'</h3>';
     s += '</div>';
     s += '</div>';
 
