@@ -1,0 +1,21 @@
+
+<input id="input" autofocus spellcheck="false" />
+
+<script>
+
+	function main() {
+		
+		
+		var input = document.getElementById("input");
+		input.onkeydown = function(e) {
+			if (e.keyCode == 9) {
+				e.preventDefault();
+				console.log("d");
+			}
+		}
+		
+	}
+	
+	main();
+	
+</script>

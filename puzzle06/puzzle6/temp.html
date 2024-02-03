@@ -1,0 +1,88 @@
+
+<style>
+        .gfg {
+            margin: 2px;
+            position: relative;
+            float:left;
+        }
+ 
+        /*This CSS code is defining the
+        styles for a container that holds text*/
+        .text-container {
+            position: absolute;
+            color: rgb(255, 255, 255);
+            left: 0px;
+            bottom: 0px;
+            background-color: rgb(41, 41, 41, 0.8);
+            padding: 0 1rem;
+        }
+</style>
+
+
+<script>
+
+var s = "";
+
+  for (var i =0; i < 25; i++) {
+
+   
+    
+    var num = i+1;
+
+
+
+s += '<div class="gfg" >';
+  s += '<img src="assets/'+num+'.jpg" width="150" height="150" />';
+  s += '<div class="text-container">';
+    s += '<h3>'+num+'</h3>';
+    s += '</div>';
+    s += '</div>';
+
+
+
+
+    
+  }
+
+  //console.log(s);
+
+  document.write(s);
+
+
+</script>
+
+
+<!--
+
+
+<img src="assets/1.jpg" width="150" height="150" />
+<img src="assets/2.jpg" width="150" height="150"  />
+<img src="assets/3.jpg" width="150" height="150"  />
+<img src="assets/4.jpg" width="150" height="150"  />
+<img src="assets/5.jpg" width="150" height="150"  />
+<br>
+<img src="assets/6.jpg" width="150" height="150" />
+<img src="assets/7.jpg" width="150" height="150"  />
+<img src="assets/8.jpg" width="150" height="150"  />
+<img src="assets/9.jpg" width="150" height="150"  />
+<img src="assets/10.jpg" width="150" height="150"  />
+<br>
+<img src="assets/11.jpg" width="150" height="150" />
+<img src="assets/12.jpg" width="150" height="150"  />
+<img src="assets/13.jpg" width="150" height="150"  />
+<img src="assets/14.jpg" width="150" height="150"  />
+<img src="assets/15.jpg" width="150" height="150"  />
+<br>
+<img src="assets/16.jpg" width="150" height="150" />
+<img src="assets/17.jpg" width="150" height="150"  />
+<img src="assets/18.jpg" width="150" height="150"  />
+<img src="assets/19.jpg" width="150" height="150"  />
+<img src="assets/20.jpg" width="150" height="150"  />
+<br>
+<img src="assets/21.jpg" width="150" height="150" />
+<img src="assets/22.jpg" width="150" height="150"  />
+<img src="assets/23.jpg" width="150" height="150"  />
+<img src="assets/24.jpg" width="150" height="150"  />
+<img src="assets/25.jpg" width="150" height="150"  />
+
+-->
