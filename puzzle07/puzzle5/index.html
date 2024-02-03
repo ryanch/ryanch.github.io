@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../favicon.ico">
+
+    <title>Puzzle 5: Solve This</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
+    <link href="../assets/blog.css" rel="stylesheet">
+    <script src="../assets/app.js" ></script>
+
+
+    <style>
+      .gfg {
+          margin: 4px;
+          position: relative;
+          float:left;
+      }
+    
+      .text-container {
+          position: absolute;
+          color: rgb(255, 255, 255);
+          right: 0px;
+          bottom: 0px;
+          padding: 2px;
+          height: 40px;
+          background-color: rgb(41, 41, 41, 0.7);
+          font-size:20px;
+          font-family: 'Times New Roman', Times, serif;
+      }
+    
+      .textbox {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        text-align: center;
+        margin-left: 2px;
+      }
+    </style>
+    
+
+  </head>
+
+
+  <body>
+
+    <div class="container">
+      <header class="blog-header py-3">
+        <div class="row flex-nowrap justify-content-between align-items-center">
+          <div class="col-4 pt-1">
+            <a class="text-muted" href="#">#puzzle-hunt</a>
+          </div>
+          <div class="col-4 text-center">
+            <a class="blog-header-logo puzzle5_color" href="#">"Solve This"</a>
+          </div>
+          <div class="col-4 d-flex justify-content-end align-items-center">
+            <a class="text-muted" href="../index.html">Home</a>
+          </div>
+        </div>
+      </header>
+
+      <script>app.printTopNav("../");</script>
+
+      <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark">
+        <div class="col-md-6 px-0">
+          <h1 class="display-4 font-italic">Puzzle 5</h1>
+          <p class="lead my-3">Observe the spectrum of life.<br/>Arrange to create a mighty symbol.</p>
+        </div>
+      </div>
+
+
+
+<script>
+
+
+function print_puzzle_cards() {
+
+  var s = "";
+
+
+  var details = [
+    {
+      "img": "assets/blue_jay.jpg",
+      card_count: 4,
+      label: "[1]",
+      hint: ""
+    },
+    {
+      "img": "assets/green_turtle.jpg",
+      card_count: 5,
+      label: "[2]",
+      hint: ""
+    },
+    {
+      "img": "assets/purple_bird.jpg",
+      card_count: 6,
+      label: "[2]",
+      hint: "V"
+    },
+    {
+      "img": "assets/indigo_elephant.jpg",
+      card_count: 6,
+      label: "[4,5]",
+      hint: "I"
+    },
+    {
+      "img": "assets/orange_fox.jpg",
+      card_count: 6,
+      label: "[2,4]",
+      hint: ""
+    },
+    {
+      "img": "assets/red_bird.jpg",
+      card_count: 3,
+      label: "[1]",
+      hint: ""
+    },
+    {
+      "img": "assets/yellow_butter_fly.jpg",
+      card_count: 6,
+      label: "[2]",
+      hint: ""
+    },    
+  ];
+
+  for (var i =0; i < details.length; i++) {
+
+      var detail = details[i];
+
+
+s += '<div class="gfg" >';
+      s += '<img src="'+detail.img+'" width="330" />';
+      s += '<div class="text-container">';
+
+        var inputHint = detail.hint;
+
+        for (var j =0; j < detail.card_count; j++ ) {
+
+          var disabled = "";
+          if (inputHint != "") {
+            disabled = " disabled=disabled ";
+          }
+
+          s += '<input type="text" size="1" class="textbox" value="'+inputHint+'" '+disabled+' />'
+          inputHint="";
+
+        }
+
+      s += '<b> ' + detail.label + '</b>'
+      s += '</div>';
+      s += '</div>';
+  }
+
+  document.write(s);
+
+}
+
+print_puzzle_cards();
+
+</script>
+
+
+
+
+    </div>
+
+
+
+  </body>
+</html>
+
