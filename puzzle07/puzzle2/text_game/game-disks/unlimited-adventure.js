@@ -308,7 +308,7 @@ On one wall are [lockers]. It looks like they have been forced open, with their 
         items: [
 		  { name: 'door', desc: 'It is a door.', passiveDesc: 'There is a [door] that leads to the corridor.', doorLocation: 'bunkCorridor' },
           { 
-			  name: 'bed', desc: 'Looks like a nice place to sleep.',
+			  name: 'bed', desc: 'Looks like a nice place to sleep, but if you rest now the invaders might come and find you.',
 			  use: ({disk, println, getRoom, enterRoom}) => {
 				  println('Exhausted you lie down for a nice rest. While you are a sleep the invaders from the ship find you and kill you.')
 				  enterRoom('gameOver');
