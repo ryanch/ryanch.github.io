@@ -40,25 +40,12 @@ app.checkAnswer = function(answer, puzzleNumber) {
         "ff4aea4f869394f2444b9a5b4727ea5c-2": true,
         "30098931afc7460c67db616b477179b8-1": true,
         "deafca35b068ab4cdd12f5a59652bc18-6": true,
+        "d78bace1594084f29a9dbd3469fed2cb-5": true
     };
     return puzzleHashLookup[hash + "-" + puzzleNumber]===true;
 }
 
-app.handleSubmitAnswer = function ( puzzleNum) {
 
-    var input = document.getElementById("puzzle" + puzzleNum + "Input");
-    var output = document.getElementById("puzzle" + puzzleNum + "Output");
-
-    var answer = input.value;
-
-    if ( app.checkAnswer(answer,puzzleNum) ) {
-        output.innerHTML = "<span class=\"text-success\"> Correct!</span>";
-    }
-    else {
-        output.innerHTML = "<span class=\"text-fail\"> Wrong!</span>";
-    }
-
-}
 
 app.makeHash = function(ans) {
 
@@ -180,4 +167,62 @@ app.printPuzzleBlock = function (puzzleNum, title, desc) {
   document.write(s);
   console.log(s);
 
+}
+
+
+
+app.storeValue = function(key, value) {
+    localStorage.setItem(key, value);
+}
+
+app.getStoredValue = function(key, defaultValue) {
+    var value = localStorage.getItem(key);
+    if (value === undefined || value == null) {
+        return defaultValue;
+    }
+    return value;
+}
+
+
+app.handleSubmitAnswer = function (puzzleNum) {
+
+    var input = document.getElementById("puzzle" + puzzleNum + "Input");
+    var output = document.getElementById("puzzle" + puzzleNum + "Output");
+
+    var answer = input.value;
+
+    if ( app.checkAnswer(answer,puzzleNum) ) {
+        output.innerHTML = "<span class=\"text-success\"> Correct!</span>";
+    }
+    else {
+        output.innerHTML = "<span class=\"text-fail\"> Wrong!</span>";
+    }
+
+
+    app.storeValue( "ans-" + puzzleNum, answer );
+
+}
+
+app.loadStoredAnswers = function() {
+
+    for (var i = 0; i< 9; i++) {
+        var puzzleNum = i+1;
+        var fieldName = 'puzzle'+puzzleNum+'Input';
+        var field = document.getElementById(fieldName);
+        if (field==null) continue;
+
+        var answerKey = "ans-" + puzzleNum;
+
+        var savedValue = app.getStoredValue(answerKey,"");
+        if (savedValue == "") continue;
+
+        field.value = savedValue;
+        app.handleSubmitAnswer(puzzleNum);
+    }
+
+
+}
+
+app.pageLoaded = function() {
+    app.loadStoredAnswers();
 }
