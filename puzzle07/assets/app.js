@@ -136,6 +136,22 @@ app.md5 = function(inputString) {
 }
 
 
+app.buildPuzzleAnswerInputBlock = function (puzzleNum) {
+
+    s = "";
+    s +=      '<p>';
+    s +=      '<input type="text" id="puzzle'+puzzleNum+'Input" onkeydown="if (event.key == \'Enter\'){app.handleSubmitAnswer( '+puzzleNum+' )}else{}" /> <input type="button" value="Submit Answer" onclick="app.handleSubmitAnswer( '+puzzleNum+' )" />';
+    s +=      '<span id="puzzle'+puzzleNum+'Output"></span>';
+    s +=      '</p>';
+    return s;
+
+}
+
+app.printPuzzleAnswerInputBlock = function (puzzleNum) {
+    document.write( app.buildPuzzleAnswerInputBlock( puzzleNum ) );
+}
+
+
 app.printPuzzleBlock = function (puzzleNum, title, desc) {
 
     s = "";
@@ -150,11 +166,12 @@ app.printPuzzleBlock = function (puzzleNum, title, desc) {
     s +=      '<a class="text-dark" href="./puzzle'+puzzleNum+'/index.html">"'+title+'"</a>';
     s +=    '</h3>';
     s +=    '<p class="card-text mb-auto">';
-    s +=    desc
-    s +=      '<p>';
-    s +=      '<input type="text" id="puzzle'+puzzleNum+'Input" onkeydown="if (event.key == \'Enter\'){app.handleSubmitAnswer( '+puzzleNum+' )}else{}" /> <input type="button" value="Submit Answer" onclick="app.handleSubmitAnswer( '+puzzleNum+' )" />';
-    s +=      '<span id="puzzle'+puzzleNum+'Output"></span>';
-    s +=      '</p>';
+    s +=    desc;
+    s += app.buildPuzzleAnswerInputBlock( puzzleNum );
+    //s +=      '<p>';
+    //s +=      '<input type="text" id="puzzle'+puzzleNum+'Input" onkeydown="if (event.key == \'Enter\'){app.handleSubmitAnswer( '+puzzleNum+' )}else{}" /> <input type="button" value="Submit Answer" onclick="app.handleSubmitAnswer( '+puzzleNum+' )" />';
+    //s +=      '<span id="puzzle'+puzzleNum+'Output"></span>';
+    //s +=      '</p>';
     s +=    '</p>';
     s +=    '<a href="./puzzle'+puzzleNum+'/index.html">Open Puzzle</a>';
     s +=  '</div>';
