@@ -171,7 +171,9 @@ app.printPuzzleBlock = function (puzzleNum, title, desc) {
     s +=    '</p>';
     s +=    '<a href="./puzzle'+puzzleNum+'/index.html">Open Puzzle</a>';
     s +=  '</div>';
+    s +=      '<a class="text-dark" href="./puzzle'+puzzleNum+'/index.html">';
     s +=  '<img class="card-img-right flex-auto d-none d-md-block" src="assets/puzzle-'+puzzleNum+'-thumb.png" style="width: 100px; height: 250px;" />';
+    s +=     '</a>';
     s +='</div>';
     s +='</div>';
     
