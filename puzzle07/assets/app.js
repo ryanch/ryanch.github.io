@@ -40,7 +40,8 @@ app.checkAnswer = function(answer, puzzleNumber) {
         "ff4aea4f869394f2444b9a5b4727ea5c-2": true,
         "30098931afc7460c67db616b477179b8-1": true,
         "deafca35b068ab4cdd12f5a59652bc18-6": true,
-        "d78bace1594084f29a9dbd3469fed2cb-5": true
+        "d78bace1594084f29a9dbd3469fed2cb-5": true,
+        "6483f99877a46161a0dfcc4ab6c4479b-7": true
     };
     return puzzleHashLookup[hash + "-" + puzzleNumber]===true;
 }
