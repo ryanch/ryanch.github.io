@@ -41,7 +41,7 @@
       <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark">
         <div class="col-md-6 px-0">
           <h1 class="display-4 font-italic">Puzzle 4</h1>
-          <p class="lead my-3">Find the channel for your answer.</p>
+          <p class="lead my-3">Play full screen. not mobile fiendly, Find the channel for your answer.</p>
           <script>
             app.printPuzzleAnswerInputBlock(4);
           </script>
@@ -60,7 +60,14 @@
   box-sizing: border-box;
 }
 
-.tile_letter {
+.starImg {
+
+    position: absolute;
+    left: 5px;
+    top: 5px;
+}
+
+.tile_letter, .tile_mystery_green, .tile_mystery_blue, .tile_mystery_yellow {
     position: absolute;
     left: 5px;
     top: 5px;
@@ -69,6 +76,18 @@
     width: 20px;
     text-align: center;
     border: 1px solid gray;
+}
+
+.tile_mystery_green {
+    background-color: rgb(35, 245, 35);
+}
+
+.tile_mystery_blue {
+    background-color: rgb(3, 108, 255);
+}
+
+.tile_mystery_yellow {
+    background-color: rgb(245, 242, 35);
 }
 
 #list {
@@ -96,9 +115,7 @@
     margin-right: 15px;
     cursor: pointer;
     
-    &:hover {
-      color: $tile-color;
-    }
+
   }
 
   input {
@@ -123,7 +140,7 @@
 var rowSize   = 100;
 var colSize   = 100;
 var gutter    = 7;     // Spacing between tiles
-var numTiles  = 30;    // Number of tiles to initially populate the grid with
+var numTiles  = 40;    // Number of tiles to initially populate the grid with
 var fixedSize = true; // When true, each tile's colspan will be fixed to 1
 var oneColumn = false; // When true, grid will only have 1 column and tiles have fixed colspan of 1
 var threshold = "50%"; // This is amount of overlap between tiles needed to detect a collision
@@ -295,7 +312,7 @@ function createTile() {
         onRelease   : onRelease,
         zIndexBoost : false
     });
-
+    
     // NOTE: Leave rowspan set to 1 because this demo 
     // doesn't calculate different row heights
     var tile = {
@@ -468,10 +485,24 @@ function flowWater() {
             walkWater(root.tile, tile_lookup);
         }
 
+        var blueStarIsWet = ( tile_lookup[ "0-9" ] && tile_lookup[ "0-9"].wet );
+        var yellowStarIsWet = ( tile_lookup[ "3-0" ] && tile_lookup[ "3-0"].wet );
+
         // set the images
         $(".tile").each(function(index, element) {
 
             var tile  = this.tile;
+
+            var starHTML = "";
+
+            if (tile.row == 0 && tile.col == 9) {
+                starHTML = '<img class="starImg" src="assets/blue-star.png" width="30" >';
+            }
+            else if (tile.row == 3 && tile.col == 0) {
+                starHTML = '<img class="starImg" src="assets/yellow-star.png" width="30" >';
+            }
+
+
 
             if ( tile_lookup[ tile.row + "-" + tile.col ] && tile_lookup[ tile.row + "-" + tile.col ].wet  ) {
                 var letter = starting[tile.row + "-" + tile.col];
@@ -480,12 +511,27 @@ function flowWater() {
                     letterHTML = "";
                 }
                 else {
-                    letterHTML = '<span class="tile_letter" >'+letter+'</span>';
+
+                    var letterColor = letter_color[tile.row + "-" + tile.col];
+                    if (letterColor == "blue" && blueStarIsWet) { 
+                        letterHTML = '<span class="tile_letter" >'+letter+'</span>';
+                    }
+                    else if (letterColor == "yellow" && yellowStarIsWet) { 
+                        letterHTML = '<span class="tile_letter" >'+letter+'</span>';
+                    }
+                    else if (letterColor == "green" && yellowStarIsWet && blueStarIsWet) { 
+                        letterHTML = '<span class="tile_letter" >'+letter+'</span>';
+                    }
+                    else {
+                        letterHTML = '<span class="tile_mystery_'+letterColor+'" >?</span>';
+                    }
+
+                    
                 }
-                tile.tileElement.html('<img src="'+tile.pipeData.filled+'" width="100" height="100" >' + letterHTML);
+                tile.tileElement.html('<img src="'+tile.pipeData.filled+'" width="100" height="100" >' + letterHTML + starHTML);
             }
             else {
-                tile.tileElement.html('<img src="'+tile.pipeData.empty+'" width="100" height="100" >');
+                tile.tileElement.html('<img src="'+tile.pipeData.empty+'" width="100" height="100" >' + starHTML);
             }
 
         });
@@ -609,8 +655,39 @@ function layoutInvalidated(rowToUpdate) {
     flowWater();
 }
 
+var letter_color = {};
+letter_color["0-5"] = "blue";
+letter_color["0-6"] = "blue";
+letter_color["0-7"] = "blue";
+letter_color["0-8"] = "blue";
+letter_color["0-3"] = "blue";
+ letter_color["0-4"] = "blue";
+letter_color["1-5"] = "yellow";
+letter_color["1-6"] = "yellow";
+letter_color["2-2"] = "green";
+letter_color["2-3"] = "green";
+letter_color["2-4"] = "green";
+letter_color["2-5"] = "green";
+letter_color["2-6"] = "green";
+letter_color["2-7"] = "green";
+
 var starting = {};
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                starting["0-3"] = "A";starting["0-4"] = "N";starting["0-5"] = "S";starting["0-6"] = "W";starting["0-7"] = "E";starting["0-8"] = "R";starting["1-5"] = "I";starting["1-6"] = "S";starting["2-2"] = "F";starting["2-3"] = "A";starting["2-4"] = "U";starting["2-5"] = "C";starting["2-6"] = "E";starting["2-7"] = "T";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["2-5"] = "P";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["2-2"] = "P";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["0-5"] = "S";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["0-6"] = "W";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["0-8"] = "R";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["1-5"] = "I";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["1-6"] = "S";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["0-4"] = "N";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["0-3"] = "A";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["2-3"] = "U";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["2-4"] = "R";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["2-6"] = "L";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["2-7"] = "E";
+                                                                                                                                                                                                                                                                                                                                                                                                                                            starting["0-7"] = "E";
+
+
 </script>
 
 
