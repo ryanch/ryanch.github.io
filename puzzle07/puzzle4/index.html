@@ -78,15 +78,15 @@
     border: 1px solid gray;
 }
 
-.tile_mystery_green {
+.green_letter {
     background-color: rgb(35, 245, 35);
 }
 
-.tile_mystery_blue {
-    background-color: rgb(3, 108, 255);
+.blue_letter {
+    background-color: rgb(129, 176, 243);
 }
 
-.tile_mystery_yellow {
+.yellow_letter {
     background-color: rgb(245, 242, 35);
 }
 
@@ -485,8 +485,8 @@ function flowWater() {
             walkWater(root.tile, tile_lookup);
         }
 
-        var blueStarIsWet = ( tile_lookup[ "0-9" ] && tile_lookup[ "0-9"].wet );
-        var yellowStarIsWet = ( tile_lookup[ "3-0" ] && tile_lookup[ "3-0"].wet );
+        var yellowStarIsWet = ( tile_lookup[ "0-9" ] && tile_lookup[ "0-9"].wet );
+        var blueStarIsWet = ( tile_lookup[ "3-0" ] && tile_lookup[ "3-0"].wet );
 
         // set the images
         $(".tile").each(function(index, element) {
@@ -495,10 +495,10 @@ function flowWater() {
 
             var starHTML = "";
 
-            if (tile.row == 0 && tile.col == 9) {
+            if (tile.row == 3 && tile.col == 0) {
                 starHTML = '<img class="starImg" src="assets/blue-star.png" width="30" >';
             }
-            else if (tile.row == 3 && tile.col == 0) {
+            else if (tile.row == 0 && tile.col == 9) {
                 starHTML = '<img class="starImg" src="assets/yellow-star.png" width="30" >';
             }
 
@@ -514,16 +514,16 @@ function flowWater() {
 
                     var letterColor = letter_color[tile.row + "-" + tile.col];
                     if (letterColor == "blue" && blueStarIsWet) { 
-                        letterHTML = '<span class="tile_letter" >'+letter+'</span>';
+                        letterHTML = '<span class="tile_letter blue_letter" >'+letter+'</span>';
                     }
                     else if (letterColor == "yellow" && yellowStarIsWet) { 
-                        letterHTML = '<span class="tile_letter" >'+letter+'</span>';
+                        letterHTML = '<span class="tile_letter yellow_letter" >'+letter+'</span>';
                     }
                     else if (letterColor == "green" && yellowStarIsWet && blueStarIsWet) { 
-                        letterHTML = '<span class="tile_letter" >'+letter+'</span>';
+                        letterHTML = '<span class="tile_letter green_letter" >'+letter+'</span>';
                     }
                     else {
-                        letterHTML = '<span class="tile_mystery_'+letterColor+'" >?</span>';
+                        letterHTML = '<span class="tile_letter '+letterColor+'_letter" >?</span>';
                     }
 
                     
