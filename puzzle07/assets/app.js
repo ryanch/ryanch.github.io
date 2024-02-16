@@ -185,7 +185,6 @@ app.printPuzzleBlock = function (puzzleNum, title, desc) {
     s +='</div>';
     
   document.write(s);
-  console.log(s);
 
 }
 
@@ -245,4 +244,33 @@ app.loadStoredAnswers = function() {
 
 app.pageLoaded = function() {
     app.loadStoredAnswers();
+}
+
+
+app.buildSubmission = function() {
+    var s = "";
+    
+    s+= "Team members: " + document.getElementById("teamMembers").value + "\n\n";
+
+    s += "PUZZLE ANSWERS\n\n";
+    for (var i = 0; i< 8; i++) {
+        var puzzleNum = i+1;
+        var answerKey = "ans-" + puzzleNum;
+        var storedAnswer = app.getStoredValue(answerKey,"");
+        s += "Puzzle " + puzzleNum + ": " + storedAnswer;
+        s += "\n";
+    }
+    return s;
+}
+
+
+app.populateSubmission = function() {
+    document.getElementById("generatedResponseArea").value = app.buildSubmission();
+}
+
+app.copyResponse = function() {
+    var copyText = document.getElementById("generatedResponseArea");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value);
 }
