@@ -328,9 +328,9 @@ On one wall are [lockers]. It looks like they have been forced open, with their 
 |     ||                ||              ||    |
 |     |----------------------------------|    |
 |     |----------------------------------|    |
-|     ||                ||              ||    |
-|     ||    PERSONAL    ||    ITEMS     ||    |
-|     ||                ||              ||    |
+|     ||                ||    I         ||    |
+|     ||    PERSONAL    ||     TE       ||    |
+|     ||                ||       MS     ||    |
 |     |----------------------------------|    |
 +---------------------------------------------+
 `
@@ -1022,7 +1022,22 @@ You are in the air vent system. The floor it sparkling clean.
 	   	  		use: ({disk, println, getRoom, enterRoom}) => {
 	 				println("You touch the fan, it takes your hand off. You bleed out and die in the vents.");
 					enterRoom("gameOverHandGone");	
-	   			}
+	   			},
+				img:`
++---------------------------------------------+
+|                                             |
+|                 \\....../                    |
+|               ...\\..../...                  |
+|              .....\\../.....                 |
+|            ....... \\/........               |
+|             ......./\\.......                |
+|            ......./..\\.....                 |
+|              ..../....\\...                  |
+|               ../......\\..                  |
+|                /........\\                   |
+|                                             |
++---------------------------------------------+
+`,
 	   	    },
 			{ 
 				name: 'east-vent', 
@@ -1181,7 +1196,7 @@ oneTimeDesc: `You lower your self out of the vent, feeling grateful that it was 
 |             |  |            |  |            |
 |             |  |  WARNING ! |  |            |
 |             |  +------------+  |            |
-|			  ---------##---------	          |
+|             ---------##---------            |
 |     +----------------##----------------+    |
 |     |                                  |    |
 |     |  +----------[      ]-----------+ |    |
@@ -1338,7 +1353,7 @@ _______________________________________________
 			
             { 
   			  name: 'bed', 
-			  desc: 'Looks like a nice place to sleep, as nice as a mattress on the floor is nice.',
+			  desc: 'Looks like a nice place to sleep, as nice as a mattress on the floor is nice. Resting now might be dangerous though.',
 			  passiveDesc: 'There is [bed] on the floor.',
 			  optionalDesc: ' You notice a folded piece of [paper] under the mattress.',
 			  optionalDescKeyItem: 'paper',
