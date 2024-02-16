@@ -53,7 +53,6 @@ function buildAutoCompleteList(room,disk) {
 		newList.push("use");
 		newList.push("go");
 		
-		
 		if ( room.items ) {
 			for (var j = 0; j < room.items.length; j++) {	
 				var item = room.items[j];
@@ -62,6 +61,7 @@ function buildAutoCompleteList(room,disk) {
 					continue;
 				}
 			
+				newList.push("look " + item.name );
 				newList.push("look at " + item.name );
 				newList.push("take " + item.name );
 				newList.push("use " + item.name );
@@ -76,6 +76,7 @@ function buildAutoCompleteList(room,disk) {
 					continue;
 				}
 			
+				newList.push("look " + item.name );
 				newList.push("look at " + item.name );
 				newList.push("take " + item.name );
 				newList.push("use " + item.name );
@@ -92,6 +93,8 @@ function buildAutoCompleteList(room,disk) {
 		
 		
 		COMPLETE_LIST = newList;
+
+		console.log(COMPLETE_LIST);
 
 }
 

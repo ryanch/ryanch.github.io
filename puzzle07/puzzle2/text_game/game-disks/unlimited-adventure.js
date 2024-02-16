@@ -961,7 +961,7 @@ _______________________________________________
 			name: 'captain',
 			desc: 'The captain is restrained by a [rope]. The captain wants to be untied.',
 			passiveDesc: 'The [captain] is tied up.',
-			printUse: 'People don\'t like to be used.'
+			printUse: 'People don\'t like to be used. This one wants to be untied.'
 		},
 		{ 
 			name: 'rope', 
