@@ -964,9 +964,28 @@ _______________________________________________
 			printUse: 'People don\'t like to be used.'
 		},
 		{ 
-			name: 'rope',
-			desc: 'This rope is restraining the [captain].',
-			doorLocation: 'winRoom'
+			name: 'rope', 
+			desc: 'This rope is restraining the captain. You should use it to untie him.', 
+			isTakeable:false,
+			printUse:"This is good for tieing up things.",
+			use: ({disk, println, getRoom, enterRoom,secureDoorOpen}) => {
+				println("You untie the captain.");
+				enterRoom("winRoom");
+			},
+			img:`
++---------------------------------------------+
+|                                             |
+|          +-----------------------+          |
+|          |                       |          |
+|          |     oooo              |          |
+|          |    o    o             |          |
+|          |   o      o            |          |
+|          |           o           |          |
+|          |            oooo       |          |
+|          |                       |          |
+|          +-----------------------+          |
++---------------------------------------------+
+`,
 		},
 		{ name: 'viewscreen', desc: 'Looking at viewscreen you see space, and a silver-gray colored ship that you don\'t recognize.', passiveDesc: 'There is a view [viewscreen].' },
       ],
