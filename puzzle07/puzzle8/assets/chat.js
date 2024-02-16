@@ -80,7 +80,16 @@ function chatStartup() {
 }
 
 
+var globalMessageIdCount = 0;
+
 function appendMessage(name, img, side, text, imagesList, imgCss) {
+
+
+    var showWaitng = (side == "left");
+
+    globalMessageIdCount++;
+    var globalMessageId = "messageid" + globalMessageIdCount;
+    var imageWaitId = globalMessageId + "wait";
 
     var content = null;
 
@@ -99,11 +108,16 @@ function appendMessage(name, img, side, text, imagesList, imgCss) {
         content = s;
     }
 
+    var messageStyle = showWaitng ? ' style="display:none;" ' : "";
+    var waitingImage = showWaitng ? ' <img src="assets/waiting.gif" height="80" id="'+imageWaitId+'" > ' : "";
+
+
   const msgHTML = `
     <div class="msg ${side}-msg">
       <div class="msg-img" style="background-image: url(${img})"></div>
 
-      <div class="msg-bubble">
+      
+      <div class="msg-bubble" id="${globalMessageId}" ${messageStyle}  >
         <div class="msg-info">
           <div class="msg-info-name">${name}</div>
           <div class="msg-info-time">${formatDate(new Date())}</div>
@@ -111,22 +125,31 @@ function appendMessage(name, img, side, text, imagesList, imgCss) {
 
         <div class="msg-text">${content}</div>
       </div>
+      
+      ${waitingImage}
+      
+      
     </div>
   `;
 
   msgerChat.insertAdjacentHTML("beforeend", msgHTML);
   msgerChat.scrollTop += 500;
+
+  if (showWaitng) {
+    setTimeout( function() {
+        document.getElementById( imageWaitId ).style.display="none";
+        document.getElementById( globalMessageId ).style.display="block";
+        msgerChat.scrollTop += 500;
+    }, 1500 );
+  }
+
 }
 
 // default bot response to text messages
 function botResponse() {
-
-
-  var delay = 1000;
-
   setTimeout(() => {
-    appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/shrug.jpg", "assets/words/blank.png"],"alien-message-image" );
-  }, delay);
+    appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/shrug.jpg", "assets/words/blank.png" ],"alien-message-image" );
+  }, 5);
 
 }
 
@@ -171,7 +194,7 @@ arrivalGame.uploadRuneClicked = function(runeCode) {
 
     setTimeout(() => {
         appendMessage(BOT_NAME, BOT_IMG, "left", null, responseList ,"alien-image-response" );
-    }, 1000);
+    }, 5);
     
 
 
@@ -202,7 +225,7 @@ arrivalGame.uploadImageClicked = function(itemIndex) {
 
     setTimeout(() => {
         appendMessage(BOT_NAME, BOT_IMG, "left", null, responseList ,"alien-message-image" );
-    }, 1000);
+    }, 5);
 
 }
 
