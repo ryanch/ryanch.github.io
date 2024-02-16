@@ -9,6 +9,8 @@ const PERSON_IMG = "assets/earth.jpg";
 const BOT_NAME = "Alien";
 const PERSON_NAME = "Earthling";
 
+var LAST_EARTHLING_TEXT_MESSAGE = null;
+
 function chatStartup() {
 
     msgerForm = get(".msger-inputarea");
@@ -22,6 +24,8 @@ function chatStartup() {
       const msgText = msgerInput.value;
       if (!msgText) return;
     
+      LAST_EARTHLING_TEXT_MESSAGE = msgText;
+
       appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
       msgerInput.value = "";
     
@@ -140,16 +144,28 @@ function appendMessage(name, img, side, text, imagesList, imgCss) {
         document.getElementById( imageWaitId ).style.display="none";
         document.getElementById( globalMessageId ).style.display="block";
         msgerChat.scrollTop += 500;
-    }, 1500 );
+    }, 1100 );
   }
 
 }
 
-// default bot response to text messages
+// bot response to text messages
 function botResponse() {
-  setTimeout(() => {
-    appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/shrug.jpg", "assets/words/blank.png" ],"alien-message-image" );
-  }, 5);
+
+    console.log(LAST_EARTHLING_TEXT_MESSAGE);
+
+    
+   if ( app.checkAnswer( LAST_EARTHLING_TEXT_MESSAGE, 8 ) ) {
+        setTimeout(() => {
+            appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/happy.jpg" ],"alien-message-image" );
+        }, 5);
+        app.saveAnswer(8, LAST_EARTHLING_TEXT_MESSAGE);
+   }
+   else {
+    setTimeout(() => {
+        appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/shrug.jpg", "assets/words/runeBlue_slab_017.png", "assets/words/runeBlue_slab_001.png", "assets/words/runeBlue_slab_002.png", "assets/words/runeBlue_slab_004.png" ],"alien-message-image" );
+    }, 5);
+    }
 
 }
 
@@ -290,8 +306,6 @@ arrivalGame.buildRunePicker = function() {
     }
     codesSortedList.sort();
 
-    console.log( codesSortedList );
-
     for (var i = 0; i < codesSortedList.length; i++ ) { 
         var code = codesSortedList[i];
         var word = arrivalGame.wordsByCode[ code ];
@@ -326,7 +340,7 @@ arrivalGame.items = [
   },
   {
     img: "assets/items/pig.jpg",
-    words: ["001","003","003"],
+    words: ["001","003","003", "004"],
     text:"pig"
   },
 
@@ -343,7 +357,7 @@ arrivalGame.items = [
   },
   {
     img: "assets/items/fish.jpg",
-    words: ["007","001","003"],
+    words: ["007","001","003", "004"],
     text:"fish"
   },
   {
@@ -353,7 +367,7 @@ arrivalGame.items = [
   },
   {
     img: "assets/items/elephant.jpg",
-    words: ["002","001","018"],
+    words: ["002","001","018", "004"],
     text: "elephant"
   },
 
@@ -366,7 +380,7 @@ arrivalGame.items = [
   },
   {
     img: "assets/items/parrot.jpg",
-    words: ["007","020","001"],
+    words: ["007","020","001", "004"],
     text: "parrot"
   },
   {
@@ -388,12 +402,12 @@ arrivalGame.items = [
 
   {
     img: "assets/items/log.jpg",
-    words: ["006","011", "007"],
+    words: ["006","011", "007", "017"],
     text:"log"
   },      
   {
     img: "assets/items/horse.jpg",
-    words: ["001","025"],
+    words: ["001","025" ,"002", "004"],
     text: "horse"
   },    
   {
