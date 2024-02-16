@@ -20,6 +20,9 @@ function chatStartup() {
     
     msgerForm.addEventListener("submit", event => {
       event.preventDefault();
+
+      arrivalGame.cancelRunePicker();
+      arrivalGame.cancelImagePicker();
     
       const msgText = msgerInput.value;
       if (!msgText) return;
@@ -251,6 +254,7 @@ arrivalGame.cancelRunePicker = function() {
 }
 
 arrivalGame.showRunePicker = function() {
+    arrivalGame.cancelImagePicker();
     document.getElementById("rune-uploader").style.display = "block";
 }
 
@@ -260,6 +264,7 @@ arrivalGame.cancelImagePicker = function() {
 }
 
 arrivalGame.showImagePicker = function() {
+    arrivalGame.cancelRunePicker();
     document.getElementById("image-uploader").style.display = "block";
 }
 
