@@ -4,8 +4,26 @@
 
 .upload-image {
     padding: 5px;
+    cursor:pointer;
 }
 
+.upload-rune-image {
+    padding: 5px;
+    cursor:pointer;
+}
+
+.upload-chat-message {
+    width: 150px;
+}
+
+.user-rune-chat-message {
+
+}
+
+.alien-image-response {
+    padding: 5px;
+    width: 150px;
+}
 
 :root {
   --body-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);

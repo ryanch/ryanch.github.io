@@ -26,6 +26,7 @@
     <input type="text" class="msger-input" placeholder="Enter your message...">
     <button type="submit" class="msger-send-btn">Send</button>
     <button type="button" class="msger-send-btn" onclick="arrivalGame.showImagePicker()" >Upload</button>
+    <button type="button" class="msger-send-btn" onclick="arrivalGame.showRunePicker()" >Send Rune</button>
   </form>
 </section>
 
@@ -37,13 +38,24 @@
     <div class="msger-header-title">
       <i class="fas fa-comment-alt"></i> Select Image For Upload
     </div>
-
   </header>
   <div id="image-selector">
-    
   </div>
   <form class="msger-inputarea">
     <button type="button" class="msger-send-btn" onclick="arrivalGame.cancelImagePicker()" >Cancel</button>
+  </form>
+</div>
+
+<div id="rune-uploader" class="msger upload-window">
+  <header class="msger-header">
+    <div class="msger-header-title">
+      <i class="fas fa-comment-alt"></i> Select Rune To Send
+    </div>
+  </header>
+  <div id="rune-selector">
+  </div>
+  <form class="msger-inputarea">
+    <button type="button" class="msger-send-btn" onclick="arrivalGame.cancelRunePicker()" >Cancel</button>
   </form>
 </div>
 

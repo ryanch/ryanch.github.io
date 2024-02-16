@@ -28,14 +28,65 @@ function chatStartup() {
       botResponse();
     });
 
+    // sort all of the items so they show up in the same order    
+    for (var i = 0; i < arrivalGame.items.length; i++ ) {
+        var item = arrivalGame.items[i];
+        var words = item.words;
+        words.sort();
+        item.words = words;
+        arrivalGame.items[i] = item;
+    }
+
+    // build the words by code map
+    arrivalGame.wordsByCode = {};
+    for (var i = 0; i < arrivalGame.words.length; i++ ) {
+        arrivalGame.wordsByCode[ arrivalGame.words[i].code ] = arrivalGame.words[i];
+    }
+
+
+    // build the alien response to rune images
+    arrivalGame.alientImageResponseByRuneCode = {};
+
+    var dedupeItemsStoredList = {};
+
+    for (var i = 0; i < arrivalGame.items.length; i++ ) {
+        var item = arrivalGame.items[i];
+        var words = item.words;
+        var itemIndex = i;
+
+        for (var j = 0; j < words.length; j++ ) {
+            var runeCode = words[j];
+            var itemsStored = arrivalGame.alientImageResponseByRuneCode[ runeCode ];
+            if ( !itemsStored ) {
+                itemsStored = [];
+                arrivalGame.alientImageResponseByRuneCode[ runeCode ] = itemsStored;
+            }
+
+            if ( !dedupeItemsStoredList[ runeCode + "-" + itemIndex ] ) {
+                itemsStored[ itemsStored.length ] = itemIndex;
+                dedupeItemsStoredList[ runeCode + "-" + itemIndex ] = true;
+            }
+         }
+    }
+
+
+    // build the pickers
     arrivalGame.buildImagePicker();
+    arrivalGame.buildRunePicker();
+
+
+
 
 }
 
 
-function appendMessage(name, img, side, text, imagesList) {
+function appendMessage(name, img, side, text, imagesList, imgCss) {
 
     var content = null;
+
+    if (!imgCss) {
+        imgCss = "";
+    }
 
     if (text != null) {
         content = text;
@@ -43,7 +94,7 @@ function appendMessage(name, img, side, text, imagesList) {
     else {
         var s = "";
         for (var i = 0; i < imagesList.length; i++ ) {
-            s += '<img src="'+imagesList[i]+'" class="alien-message-image" >';
+            s += '<img src="'+imagesList[i]+'" class="'+imgCss+'" >';
         }
         content = s;
     }
@@ -67,14 +118,14 @@ function appendMessage(name, img, side, text, imagesList) {
   msgerChat.scrollTop += 500;
 }
 
-
+// default bot response to text messages
 function botResponse() {
 
 
   var delay = 1000;
 
   setTimeout(() => {
-    appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/shrug.jpg", "assets/words/blank.png"] );
+    appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/shrug.jpg", "assets/words/blank.png"],"alien-message-image" );
   }, delay);
 
 }
@@ -99,15 +150,69 @@ function formatDate(date) {
 
 var arrivalGame = {};
 
+
+arrivalGame.uploadRuneClicked = function(runeCode) {
+    document.getElementById("rune-uploader").style.display = "none";
+
+    var wordItem = arrivalGame.wordsByCode[ runeCode ];
+
+    var itemIndexsForResponse = arrivalGame.alientImageResponseByRuneCode[ runeCode ];
+
+    var responseList = [];
+    for ( var i = 0; i <  itemIndexsForResponse.length; i++ ) {
+        var selectedItem = arrivalGame.items[ itemIndexsForResponse[i] ];
+        responseList[ responseList.length ] = selectedItem.img;
+    }
+
+    // post the earthling message
+    setTimeout(() => {
+        appendMessage(PERSON_NAME, PERSON_IMG, "right", null, [ wordItem.img ], "user-rune-chat-message" );
+    }, 5);
+
+    setTimeout(() => {
+        appendMessage(BOT_NAME, BOT_IMG, "left", null, responseList ,"alien-image-response" );
+    }, 1000);
+    
+
+
+}
+
 arrivalGame.uploadImageClicked = function(itemIndex) {
 
-  ///var delay = 1000;
+    document.getElementById("image-uploader").style.display = "none";
 
-  setTimeout(() => {
-    appendMessage(PERSON_NAME, PERSON_IMG, "right", null, ["assets/alien/shrug.jpg", "assets/words/blank.png"] );
-  }, 5);
+    var selectedItem = arrivalGame.items[itemIndex];
+
+    var responseList = [];
+
+    for (var i = 0; i< selectedItem.words.length; i++ ) {
+
+        var wordCode = selectedItem.words[i];
+
+        var wordItem = arrivalGame.wordsByCode[ wordCode ];
+
+        responseList[i] = wordItem.img;
+    }
 
 
+    setTimeout(() => {
+        appendMessage(PERSON_NAME, PERSON_IMG, "right", null, [ selectedItem.img ], "upload-chat-message" );
+    }, 5);
+
+
+    setTimeout(() => {
+        appendMessage(BOT_NAME, BOT_IMG, "left", null, responseList ,"alien-message-image" );
+    }, 1000);
+
+}
+
+
+arrivalGame.cancelRunePicker = function() {
+    document.getElementById("rune-uploader").style.display = "none";
+}
+
+arrivalGame.showRunePicker = function() {
+    document.getElementById("rune-uploader").style.display = "block";
 }
 
 
@@ -134,6 +239,46 @@ arrivalGame.buildImagePicker = function() {
     picker.innerHTML = s;
 
 }
+
+
+arrivalGame.buildRunePicker = function() {
+    var picker = document.getElementById("rune-selector");
+
+    var s = "";
+
+    var codesInUse = {};
+    
+    // find all the rune codes in use
+    for (var i = 0; i < arrivalGame.items.length; i++ ) { 
+        var item = arrivalGame.items[i];
+        var codes = item.words;
+        for ( var j = 0; j < codes.length; j++ ) {
+            codesInUse[ codes[j] ] = codes[j];
+        }
+    }
+
+
+    // sort the codes so each player sees the same screen
+    var index = 0;
+    var codesSortedList = [];
+    for (var code in codesInUse) {
+        codesSortedList[index]=code;
+        index++;
+    }
+    codesSortedList.sort();
+
+    console.log( codesSortedList );
+
+    for (var i = 0; i < codesSortedList.length; i++ ) { 
+        var code = codesSortedList[i];
+        var word = arrivalGame.wordsByCode[ code ];
+        s += '<img src="'+word.img+'" class="upload-rune-image" onclick="arrivalGame.uploadRuneClicked(\''+code+'\')" >';
+    }
+
+    picker.innerHTML = s;
+
+}
+
 
 arrivalGame.items = [
   {
@@ -193,7 +338,7 @@ arrivalGame.items = [
 
   {
     img: "assets/items/spear.jpg",
-    words: ["009","013"],
+    words: ["009","013","017"],
     text:"spear"
   },
   {
@@ -220,7 +365,7 @@ arrivalGame.items = [
 
   {
     img: "assets/items/log.jpg",
-    words: ["006","011", "!001"],
+    words: ["006","011", "007"],
     text:"log"
   },      
   {
@@ -230,7 +375,7 @@ arrivalGame.items = [
   },    
   {
     img: "assets/items/shovel.jpg",
-    words: ["012","014","011"],
+    words: ["012","014"],
     text: "shovel"
   },  
   {
@@ -248,7 +393,7 @@ arrivalGame.items = [
 
   {
     img: "assets/items/chariot.jpg",
-    words: ["025","018","012"],
+    words: ["025","018","012","002"],
     text: "chariot"
   },     
   {
@@ -276,103 +421,106 @@ arrivalGame.items = [
 ];
 arrivalGame.words = [
   {
-    img: "words/runeBlue_slab_001.png",
+    img: "assets/words/runeBlue_slab_001.png",
     code: "001"
   },
   {
-    img: "words/runeBlue_slab_002.png",
+    img: "assets/words/runeBlue_slab_002.png",
     code: "002"
   },
   {
-    img: "words/runeBlue_slab_003.png",
+    img: "assets/words/runeBlue_slab_003.png",
     code: "003"
   },
   {
-    img: "words/runeBlue_slab_004.png",
+    img: "assets/words/runeBlue_slab_004.png",
     code: "004"
   },
   {
-    img: "words/runeBlue_slab_005.png",
+    img: "assets/words/runeBlue_slab_005.png",
     code: "005"
   },
   {
-    img: "words/runeBlue_slab_006.png",
+    img: "assets/words/runeBlue_slab_006.png",
     code: "006"
   },
   {
-    img: "words/runeBlue_slab_007.png",
+    img: "assets/words/runeBlue_slab_007.png",
     code: "007"
   },
   {
-    img: "words/runeBlue_slab_008.png",
+    img: "assets/words/runeBlue_slab_008.png",
     code: "008"
   },
   {
-    img: "words/runeBlue_slab_009.png",
+    img: "assets/words/runeBlue_slab_009.png",
     code: "009"
   },
   {
-    img: "words/runeBlue_slab_010.png",
+    img: "assets/words/runeBlue_slab_010.png",
     code: "010"
   },
   {
-    img: "words/runeBlue_slab_011.png",
+    img: "assets/words/runeBlue_slab_011.png",
     code: "011"
   },
   {
-    img: "words/runeBlue_slab_012.png",
+    img: "assets/words/runeBlue_slab_012.png",
     code: "012"
   },
   {
-    img: "words/runeBlue_slab_013.png",
+    img: "assets/words/runeBlue_slab_013.png",
     code: "013"
   },
   {
-    img: "words/runeBlue_slab_014.png",
+    img: "assets/words/runeBlue_slab_014.png",
     code: "014"
   },
   {
-    img: "words/runeBlue_slab_015.png",
+    img: "assets/words/runeBlue_slab_015.png",
     code: "015"
   },
   {
-    img: "words/runeBlue_slab_016.png",
+    img: "assets/words/runeBlue_slab_016.png",
     code: "016"
   },
   {
-    img: "words/runeBlue_slab_017.png",
+    img: "assets/words/runeBlue_slab_017.png",
     code: "017"
   },
   {
-    img: "words/runeBlue_slab_018.png",
+    img: "assets/words/runeBlue_slab_018.png",
     code: "018"
   },
   {
-    img: "words/runeBlue_slab_019.png",
+    img: "assets/words/runeBlue_slab_019.png",
     code: "019"
   },
   {
-    img: "words/runeBlue_slab_020.png",
+    img: "assets/words/runeBlue_slab_020.png",
     code: "020"
   },
   {
-    img: "words/runeBlue_slab_021.png",
+    img: "assets/words/runeBlue_slab_021.png",
     code: "021"
   },
   {
-    img: "words/runeBlue_slab_022.png",
+    img: "assets/words/runeBlue_slab_022.png",
     code: "022"
   },
   {
-    img: "words/runeBlue_slab_023.png",
+    img: "assets/words/runeBlue_slab_023.png",
     code: "023"
   },
   {
-    img: "words/runeBlue_slab_024.png",
+    img: "assets/words/runeBlue_slab_024.png",
     code: "024"
   },
   {
-    img: "words/runeBlue_slab_025.png",
+    img: "assets/words/runeBlue_slab_025.png",
     code: "025"
   }
 ];
+
+arrivalGame.wordsByCode = {};
+arrivalGame.alientImageResponseByRuneCode = {};
