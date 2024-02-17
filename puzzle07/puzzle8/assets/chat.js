@@ -322,6 +322,7 @@ arrivalGame.buildRunePicker = function() {
 }
 
 
+
 arrivalGame.items = [
   {
     img: "assets/items/key.jpg",
@@ -345,7 +346,7 @@ arrivalGame.items = [
   },
   {
     img: "assets/items/pig.jpg",
-    words: ["001","003","003", "004"],
+    words: ["001","003", "004"],
     text:"pig"
   },
 
@@ -412,7 +413,7 @@ arrivalGame.items = [
   },      
   {
     img: "assets/items/horse.jpg",
-    words: ["001","025" ,"002", "004"],
+    words: ["001","025", "004"],
     text: "horse"
   },    
   {
@@ -435,7 +436,7 @@ arrivalGame.items = [
 
   {
     img: "assets/items/chariot.jpg",
-    words: ["025","018","012","002"],
+    words: ["025","012","002"],
     text: "chariot"
   },     
   {
@@ -461,6 +462,7 @@ arrivalGame.items = [
 
 
 ];
+
 arrivalGame.words = [
   {
     img: "assets/words/runeBlue_slab_001.png",
