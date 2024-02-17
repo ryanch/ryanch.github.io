@@ -54,7 +54,7 @@ function chatStartup() {
 
 
     // build the alien response to rune images
-    arrivalGame.alientImageResponseByRuneCode = {};
+    arrivalGame.alienImageResponseByRuneCode = {};
 
     var dedupeItemsStoredList = {};
 
@@ -65,10 +65,10 @@ function chatStartup() {
 
         for (var j = 0; j < words.length; j++ ) {
             var runeCode = words[j];
-            var itemsStored = arrivalGame.alientImageResponseByRuneCode[ runeCode ];
+            var itemsStored = arrivalGame.alienImageResponseByRuneCode[ runeCode ];
             if ( !itemsStored ) {
                 itemsStored = [];
-                arrivalGame.alientImageResponseByRuneCode[ runeCode ] = itemsStored;
+                arrivalGame.alienImageResponseByRuneCode[ runeCode ] = itemsStored;
             }
 
             if ( !dedupeItemsStoredList[ runeCode + "-" + itemIndex ] ) {
@@ -206,7 +206,7 @@ arrivalGame.uploadRuneClicked = function(runeCode) {
 
     var wordItem = arrivalGame.wordsByCode[ runeCode ];
 
-    var itemIndexsForResponse = arrivalGame.alientImageResponseByRuneCode[ runeCode ];
+    var itemIndexsForResponse = arrivalGame.alienImageResponseByRuneCode[ runeCode ];
 
     var responseList = [];
     for ( var i = 0; i <  itemIndexsForResponse.length; i++ ) {
@@ -576,4 +576,4 @@ arrivalGame.words = [
 
 arrivalGame.wordsByCode = {};
 arrivalGame.wordsReverseLookup = {};
-arrivalGame.alientImageResponseByRuneCode = {};
+arrivalGame.alienImageResponseByRuneCode = {};
