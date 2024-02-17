@@ -258,7 +258,7 @@ app.buildSubmission = function() {
     
     s+= "Team members: " + document.getElementById("teamMembers").value + "\n\n";
 
-    s += "PUZZLE ANSWERS\n\n";
+    s += "PUZZLE ANSWERS\n";
     for (var i = 0; i< 8; i++) {
         var puzzleNum = i+1;
         var answerKey = "ans-" + puzzleNum;
