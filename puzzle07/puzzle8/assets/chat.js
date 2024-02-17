@@ -364,7 +364,7 @@ arrivalGame.items = [
   },
   {
     img: "assets/items/tooth.jpg",
-    words: ["007","010","009"],
+    words: ["007","010"],
     text: "tooth"
   },
   {
@@ -464,7 +464,7 @@ arrivalGame.items = [
   },     
   {
     img: "assets/items/butterfly.jpg",
-    words: ["007","001","015"],
+    words: ["007","001","015","004"],
     text: "butterfly"
   },   
   {
@@ -482,6 +482,18 @@ arrivalGame.items = [
     words: ["007","021","014","006"],
     text: "coins"
   },   
+
+  {
+    img: "assets/items/ostrich.jpg",
+    words: ["001","004","017","025"],
+    text: "ostrich"
+  },   
+
+  {
+    img: "assets/items/snake.jpg",
+    words: ["001","004","007","017","009"],
+    text: "ostrich"
+  },  
 
 
 ];
