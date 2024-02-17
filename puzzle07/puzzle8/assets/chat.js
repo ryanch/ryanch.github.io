@@ -409,7 +409,7 @@ arrivalGame.items = [
   },
   {
     img: "assets/items/parrot.jpg",
-    words: ["007","020","001", "004"],
+    words: ["007","020","001", "004", "015"],
     text: "parrot"
   },
   {
@@ -469,7 +469,7 @@ arrivalGame.items = [
   },   
   {
     img: "assets/items/gem.jpg",
-    words: ["007","019","021"],
+    words: ["007","019","021","015"],
     text: "gem"
   }, 
   {
