@@ -128,6 +128,11 @@ function appendMessage(name, img, side, text, imagesList, imgCss) {
             imgExtra = imgExtra + ' title="'+title+'" ';
            }
 
+           var imageIndex = arrivalGame.indexOfItemByImage[ imagesList[i] ];
+           if ( imageIndex || imageIndex == 0 ) {
+            imgExtra = imgExtra + ' style="cursor:hand;" onclick="arrivalGame.uploadImageClicked('+imageIndex+')" ';
+           }
+
 
             s += '<img src="'+imagesList[i]+'" class="'+imgCss+'" '+imgExtra+' >';
         }
