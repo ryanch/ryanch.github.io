@@ -42,7 +42,11 @@ function chatStartup() {
         words.sort();
         item.words = words;
         arrivalGame.items[i] = item;
+
+        arrivalGame.imageByToolTip[ item.img ] = item.text;
+        arrivalGame.indexOfItemByImage[ item.img ] = i;
     }
+
 
     // build the words by code map
     arrivalGame.wordsByCode = {};
@@ -118,6 +122,12 @@ function appendMessage(name, img, side, text, imagesList, imgCss) {
            if ( wordCode ) {
             imgExtra=' style="cursor:hand;" onclick="arrivalGame.uploadRuneClicked(\''+wordCode+'\')" ';
            }
+
+           var title = arrivalGame.imageByToolTip[ imagesList[i] ];
+           if ( title ) {
+            imgExtra = imgExtra + ' title="'+title+'" ';
+           }
+
 
             s += '<img src="'+imagesList[i]+'" class="'+imgCss+'" '+imgExtra+' >';
         }
@@ -285,7 +295,7 @@ arrivalGame.buildImagePicker = function() {
 
         var item = arrivalGame.items[i];
 
-        s += '<img src="'+item.img+'" class="upload-image" width="150" onclick="arrivalGame.uploadImageClicked('+i+')" >';
+        s += '<img src="'+item.img+'" class="upload-image" width="150" onclick="arrivalGame.uploadImageClicked('+i+')" title="'+item.text+'" >';
     }
 
     picker.innerHTML = s;
@@ -577,3 +587,5 @@ arrivalGame.words = [
 arrivalGame.wordsByCode = {};
 arrivalGame.wordsReverseLookup = {};
 arrivalGame.alienImageResponseByRuneCode = {};
+arrivalGame.imageByToolTip = {};
+arrivalGame.indexOfItemByImage = {};
