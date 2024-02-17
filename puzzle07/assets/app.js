@@ -263,7 +263,8 @@ app.buildSubmission = function() {
         var puzzleNum = i+1;
         var answerKey = "ans-" + puzzleNum;
         var storedAnswer = app.getStoredValue(answerKey,"");
-        s += "Puzzle " + puzzleNum + ": " + storedAnswer;
+        var correct = app.checkAnswer( storedAnswer, puzzleNum ) ? " (correct)" : " (WRONG)";
+        s += "Puzzle " + puzzleNum + ": " + storedAnswer + correct;
         s += "\n";
     }
     return s;
