@@ -9,8 +9,8 @@ app.navItems = [
     {name:"Solve",  "url":"./puzzle5/index.html" },
     {name:"View",  "url":"./puzzle6/index.html" },
     {name:"Listen",  "url":"./puzzle7/index.html" },
-    {name:"Observe",  "url":"./puzzle8/index.html" },
-    {name:"Combine",  "url":"./puzzle9/index.html" },
+    {name:"Observe",  "url":"./puzzle8/index.html" }
+    //{name:"Combine",  "url":"./puzzle9/index.html" },
 ];
 
 
