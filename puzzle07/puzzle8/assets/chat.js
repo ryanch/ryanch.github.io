@@ -46,8 +46,10 @@ function chatStartup() {
 
     // build the words by code map
     arrivalGame.wordsByCode = {};
+    arrivalGame.wordsReverseLookup = {};
     for (var i = 0; i < arrivalGame.words.length; i++ ) {
         arrivalGame.wordsByCode[ arrivalGame.words[i].code ] = arrivalGame.words[i];
+        arrivalGame.wordsReverseLookup[ arrivalGame.words[i].img ] = arrivalGame.words[i].code;
     }
 
 
@@ -110,13 +112,22 @@ function appendMessage(name, img, side, text, imagesList, imgCss) {
     else {
         var s = "";
         for (var i = 0; i < imagesList.length; i++ ) {
-            s += '<img src="'+imagesList[i]+'" class="'+imgCss+'" >';
+
+           var wordCode = arrivalGame.wordsReverseLookup[ imagesList[i] ];
+           var imgExtra = "";
+           if ( wordCode ) {
+            imgExtra=' style="cursor:hand;" onclick="arrivalGame.uploadRuneClicked(\''+wordCode+'\')" ';
+           }
+
+            s += '<img src="'+imagesList[i]+'" class="'+imgCss+'" '+imgExtra+' >';
         }
         content = s;
     }
 
     var messageStyle = showWaitng ? ' style="display:none;" ' : "";
     var waitingImage = showWaitng ? ' <img src="assets/waiting.gif" height="80" id="'+imageWaitId+'" > ' : "";
+
+    
 
 
   const msgHTML = `
@@ -155,9 +166,6 @@ function appendMessage(name, img, side, text, imagesList, imgCss) {
 // bot response to text messages
 function botResponse() {
 
-    console.log(LAST_EARTHLING_TEXT_MESSAGE);
-
-    
    if ( app.checkAnswer( LAST_EARTHLING_TEXT_MESSAGE, 8 ) ) {
         setTimeout(() => {
             appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/happy.jpg" ],"alien-message-image" );
@@ -413,7 +421,7 @@ arrivalGame.items = [
   },      
   {
     img: "assets/items/horse.jpg",
-    words: ["001","025", "004"],
+    words: ["001","025", "004", "002"],
     text: "horse"
   },    
   {
@@ -567,4 +575,5 @@ arrivalGame.words = [
 ];
 
 arrivalGame.wordsByCode = {};
+arrivalGame.wordsReverseLookup = {};
 arrivalGame.alientImageResponseByRuneCode = {};

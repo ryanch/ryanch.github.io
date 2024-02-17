@@ -44,7 +44,8 @@ app.checkAnswer = function(answer, puzzleNumber) {
         "6483f99877a46161a0dfcc4ab6c4479b-7": true,
         "bcef32f6887a0f77318d70a86d7e2a09-4": true,
         "f0f35ce6b460101d386f13741da64ae0-3": true,
-        "fc98a865c2415fd5b6edb3780af6312c-8": true
+        "fc98a865c2415fd5b6edb3780af6312c-8": true,
+        "073e6c090297c0f474e7a31ff70c470f-8": true
     };
     return puzzleHashLookup[hash + "-" + puzzleNumber]===true;
 }
