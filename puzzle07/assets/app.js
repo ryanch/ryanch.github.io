@@ -41,7 +41,7 @@ app.checkAnswer = function(answer, puzzleNumber) {
         "30098931afc7460c67db616b477179b8-1": true,
         "deafca35b068ab4cdd12f5a59652bc18-6": true,
         "d78bace1594084f29a9dbd3469fed2cb-5": true,
-        "6483f99877a46161a0dfcc4ab6c4479b-7": true,
+        "ec8c1b73dedc0e4caceddfffec40329d-7": true,
         "bcef32f6887a0f77318d70a86d7e2a09-4": true,
         "f0f35ce6b460101d386f13741da64ae0-3": true,
         "073e6c090297c0f474e7a31ff70c470f-8": true

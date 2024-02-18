@@ -43,7 +43,7 @@
           <h1 class="display-4 font-italic">Puzzle 7</h1>
           <p class="lead my-3">TODO</p>
           <script>
-            app.printPuzzleAnswerInputBlock(1);
+            app.printPuzzleAnswerInputBlock(7);
           </script>
         </div>
       </div>
@@ -52,7 +52,9 @@
         <div class="card flex-md-row mb-4 box-shadow xxh-md-250">
           <div class="card-body d-flex flex-column align-items-start">
 
-            <img src="tv/shows/off.png" style="z-index:1; position:absolute; left:150px; top:230px;" id="tv_screen" width="512" height="512"  />
+            <img src="tv/shows/off.png" style="z-index:1; position:absolute; left:150px; top:220px;" id="tv_screen" width="475" height="475"  />
+
+            <span id="channelDisplay" style="z-index:90; position:absolute; left:207px; top:555px; color:white; font-weight: bold; font-size: 40px" >5</span>
 
             <img src="tv/tv_overlay.png" style="z-index:100;" />
 
@@ -132,6 +134,28 @@
               channelImages[ 4 ] = {
                  img: "tv/shows/tower-rock.png"
               };
+              channelImages[ 5 ] = {
+                 img: "tv/shows/food-sub.jpg"
+              };
+              channelImages[ 7 ] = {
+                 img: "tv/shows/apt-swap.jpg"
+              };
+              channelImages[ 8 ] = {
+                 img: "tv/shows/only-us.jpg"
+              };
+              channelImages[ 9 ] = {
+                 img: "tv/shows/long-christmas.jpg"
+              };
+              channelImages[ 11 ] = {
+                 img: "tv/shows/love-find.jpg"
+              };
+              channelImages[ 12 ] = {
+                 img: "tv/shows/fact-actor.jpg"
+              };
+
+
+
+
               channelImages[ 21 ] = {
                  img: "tv/shows/movie-maker.jpg"
               };
@@ -141,17 +165,38 @@
               channelImages[ 23 ] = {
                  img: "tv/shows/education-jungle.jpg"
               };
-
+              channelImages[ 24 ] = {
+                 img: "tv/shows/teacher-june.jpg"
+              };
+              channelImages[ 26 ] = {
+                 img: "tv/shows/homes-repair.jpg"
+              };
+              channelImages[ 27 ] = {
+                 img: "tv/shows/england-soccer.jpg"
+              };
+              channelImages[ 28 ] = {
+                 img: "tv/shows/comedy-stand.jpg"
+              };
+              channelImages[ 30 ] = {
+                 img: "tv/shows/common-roots.jpg"
+              };
+              channelImages[ 31 ] = {
+                 img: "tv/shows/in-crowd.jpg"
+              };
 
               function syncTvImg() {
 
                 var tvScreen = document.getElementById( "tv_screen" );
+                var channelDisplay = document.getElementById("channelDisplay");
 
                 // if button A is up the TV is OFF.
                 if ( buttonAIsUp ) {
                   tvScreen.src = "tv/shows/off.png";
+                  channelDisplay.style.display = "none";
                   return;
                 }
+
+                
 
                 var channelIndex = 0;
 
@@ -159,8 +204,10 @@
                   channelIndex = knobAChannel;
                 }
                 else {
-                  channelIndex = knobBChannel + 20;
+                  channelIndex = knobBChannel + 19;
                 }
+
+                channelIndex = channelIndex + 1;
 
                 var newImage = channelImages[ channelIndex ];
                 if ( newImage ) {
@@ -170,7 +217,8 @@
                   tvScreen.src = "tv/shows/static.gif";
                 }
 
-               
+                channelDisplay.innerHTML = channelIndex;
+                channelDisplay.style.display = "block";
 
 
               }
