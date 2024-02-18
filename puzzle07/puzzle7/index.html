@@ -55,6 +55,7 @@
             <img src="tv/shows/off.png" style="z-index:1; position:absolute; left:150px; top:220px;" id="tv_screen" width="475" height="475"  />
 
             <span id="channelDisplay" style="z-index:90; position:absolute; left:207px; top:555px; color:white; font-weight: bold; font-size: 40px;" >5</span>
+            <span id="channelDisplayRight" style="z-index:90; position:absolute; left:537px; top:555px; color:white; font-weight: bold; font-size: 40px;" >5</span>
 
             <img src="tv/tv_overlay.png" style="z-index:100;" />
 
@@ -188,11 +189,14 @@
 
                 var tvScreen = document.getElementById( "tv_screen" );
                 var channelDisplay = document.getElementById("channelDisplay");
+                var channelDisplayRight = document.getElementById("channelDisplayRight");
+                
 
                 // if button A is up the TV is OFF.
                 if ( buttonAIsUp ) {
                   tvScreen.src = "tv/shows/off.png";
                   channelDisplay.style.display = "none";
+                  channelDisplayRight.style.display = "none";
                   return;
                 }
 
@@ -218,7 +222,18 @@
                 }
 
                 channelDisplay.innerHTML = channelIndex;
-                channelDisplay.style.display = "block";
+                channelDisplayRight.innerHTML = channelIndex;
+
+                if (buttonBIsUp) {
+                  channelDisplay.style.display = "block";
+                  channelDisplayRight.style.display = "none";
+                }
+                else {
+                  channelDisplay.style.display = "none";
+                  channelDisplayRight.style.display = "block";
+                }
+
+
 
 
               }
