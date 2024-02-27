@@ -492,7 +492,7 @@ arrivalGame.items = [
   {
     img: "assets/items/snake.jpg",
     words: ["001","004","007","017","009"],
-    text: "ostrich"
+    text: "snake"
   },  
 
 
