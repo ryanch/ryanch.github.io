@@ -41,7 +41,7 @@
       <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark">
         <div class="col-md-6 px-0">
           <h1 class="display-4 font-italic">Puzzle 7</h1>
-          <p class="lead my-3">Checkout where these UHF and VHF titles meet!</p>
+          <p class="lead my-3">Checkout where these VHF and UHF titles meet!</p>
           <script>
             app.printPuzzleAnswerInputBlock(7);
           </script>
@@ -55,7 +55,8 @@
             <img src="tv/shows/off.png" style="z-index:1; position:absolute; left:150px; top:220px;" id="tv_screen" width="475" height="475"  />
 
             <span id="channelDisplay" style="z-index:90; position:absolute; left:207px; top:555px; color:white; font-weight: bold; font-size: 40px;" >5</span>
-            <span id="channelDisplayRight" style="z-index:90; position:absolute; left:537px; top:555px; color:white; font-weight: bold; font-size: 40px;" >5</span>
+            <span id="channelDisplayBand" style="z-index:90; position:absolute; left:207px; top:545px; color:white; font-weight: bold; font-size: 20px;" >5</span>
+            
 
             <img src="tv/tv_overlay.png" style="z-index:100;" />
 
@@ -157,31 +158,31 @@
 
 
 
-              channelImages[ 21 ] = {
+              channelImages[ 15 ] = {
                  img: "tv/shows/movie-maker.jpg"
               };
-              channelImages[ 22 ] = {
+              channelImages[ 16 ] = {
                  img: "tv/shows/band-camp.jpg"
               };
-              channelImages[ 23 ] = {
+              channelImages[ 17 ] = {
                  img: "tv/shows/education-jungle.jpg"
               };
-              channelImages[ 24 ] = {
+              channelImages[ 18 ] = {
                  img: "tv/shows/teacher-june.jpg"
               };
-              channelImages[ 26 ] = {
+              channelImages[ 20 ] = {
                  img: "tv/shows/homes-repair.jpg"
               };
-              channelImages[ 27 ] = {
+              channelImages[ 21 ] = {
                  img: "tv/shows/england-soccer.jpg"
               };
-              channelImages[ 28 ] = {
+              channelImages[ 22 ] = {
                  img: "tv/shows/comedy-stand.jpg"
               };
-              channelImages[ 30 ] = {
+              channelImages[ 24 ] = {
                  img: "tv/shows/common-roots.jpg"
               };
-              channelImages[ 31 ] = {
+              channelImages[ 25 ] = {
                  img: "tv/shows/in-crowd.jpg"
               };
 
@@ -189,14 +190,13 @@
 
                 var tvScreen = document.getElementById( "tv_screen" );
                 var channelDisplay = document.getElementById("channelDisplay");
-                var channelDisplayRight = document.getElementById("channelDisplayRight");
                 
 
                 // if button A is up the TV is OFF.
                 if ( buttonAIsUp ) {
                   tvScreen.src = "tv/shows/off.png";
                   channelDisplay.style.display = "none";
-                  channelDisplayRight.style.display = "none";
+                  channelDisplayBand.style.display = "none";
                   return;
                 }
 
@@ -208,7 +208,7 @@
                   channelIndex = knobAChannel;
                 }
                 else {
-                  channelIndex = knobBChannel + 19;
+                  channelIndex = knobBChannel + 13;
                 }
 
                 channelIndex = channelIndex + 1;
@@ -222,16 +222,16 @@
                 }
 
                 channelDisplay.innerHTML = channelIndex;
-                channelDisplayRight.innerHTML = channelIndex;
+                channelDisplay.style.display = "block";
 
+                
                 if (buttonBIsUp) {
-                  channelDisplay.style.display = "block";
-                  channelDisplayRight.style.display = "none";
+                  channelDisplayBand.innerHTML="VHF";
                 }
                 else {
-                  channelDisplay.style.display = "none";
-                  channelDisplayRight.style.display = "block";
+                  channelDisplayBand.innerHTML="UHF";
                 }
+                channelDisplayBand.style.display = "block";
 
 
 
