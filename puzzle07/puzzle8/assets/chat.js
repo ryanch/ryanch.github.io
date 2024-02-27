@@ -495,6 +495,12 @@ arrivalGame.items = [
     text: "snake"
   },  
 
+  {
+    img: "assets/items/pyramid.png",
+    words: ["002","018","024"],
+    text: "pyramid"
+  },  
+
 
 ];
 
