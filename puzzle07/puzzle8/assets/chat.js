@@ -189,7 +189,7 @@ function botResponse() {
    }
    else {
     setTimeout(() => {
-        appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/shrug.jpg", "assets/words/runeBlue_slab_017.png", "assets/words/runeBlue_slab_001.png", "assets/words/runeBlue_slab_002.png", "assets/words/runeBlue_slab_004.png" ],"alien-message-image" );
+        appendMessage(BOT_NAME, BOT_IMG, "left", null, ["assets/alien/shrug.jpg", "assets/words/runeBlue_slab_017.png", "assets/words/runeBlue_slab_001.png", "assets/words/runeBlue_slab_002.png", "assets/words/runeBlue_slab_004.png", "assets/words/runeBlue_slab_016.png" ],"alien-message-image" );
     }, 5);
     }
 
@@ -369,7 +369,7 @@ arrivalGame.items = [
   },
   {
     img: "assets/items/pig.jpg",
-    words: ["001","003", "004"],
+    words: ["001","003", "004", "016"],
     text:"pig"
   },
 
@@ -379,11 +379,13 @@ arrivalGame.items = [
     words: ["019","022"],
     text: "fire"
   },
+  /*
   {
     img: "assets/items/shirt.jpg",
     words: ["010","016"],
     text:"shirt"
   },
+  */
   {
     img: "assets/items/fish.jpg",
     words: ["007","001","003", "004"],
@@ -396,7 +398,7 @@ arrivalGame.items = [
   },
   {
     img: "assets/items/elephant.jpg",
-    words: ["002","001","018", "004"],
+    words: ["002","001","018", "004", "016"],
     text: "elephant"
   },
 
@@ -436,7 +438,7 @@ arrivalGame.items = [
   },      
   {
     img: "assets/items/horse.jpg",
-    words: ["001","025", "004", "002"],
+    words: ["001","025", "004", "002", "016"],
     text: "horse"
   },    
   {
