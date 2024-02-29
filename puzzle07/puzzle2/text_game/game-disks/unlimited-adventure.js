@@ -406,7 +406,7 @@ On one wall are [lockers]. It looks like they have been forced open, with their 
 	
 /// Engineering Corridor
     {
-      name: 'Enginering Corridor',
+      name: 'Engineering Corridor',
       id: 'engineeringCorridor',
       img: `
 _______________________________________________
@@ -783,7 +783,7 @@ _______________________________________________
 `,
 			},
 			{ 
-				name: 'engine', desc: 'This thing makes the ship move, like really fast. Nothing scares spacers more than a malfunctionig engine. This one looks to be working great though. You notice a [self-destruct] console.', 
+				name: 'engine', desc: 'This thing makes the ship move, like really fast. Nothing scares spacers more than a malfunctioning engine. This one looks to be working great though. You notice a [self-destruct] console.', 
 				passiveDesc: 'There is an [engine] that hums and pulses.', 
 				img:`
 +---------------------------------------------+
