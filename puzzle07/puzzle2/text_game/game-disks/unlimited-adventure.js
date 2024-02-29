@@ -134,7 +134,7 @@ _______________________________________________
 --------------------------||____||---|________|
       `,
 	  oneTimeDesc: `You find your self in a cleaning closet, scared out of your mind. The shipwide intruder alarm is sounding.`,
-      desc: `Drab lights line the top of the room. This closet smells like it was recently used as a toliet.`,
+      desc: `Drab lights line the top of the room. This closet smells like it was recently used as a toilet.`,
       items: [
 		{ 
 			name: 'door', 
@@ -1013,7 +1013,7 @@ X/..\\X                                       ##
 +------------------+         +----------------+
       `,
       desc: `
-You are in the air vent system. The floor it sparkling clean.
+You are in the air vent system. The floor is sparkling clean.
       `,
 		
 		
@@ -1390,7 +1390,7 @@ _______________________________________________
 _|---||____||------|___________|-------||____||
       `,
 		
-	  oneTimeDesc: `As you enter you notice the presure [bulkhead] is sealing this part of the ship off from the rest, which is better than being dead.`,
+	  oneTimeDesc: `As you enter you notice the pressure [bulkhead] is sealing this part of the ship off from the rest, which is better than being dead.`,
       desc: `This is the corridor which leads to the airlock, galley and engineer\'s office. You see bits of trash, and [blood] tracks leading towards the airlock. To the west, access is blocked by a presure [bulkhead].`,
        items: [
 		{ name: 'galley-door', desc: 'It is a door.', passiveDesc: 'There is a [galley-door] that leads to the galley.', doorLocation: 'kitchen' },
@@ -1621,7 +1621,7 @@ _______________________________________________
 --|____________|-------------------------------
         `,
         desc: `
-The captain thanks you for your assitance. The captain asks you to retrieve your mop and start cleaning up the ship. The captain rises from the command chair and moves to start planning a rescue for the remaining crew members.
+The captain thanks you for your assistance. The captain asks you to retrieve your mop and start cleaning up the ship. The captain rises from the command chair and moves to start planning a rescue for the remaining crew members.
 Your game has ended. Reload browser to restart.
 		  `
       },		
