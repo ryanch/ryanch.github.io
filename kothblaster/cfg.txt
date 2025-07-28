@@ -1,0 +1,4 @@
+https://github.com/ryanch/ryanch.github.io/kothblaster/latestBuild.bin
+2
+a2fbf5835de079474e820ceda2ca9986
+1.0.1
