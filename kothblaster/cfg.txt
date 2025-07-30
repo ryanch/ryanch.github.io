@@ -1,4 +1,4 @@
 https://ryanch.github.io/kothblaster/firmware.bin
 8
-<built-in method capitalize of str object at 0x0000026E2DEB3990>
+78A0A5E3C6425607EBC025847F3FE95C
 1.0.8
