@@ -1,4 +1,4 @@
 https://ryanch.github.io/kothblaster/firmware.bin
-25
-7484f329be4a6bc959463a1b83a682e3
-1.0.25
+26
+f7c5b055fc207fdab4f7c61524f00b9a
+1.0.26
