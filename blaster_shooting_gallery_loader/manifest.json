@@ -20,40 +20,6 @@
           "offset": 65536
         }
       ]
-    },
-    {
-      "chipFamily": "ESP32-S2",
-      "parts": [
-        {
-          "path": "firmware/bootloader_s2.bin",
-          "offset": 4096
-        },
-        {
-          "path": "firmware/partitions_s2.bin",
-          "offset": 32768
-        },
-        {
-          "path": "firmware/firmware_s2.bin",
-          "offset": 65536
-        }
-      ]
-    },
-    {
-      "chipFamily": "ESP32-C3",
-      "parts": [
-        {
-          "path": "firmware/bootloader_c3.bin",
-          "offset": 0
-        },
-        {
-          "path": "firmware/partitions_c3.bin",
-          "offset": 32768
-        },
-        {
-          "path": "firmware/firmware_c3.bin",
-          "offset": 65536
-        }
-      ]
     }
   ]
 }
