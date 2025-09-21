@@ -1,0 +1,10 @@
+{
+  "name": "esp32-web-flasher",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A web-based ESP32 firmware flasher using ESP Web Tools",
+  "scripts": {
+    "dev": "python -m http.server 8080",
+    "serve": "python -m http.server 8080"
+  }
+}

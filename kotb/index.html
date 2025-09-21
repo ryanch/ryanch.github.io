@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="esp32-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>King of the Blaster Firmware Flasher</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>King of the Blaster<br>Firmware Flasher</h1>
+        <p>Flash your ESP32 device with custom firmware directly from your browser</p>
+      </header>
+      
+      <main>
+        <div class="flasher-container">
+          <div class="info-section">
+            <h2>Instructions</h2>
+            <ol>
+              <li>Connect your ESP32 device to your computer via USB</li>
+              <li>Click the "Connect & Install" button</li>
+              <li>Select your ESP32 device from the list</li>
+              <li>Wait for the firmware to be flashed</li>
+            </ol>
+          </div>
+          
+          <div class="flash-section">
+            <h2>Flash Firmware</h2>
+            <esp-web-install-button
+              manifest="./manifest.json"
+              hide-progress
+            >
+              <button slot="activate" class="flash-button">
+                Connect & Install Firmware
+              </button>
+              <span slot="unsupported">
+                Your browser doesn't support Web Serial. Please use Chrome, Edge, or Opera.
+              </span>
+              <span slot="not-allowed">
+                You need to enable Web Serial in your browser settings.
+              </span>
+            </esp-web-install-button>
+          </div>
+          
+          <div class="status-section">
+            <h2>Device Status</h2>
+            <div id="status">Ready to connect...</div>
+          </div>
+        </div>
+      </main>
+      
+      <footer>
+        <p>Powered by <a href="https://esphome.github.io/esp-web-tools/" target="_blank">ESP Web Tools</a></p>
+      </footer>
+    </div>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
