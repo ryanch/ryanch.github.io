@@ -50,17 +50,36 @@ Each category features:
 - Starts with 3 default shots (3s, 4s, 3s)
 - Easy duration adjustment with +/- buttons (1 second increments)
 - Add/remove shots dynamically
+- Up/down buttons for reordering shots
 - Automatic validation ensures total duration ≤ 10 seconds
 - Real-time duration tracking with visual feedback
+- Collapsible section (starts hidden) to reduce interface clutter
+
+### Dialogue Management
+
+- Add dialogue, narration, scene directions, and sound effects
+- **Actor management system**:
+  - 3 default actors: Narrator, Scene Direction, Sound Effect
+  - Add custom actors (up to 10 total)
+  - Remove custom actors (default actors cannot be removed)
+  - When actor is removed, their dialogue lines automatically convert to "Narrator"
+- **Dialogue lines**:
+  - Speaker selection via button interface
+  - Multi-line text input for dialogue/direction content
+  - Up/down buttons for reordering lines
+  - Add/remove lines dynamically
+- Collapsible section (starts hidden)
+- Dialogue included in final prompt output
 
 ### Output
 
 - Formatted prompt with clear section headings
 - Context categories displayed with individual headings (e.g., "Grade / Palette:", "Lighting & Atmosphere:")
-- Adapts format based on input type (context, high-level, shots, or any combination)
+- Adapts format based on input type (context, high-level, shots, dialogue, or any combination)
 - Professional cinematography terminology preserved in output
+- Dialogue section with speaker names and content
 - Copy to clipboard functionality
-- Back button to edit before finalizing
+- "Edit Context" button to return to context screen
 
 ## Project Structure
 
@@ -83,10 +102,17 @@ sora_prompt_builder/
 
 - Pure HTML, CSS, and JavaScript (no frameworks)
 - Client-side only, no backend required
-- Responsive design for desktop and mobile
+- Fully responsive design optimized for desktop and mobile
+- Mobile-first optimizations:
+  - 44px minimum touch targets (Apple HIG standard)
+  - Responsive typography scaling
+  - Optimized spacing and padding for small screens
+  - Full-width layouts on mobile
+  - Proper viewport configuration
 - Dark theme UI with smooth animations
 - State management using vanilla JavaScript
 - Screen-based navigation with fade transitions
+- Collapsible sections for improved UX
 
 ## Usage
 
@@ -99,13 +125,18 @@ Simply open `index.html` in a web browser. No build process or server required.
 - **Context-First Approach**: Guides users to set visual context before writing content
 - **Professional Presets**: Detailed presets based on real cinematography terminology from OpenAI's Sora Prompting Guide
 - **Editable Presets**: Preset buttons load text into editable areas, allowing customization of professional starting points
-- **Flexible Input**: Users can provide high-level description, detailed shots, or both in a single screen
+- **Flexible Input**: Users can provide high-level description, detailed shots, dialogue, or any combination in a single screen
 - **No Mode Selection**: Eliminated the need to choose between modes upfront; users naturally fill in what they need
+- **Collapsible Sections**: Shots and dialogue sections start hidden to reduce visual clutter and cognitive load
+- **Actor System**: Pre-populated with common use cases (Narrator, Scene Direction, Sound Effect) while allowing custom additions
+- **Button-Based Selection**: Speaker selection uses buttons instead of dropdowns for better mobile UX
+- **Reordering Controls**: Up/down buttons for shots and dialogue provide intuitive control over sequence
 - **Time Constraints**: 10-second limit reflects Sora's current capabilities
-- **Validation**: Real-time feedback prevents common mistakes
+- **Validation**: Real-time feedback prevents common mistakes (duration limits, actor limits)
 - **Adaptive Output**: Prompt format automatically adjusts based on what input was provided
-- **Labeled Sections**: Each context category appears with its own heading in the final output for clarity
-- **State Persistence**: All user input (context, descriptions, shots) is preserved when navigating between screens
+- **Labeled Sections**: Each context category and dialogue line appears with clear headings in the final output
+- **State Persistence**: All user input (context, descriptions, shots, actors, dialogue) is preserved when navigating between screens
+- **Mobile-First**: Touch targets, spacing, and layouts optimized for mobile devices following platform guidelines
 
 ## Example Preset Content
 
@@ -121,14 +152,36 @@ Color temp: 3200K key, 5600K fill
 
 These professional-grade descriptions provide users with production-ready starting points that can be further customized.
 
+## Recent Updates
+
+### Mobile Optimization (Latest)
+- Comprehensive mobile responsive design with 44px minimum touch targets
+- Responsive typography and spacing optimizations
+- Full-width buttons and improved layouts for small screens
+- Enhanced touch controls for shot/dialogue management
+
+### Dialogue System
+- Actor management with custom actor support (up to 10)
+- Button-based speaker selection interface
+- Dialogue line reordering with up/down controls
+- Automatic dialogue integration in prompt output
+
+### UI Improvements
+- Collapsible sections for shots and dialogue
+- Shot reordering with up/down buttons
+- "Edit Context" button for clearer navigation
+- Real-time validation and feedback
+
 ## Future Enhancements
 
 Potential improvements could include:
 - Save/load prompt templates
 - Prompt history
-- Export to different formats
+- Export to different formats (JSON, plain text, markdown)
 - Additional context presets for more styles
 - Community-contributed preset library
 - Example gallery with sample outputs
-- Drag-and-drop shot reordering
-- Dialogue text input for specific mode
+- Drag-and-drop shot reordering (in addition to buttons)
+- Keyboard shortcuts for power users
+- Dark/light theme toggle
+- Audio preview integration (when available)

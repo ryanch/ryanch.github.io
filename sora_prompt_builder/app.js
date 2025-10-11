@@ -9,7 +9,7 @@ const state = {
     },
     highlevelText: '',
     shots: [],
-    actors: ['Narrator', 'Screen Direction', 'Sound Effect'],
+    actors: ['Narrator', 'Scene Direction', 'Sound Effect'],
     dialogueLines: []
 };
 
@@ -129,24 +129,6 @@ function initializePromptBuilder() {
 
     document.getElementById('promptBuilderBuild').addEventListener('click', () => {
         state.highlevelText = document.getElementById('highlevelText').value;
-
-        // Validate that at least one section has content
-        const hasHighLevel = state.highlevelText.trim().length > 0;
-        const hasShots = state.shots.length > 0 && state.shots.some(shot => shot.description.trim());
-
-        if (!hasHighLevel && !hasShots) {
-            alert('Please provide either a high-level description, detailed shots, or both.');
-            return;
-        }
-
-        // Validate shots if they exist
-        if (state.shots.length > 0) {
-            const totalDuration = state.shots.reduce((sum, shot) => sum + shot.duration, 0);
-            if (totalDuration > 10) {
-                alert('Total duration exceeds 10 seconds. Please adjust your shots.');
-                return;
-            }
-        }
 
         buildPrompt();
         navigateToScreen('outputScreen');
@@ -453,7 +435,7 @@ function addActor() {
 }
 
 function removeActor(actorName) {
-    const defaultActors = ['Narrator', 'Screen Direction', 'Sound Effect'];
+    const defaultActors = ['Narrator', 'Scene Direction', 'Sound Effect'];
     if (defaultActors.includes(actorName)) {
         return; // Cannot remove default actors
     }
@@ -472,7 +454,7 @@ function removeActor(actorName) {
 
 function renderActors() {
     const container = document.getElementById('actorsList');
-    const defaultActors = ['Narrator', 'Screen Direction', 'Sound Effect'];
+    const defaultActors = ['Narrator', 'Scene Direction', 'Sound Effect'];
 
     container.innerHTML = state.actors.map(actor => {
         const isDefault = defaultActors.includes(actor);
