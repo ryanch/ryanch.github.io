@@ -1,0 +1,845 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --secondary-color: #64748b;
+    --secondary-hover: #475569;
+    --background: #0f172a;
+    --surface: #1e293b;
+    --surface-light: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --border: #475569;
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Screen Management */
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Prompt Builder Sections */
+.prompt-section {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.prompt-section h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.section-instruction {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.section-header-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btn-toggle {
+    background: var(--surface-light);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-toggle:hover {
+    border-color: var(--primary-color);
+    background: var(--surface);
+}
+
+.collapsible-section {
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+/* Actor Management */
+.actor-management {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.actor-management h4 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.actors-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.actor-chip {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.actor-chip-remove {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: white;
+    transition: background 0.2s ease;
+}
+
+.actor-chip-remove:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.actor-chip.default {
+    background: var(--surface-light);
+    color: var(--text-primary);
+}
+
+.actor-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actor-input {
+    flex: 1;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+}
+
+.actor-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Dialogue Lines */
+#dialogueContainer {
+    margin-bottom: 1rem;
+}
+
+.dialogue-item {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.dialogue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.dialogue-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.dialogue-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.dialogue-speaker {
+    margin-bottom: 1rem;
+}
+
+.dialogue-speaker label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.speaker-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.speaker-btn {
+    background: var(--surface-light);
+    color: var(--text-secondary);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.speaker-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+}
+
+.speaker-btn.selected {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+/* Context Selection */
+.instruction {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.05rem;
+}
+
+.context-group {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.context-group h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+}
+
+.context-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.context-preset {
+    background: var(--surface-light);
+    color: var(--text-secondary);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.context-preset:hover {
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.context-preset:active {
+    transform: translateY(0);
+}
+
+.context-textarea {
+    width: 100%;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    font-family: 'Courier New', monospace;
+    transition: border-color 0.2s ease;
+    margin-top: 1rem;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.context-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.context-textarea::placeholder {
+    color: var(--secondary-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Input Groups */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+textarea,
+input[type="text"] {
+    width: 100%;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+textarea:focus,
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+textarea::placeholder,
+input[type="text"]::placeholder {
+    color: var(--secondary-color);
+}
+
+/* Shots Container */
+#shotsContainer {
+    margin-bottom: 1.5rem;
+}
+
+.shot-item {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.shot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.shot-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.shot-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.shot-move {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.shot-move:hover:not(:disabled) {
+    background: var(--primary-hover);
+    transform: scale(1.1);
+}
+
+.shot-move:disabled {
+    background: var(--secondary-color);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.shot-remove {
+    background: var(--error);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.shot-remove:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.shot-content textarea {
+    margin-bottom: 1rem;
+}
+
+.shot-timing {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--surface-light);
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+.timing-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.timing-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.timing-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.timing-btn:hover {
+    background: var(--primary-hover);
+}
+
+.timing-btn:disabled {
+    background: var(--secondary-color);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.timing-value {
+    min-width: 60px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.timing-info {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+.timing-info.error {
+    border-color: var(--error);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.timing-info strong {
+    color: var(--primary-color);
+}
+
+.timing-info.error strong {
+    color: var(--error);
+}
+
+/* Output */
+.output-box {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    white-space: pre-wrap;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    min-height: 200px;
+}
+
+.copy-feedback {
+    background: var(--success);
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.copy-feedback.show {
+    opacity: 1;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:disabled {
+    background: var(--secondary-color);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background: var(--surface-light);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: var(--secondary-hover);
+    border-color: var(--secondary-hover);
+}
+
+.btn-large {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+h2 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    header h1 {
+        font-size: 1.75rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .instruction {
+        font-size: 1rem;
+    }
+
+    /* Increase touch target sizes */
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.875rem 1.5rem;
+        min-height: 44px;
+        font-size: 1rem;
+    }
+
+    .btn-large {
+        min-height: 52px;
+        padding: 1rem;
+    }
+
+    .btn-toggle {
+        padding: 0.75rem 1rem;
+        min-height: 44px;
+        font-size: 1rem;
+    }
+
+    /* Section header toggle - stack on mobile */
+    .section-header-toggle {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .section-header-toggle .btn-toggle {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Context presets - better mobile layout */
+    .context-preset {
+        padding: 0.625rem 1rem;
+        min-height: 44px;
+        font-size: 1rem;
+        flex: 1 1 auto;
+        min-width: calc(50% - 0.375rem);
+    }
+
+    .context-options {
+        gap: 0.75rem;
+    }
+
+    /* Reduce padding on sections */
+    .context-group {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .prompt-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Shot and dialogue items */
+    .shot-item,
+    .dialogue-item {
+        padding: 1rem;
+    }
+
+    /* Increase touch targets for control buttons */
+    .shot-move,
+    .shot-remove,
+    .timing-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1.3rem;
+    }
+
+    /* Shot timing layout */
+    .shot-timing {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .timing-controls {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Speaker buttons */
+    .speaker-btn {
+        padding: 0.625rem 1rem;
+        min-height: 44px;
+        font-size: 1rem;
+        flex: 1 1 auto;
+        min-width: calc(50% - 0.25rem);
+    }
+
+    /* Actor chips */
+    .actor-chip {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        min-height: 36px;
+    }
+
+    .actor-chip-remove {
+        width: 22px;
+        height: 22px;
+        font-size: 0.9rem;
+    }
+
+    /* Actor input */
+    .actor-input {
+        font-size: 1rem;
+        min-height: 44px;
+    }
+
+    .actor-input-group button {
+        min-height: 44px;
+        padding: 0.625rem 1rem;
+    }
+
+    /* Text inputs and textareas */
+    textarea,
+    input[type="text"] {
+        font-size: 1rem;
+        padding: 0.75rem;
+    }
+
+    .context-textarea {
+        font-size: 1rem;
+        padding: 0.75rem;
+    }
+
+    /* Output box */
+    .output-box {
+        padding: 1rem;
+        font-size: 0.875rem;
+        overflow-x: auto;
+        word-break: break-word;
+    }
+
+    /* Button groups */
+    .button-group {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+    }
+
+    .button-group button {
+        width: 100%;
+    }
+
+    /* Timing info */
+    .timing-info {
+        font-size: 1rem;
+        padding: 0.875rem;
+    }
+
+    /* Section instructions */
+    .section-instruction {
+        font-size: 0.9rem;
+    }
+
+    /* Dialogue and shot titles */
+    .shot-title,
+    .dialogue-title {
+        font-size: 1rem;
+    }
+
+    /* Timing labels and values */
+    .timing-label {
+        font-size: 1rem;
+    }
+
+    .timing-value {
+        font-size: 1.2rem;
+    }
+
+    /* Actor management */
+    .actor-management h4 {
+        font-size: 1.05rem;
+    }
+
+    /* Prompt section headings */
+    .prompt-section h3 {
+        font-size: 1.2rem;
+    }
+
+    .context-group h3 {
+        font-size: 1.1rem;
+    }
+}

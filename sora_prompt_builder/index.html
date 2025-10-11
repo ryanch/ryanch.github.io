@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sora Prompt Builder</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="context-presets.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sora Prompt Builder</h1>
+            <p class="subtitle">Build effective prompts for AI video generation</p>
+        </header>
+
+        <!-- Screen 1: Context Selection -->
+        <section id="contextScreen" class="screen active">
+            <h2>Set Your Context</h2>
+            <p class="instruction">Choose presets or edit the text directly. Leave blank to skip a category.</p>
+
+            <div class="context-group">
+                <h3>Grade / Palette</h3>
+                <div class="context-options" data-category="grade">
+                    <button class="context-preset" data-preset="none">Clear</button>
+                    <button class="context-preset" data-preset="1970s_film">1970s Film</button>
+                    <button class="context-preset" data-preset="imax_scale">IMAX Scale</button>
+                    <button class="context-preset" data-preset="documentary">Documentary</button>
+                    <button class="context-preset" data-preset="vintage_8mm">Vintage 8mm</button>
+                    <button class="context-preset" data-preset="modern_digital">Modern Digital</button>
+                    <button class="context-preset" data-preset="noir">Black & White Noir</button>
+                </div>
+                <textarea class="context-textarea" data-category="grade" rows="4" placeholder="Enter your grade/palette description or select a preset above..."></textarea>
+            </div>
+
+            <div class="context-group">
+                <h3>Lighting & Atmosphere</h3>
+                <div class="context-options" data-category="lighting">
+                    <button class="context-preset" data-preset="none">Clear</button>
+                    <button class="context-preset" data-preset="golden_hour">Golden Hour</button>
+                    <button class="context-preset" data-preset="harsh_fluorescent">Harsh Fluorescent</button>
+                    <button class="context-preset" data-preset="moody_twilight">Moody Twilight</button>
+                    <button class="context-preset" data-preset="warm_candlelight">Warm Candlelight</button>
+                    <button class="context-preset" data-preset="overcast_diffused">Overcast Diffused</button>
+                    <button class="context-preset" data-preset="neon_artificial">Neon Artificial</button>
+                </div>
+                <textarea class="context-textarea" data-category="lighting" rows="4" placeholder="Enter your lighting & atmosphere description or select a preset above..."></textarea>
+            </div>
+
+            <div class="context-group">
+                <h3>Location & Framing</h3>
+                <div class="context-options" data-category="location">
+                    <button class="context-preset" data-preset="none">Clear</button>
+                    <button class="context-preset" data-preset="wide_establishing">Wide Establishing</button>
+                    <button class="context-preset" data-preset="intimate_closeup">Intimate Close-up</button>
+                    <button class="context-preset" data-preset="medium_eye_level">Medium Eye Level</button>
+                    <button class="context-preset" data-preset="low_angle_up">Low Angle Up</button>
+                    <button class="context-preset" data-preset="high_angle_down">High Angle Down</button>
+                    <button class="context-preset" data-preset="shallow_dof">Shallow DOF</button>
+                    <button class="context-preset" data-preset="deep_focus">Deep Focus</button>
+                </div>
+                <textarea class="context-textarea" data-category="location" rows="4" placeholder="Enter your location & framing description or select a preset above..."></textarea>
+            </div>
+
+            <div class="context-group">
+                <h3>Wardrobe / Props / Extras</h3>
+                <div class="context-options" data-category="wardrobe">
+                    <button class="context-preset" data-preset="none">Clear</button>
+                    <button class="context-preset" data-preset="period_accurate">Period Accurate</button>
+                    <button class="context-preset" data-preset="minimalist_modern">Minimalist Modern</button>
+                    <button class="context-preset" data-preset="vibrant_colorful">Vibrant Colorful</button>
+                    <button class="context-preset" data-preset="practical_props">Practical Props</button>
+                    <button class="context-preset" data-preset="futuristic_elements">Futuristic Elements</button>
+                    <button class="context-preset" data-preset="natural_environment">Natural Environment</button>
+                </div>
+                <textarea class="context-textarea" data-category="wardrobe" rows="4" placeholder="Enter your wardrobe/props/extras description or select a preset above..."></textarea>
+            </div>
+
+            <div class="context-group">
+                <h3>Sound</h3>
+                <div class="context-options" data-category="sound">
+                    <button class="context-preset" data-preset="none">Clear</button>
+                    <button class="context-preset" data-preset="ambient_environmental">Ambient Environmental</button>
+                    <button class="context-preset" data-preset="dialogue_driven">Dialogue Driven</button>
+                    <button class="context-preset" data-preset="minimal_sound">Minimal Sound</button>
+                    <button class="context-preset" data-preset="dramatic_music">Dramatic Music</button>
+                    <button class="context-preset" data-preset="diegetic_source">Diegetic Source</button>
+                    <button class="context-preset" data-preset="silence_acoustics">Silence & Acoustics</button>
+                </div>
+                <textarea class="context-textarea" data-category="sound" rows="4" placeholder="Enter your sound description or select a preset above..."></textarea>
+            </div>
+
+            <button id="contextNext" class="btn-primary btn-large">Next</button>
+        </section>
+
+        <!-- Screen 2: Prompt Builder -->
+        <section id="promptBuilderScreen" class="screen">
+            <h2>Build Your Prompt</h2>
+            <p class="instruction">Provide a high-level description, detailed shots, or both. At least one section must be filled in.</p>
+
+            <!-- High Level Description Section -->
+            <div class="prompt-section">
+                <h3>High Level Description (Optional)</h3>
+                <p class="section-instruction">Write a prose-style description of your video. Best for creative freedom and exploring ideas.</p>
+                <div class="input-group">
+                    <textarea id="highlevelText" rows="6" placeholder="Example: A lone astronaut walks across a desolate Martian landscape at sunset. The rust-red sand stretches endlessly, with ancient rock formations casting long shadows. Her silver spacesuit reflects the amber light as she pauses to look at Earth, a pale blue dot in the pink sky..."></textarea>
+                </div>
+            </div>
+
+            <!-- Detailed Shots Section -->
+            <div class="prompt-section">
+                <div class="section-header-toggle">
+                    <div>
+                        <h3>Detailed Shots (Optional)</h3>
+                        <p class="section-instruction">Create multiple shots with precise timing. Total duration must not exceed 10 seconds.</p>
+                    </div>
+                    <button id="toggleShots" class="btn-toggle">Show Shots</button>
+                </div>
+
+                <div id="shotsSection" class="collapsible-section" style="display: none;">
+                    <div id="shotsContainer"></div>
+
+                    <button id="addShot" class="btn-secondary">+ Add Shot</button>
+
+                    <div class="timing-info">
+                        <span>Total Duration: <strong id="totalDuration">0s</strong> / 10s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dialogue Section -->
+            <div class="prompt-section">
+                <div class="section-header-toggle">
+                    <div>
+                        <h3>Dialogue (Optional)</h3>
+                        <p class="section-instruction">Add dialogue, narration, screen directions, or sound effects.</p>
+                    </div>
+                    <button id="toggleDialogue" class="btn-toggle">Show Dialogue</button>
+                </div>
+
+                <div id="dialogueSection" class="collapsible-section" style="display: none;">
+                    <!-- Actor Management -->
+                    <div class="actor-management">
+                        <h4>Actors</h4>
+                        <div id="actorsList" class="actors-list"></div>
+                        <div class="actor-input-group">
+                            <input type="text" id="actorInput" class="actor-input" placeholder="Add actor name..." maxlength="50">
+                            <button id="addActor" class="btn-secondary">Add Actor</button>
+                        </div>
+                    </div>
+
+                    <!-- Dialogue Lines -->
+                    <div id="dialogueContainer"></div>
+
+                    <button id="addDialogue" class="btn-secondary">+ Add Dialogue Line</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="promptBuilderBack" class="btn-secondary">Edit Context</button>
+                <button id="promptBuilderBuild" class="btn-primary">Build Prompt</button>
+            </div>
+        </section>
+
+        <!-- Screen 3: Output -->
+        <section id="outputScreen" class="screen">
+            <h2>Your Prompt</h2>
+            <p class="instruction">Your formatted prompt is ready. Copy it to use with Sora.</p>
+
+            <div id="promptOutput" class="output-box"></div>
+
+            <div class="button-group">
+                <button id="outputBack" class="btn-secondary">Back to Edit</button>
+                <button id="copyPrompt" class="btn-primary">Copy to Clipboard</button>
+            </div>
+
+            <div id="copyFeedback" class="copy-feedback">Copied to clipboard!</div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
