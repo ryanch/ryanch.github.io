@@ -49,9 +49,9 @@
       <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark">
         <div class="col-md-6 px-0">
           <h1 class="display-4 font-italic"><script>document.write(section_title);</script></h1>
-          <p class="lead my-3">Read below to solve this puzzle.</p>
+          <p class="lead my-3">Be distracted. This puzzle has four types of herrings.</p>
           <script>
-            app.printPuzzleAnswerInputBlock(1);
+            app.printPuzzleAnswerInputBlock(puzzle_number);
           </script>
         </div>
       </div>
@@ -61,10 +61,11 @@
           <div class="card-body d-flex flex-column align-items-start">
 
 
+<!-- puzzle -->
+            <img src="assets/puzzle-items.png" width="1000" >
 
-            <!-- start story -->
-            TODO
-            <!-- end story -->
+<!-- end puzzle -->
+
 
 
           </div>
@@ -76,6 +77,68 @@
 
     </div>
 
+
+
+<!--
+            <script>
+
+            function shuffleArray(array) {
+                for (var i = array.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = array[i];
+                    array[i] = array[j];
+                    array[j] = temp;
+                }
+            }
+
+              var images = [
+                "apple.png",
+                "ocean.png",
+                "blueberry.png",
+                "cherry.png",
+                "sapphire.png",
+                "jade.png",
+                "juice.png",
+                "tomato.png",
+                "sage.png",
+                "jello.png",
+                "peel.png",
+                "ruby.png",
+                "whale.png",
+                "lime.png",
+                "mint.png",
+                "salmon.png"
+              ];
+
+              shuffleArray(images);
+
+              var s = "<table cellpadding='10' >";
+              var count = 0;
+              for (var img in images) {
+
+                if ( count == 0 ) {
+                  s += "<tr>";
+                }
+
+                s += '<td align="center" ><img src="assets/'+images[img]+'" height="200" style="display:inline;" ></td>';
+
+                count++;
+
+                if ( count == 4 ) {
+                  s += "</tr>\n";
+                  count = 0;
+                }
+
+                
+              }
+
+              s+= "</table>"
+
+              console.log(s);
+              document.write(s);
+
+            </script>
+          -->
 
 
   </body>

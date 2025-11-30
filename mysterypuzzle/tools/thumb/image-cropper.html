@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Cropper</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #canvas {
+            border: 2px solid #333;
+            cursor: move;
+            display: block;
+        }
+
+        #fileInput {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #saveBtn {
+            padding: 10px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #saveBtn:hover {
+            background: #555;
+        }
+
+        #saveBtn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="fileInput" accept="image/*">
+    <canvas id="canvas" width="100" height="250"></canvas>
+    <button id="saveBtn" disabled>Save</button>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const fileInput = document.getElementById('fileInput');
+        const saveBtn = document.getElementById('saveBtn');
+
+        let image = new Image();
+        let imageX = 0;
+        let imageY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let imageStartX = 0;
+        let imageStartY = 0;
+        let imageLoaded = false;
+
+        // Handle file selection
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    image.onload = function() {
+                        // Center the image initially
+                        imageX = (canvas.width - image.width) / 2;
+                        imageY = (canvas.height - image.height) / 2;
+                        imageLoaded = true;
+                        saveBtn.disabled = false;
+                        draw();
+                    };
+                    image.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Draw the visible portion
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, imageX, imageY);
+        }
+
+        // Mouse down - start dragging
+        canvas.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            const rect = canvas.getBoundingClientRect();
+            dragStartX = e.clientX - rect.left;
+            dragStartY = e.clientY - rect.top;
+            imageStartX = imageX;
+            imageStartY = imageY;
+        });
+
+        // Mouse move - drag image
+        canvas.addEventListener('mousemove', function(e) {
+            if (isDragging) {
+                const rect = canvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+
+                imageX = imageStartX + (currentX - dragStartX);
+                imageY = imageStartY + (currentY - dragStartY);
+
+                draw();
+            }
+        });
+
+        // Mouse up - stop dragging
+        canvas.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
+
+        // Mouse leave - stop dragging
+        canvas.addEventListener('mouseleave', function() {
+            isDragging = false;
+        });
+
+        // Save button
+        saveBtn.addEventListener('click', function() {
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'cropped-image.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        });
+    </script>
+</body>
+</html>

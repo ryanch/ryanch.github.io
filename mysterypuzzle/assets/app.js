@@ -2,7 +2,7 @@ var app = {};
 
 app.puzzleMetaData = [
     {num:"1", title:"Double Agent", short:"Find the double agent."},
-    {num:"2", title:"Puz2Name", short:"puzShort Text 2"},
+    {num:"2", title:"Red Herrings", short:"Be distracted."},
     {num:"3", title:"Puz3Name", short:"puzShort Text 3"},
     {num:"4", title:"Puz4Name", short:"puzShort Text 4"},
     {num:"5", title:"Puz5Name", short:"puzShort Text 5"},
@@ -48,7 +48,7 @@ app.checkAnswer = function(answer, puzzleNumber) {
 
     var hash = app.makeHash(answer);
     var puzzleHashLookup = {
-        "ff4aea4f869394f2444b9a5b4727ea5c-2": true,
+        "f59ea7e7e6ff2e38e97233e2d3b7228a-2": true,
         "40ad2b590d8e40433982281179f0ceef-1": true,
         "deafca35b068ab4cdd12f5a59652bc18-6": true,
         "d78bace1594084f29a9dbd3469fed2cb-5": true,
