@@ -10066,28 +10066,7 @@ function printCombinations(word_index, words, buffer) {
 
   buffer = buffer.toLowerCase();
 
-  /*
-  if ( word_dict[buffer] === true) {
-      document.write(buffer + " ")
-    }
-
-    */
-
   if (word_index >= words.length ) {
-
-    /*
-    var newline = "";
-    if (word_count_out == 10) {
-      newline = "<br/>";
-      word_count_out = 0;
-    }
-    else {
-      newline = "";
-    }
-    word_count_out++;
-
-    document.write(buffer.toLowerCase() + newline + " ");
-    */
 
     if ( word_dict[buffer] === true) {
       document.write(buffer + " ")
@@ -10102,7 +10081,32 @@ function printCombinations(word_index, words, buffer) {
     var letter = word.charAt(i);
     printCombinations(word_index+1, words, buffer + letter);
   }
+
 }
+
+
+function allCombinationsInOtherOrders( startingWords ) {
+
+
+  permutationsOfWord( startingWords );
+
+}
+
+
+function permutationsOfWord(arr, r=[]) {
+  if (arr.length === 0) {
+
+    document.write( "<b>" + r.join(", ") + "</b>" );
+    printCombinations( 0, r, "" );
+
+  } else {
+    const first = arr[0]
+    for (let i = 0; i <= r.length; i++) {
+      permutationsOfWord(arr.slice(1), r.slice(0, i).concat([first]).concat(r.slice(i)))
+    }
+  }
+}
+
 
 
 /*
@@ -10133,18 +10137,12 @@ bio bit bio bit lil lie lit lil lie lit lol lot uni une ent edt
 
 
   var words = [
-  // "RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "INDIGO", "VIOLET" 
 
-  //"RED", "ORANGE", "YELLOW", "YELLOW", "GREEN" // dryer
-  //"RED", "ORANGE", "ORANGE", "YELLOW", "GREEN" // roger error eagle eagle eagle eagle donor drawn
-  // "RED", "RED", "ORANGE", "YELLOW", "GREEN" // error drawn
-  // "RED", "ORANGE", "YELLOW", "GREEN" // role door down dale dawn deer
-  //"BLUE", "INDIGO", "INDIGO", "VIOLET" // biol biol bone bool boot line line lone logo univ unit undo univ unit edit edit edge
-  // "BLUE", "INDIGO", "VIOLET", "VIOLET" // biol bill bite biol bill bite bool boot bolt live lite live lite love univ unit unto edit
-  // "INDIGO", "VIOLET" // go, no
+
   ];
 
-  printCombinations(0, words, "" );  
+ // printCombinations(0, words, "" );  
+  allCombinationsInOtherOrders( words );
 
 
 </script>
