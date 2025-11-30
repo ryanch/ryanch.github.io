@@ -69,22 +69,22 @@ app.makeHash = function(ans) {
     ans = ans + ans + ans + ans + ans + ans + ans + ans;
 
     var padding = [
-        "zzz9d8as98fghgfda90-=0-=8sd90a8s90d8asjda9sud91291hasuih0-=-0daskhd2813891238jhasjkdhasdas",
-        "9asdasd12312d8as98dafghgfh90-=8sd900-=aasdasd8s90d812321asjda9sud91291hasuihdaskhd2813891238jhasjkdhasdas",
-        "9cvxcvsdfsdd8as98dfASDIOASDIOSADgha98sd90a8s900-=-0d8asjda9sud9129112321h-0=0IOIOOIO-asuihdaskhd280-=0-13891238jhasjkdhasdas",
-        "923213d8aASDSAs98da98sd9asdfghfgas0a8s90UUAIUDIASUIDUASd8asjda9sud91291ha123213suihdaskhd2813891238jhasjkdhasdas",
+        "zzz9d8as9asdasd8fghgfda90-=0-=8sd90a8s90d8asjda9sud91291hasuih0-=-0daskhd2813891238jhasjkdhasdas",
+        "9asdassdasdd12312d8as98dafghgfh90-=8sd900-=aasdasd8s90d812321asjda9sud91291hasuihdaskhd2813891238jhasjkdhasdas",
+        "9cvxcvsasddfsdd8as98dfASDIOASDIOSADgha98sd90a8s900-=-0d8asjda9sud9129112321h-0=0IOIOOIO-asuihdaskhd280-=0-13891238jhasjkdhasdas",
+        "923213dasd8aASDSAs98da98sd9asdfghfgas0a8s90UUAIUDIASUIDUASd8asjda9sud91291ha123213suihdaskhd2813891238jhasjkdhasdas",
         "sdfds9d8as98da98sd90a8s90d8asjda90-=sud912910-=-0hasuihdask12321hd2813891238jhasjkdhasdas",
-        "9ssdfdsfASDASDsdfsdfdsdASDASDASD8as98dasdsaa98sd90a80-=-0s9fghgfh0d8asjda9sud91291hasuihd1OIOIOIOIO2321askhd2813891238jhasjkdhasdas",
-        "9dsdfds8as98da9fghgf8sfghfgd90a8s90d8asjda9sud9129fgh1hasuihd0-=askh12321d2813891238jhasjkdhasdas",
+        "9ssdfdsasdsafASDASDsdfsdfdsdASDASDASD8adfsdfsdfs98dasdsaa98sd90a80-=-0s9fghgfh0d8asjda9sud91291hasuihd1OIOIOIOIO2321askhd2813891238jhasjkdhasdas",
+        "9dsdfds8as98da9fghgf8sfghfgd87i90a8s90d8asjsdfsdfda9sud9129fgh1hasuihd0-=askh12321d2813891238jhasjkdhasdas",
         "9d8as98da98fghgfsd90a8s90d8asjda9sud91291hasuasds12321aihdaskhd2810-=389120-=-0=38jhasjkdhasdas",
         "9dsdfds8ahffghfgghgfs98da98sd90a8s90d8asjda9sud91291231231hasuihdaskhd2813891238jhasjkdhasdas",
         "9d8asJHJHJKHU98dafghfg98sd90123213a8s0-=90d8asjda9sud91291hasuihdaas0-=-0dasdskhd2813891238jhasjkdhasdas",
         "9d8as98da9fgh8sd90a0-=-0812312sfghgfh90d8asjda9sud91291hasuihdaskhd2813891238jhasjkdhasdas",
-        "9d8aAA98da98fghfg0-=-0=sd90a1231230-=-018s90d8asjda9sud91291hasuihdaskhd2813891238jhasjkdhasdas",
+        "9d8aAA98da98fioighfg0-=-0=sd90a1dsf231230-=-018s90d8asdfsdfdsfsjda9sud91291hasuihdaskhd281389tryr1238jhasjkdhasdas",
         "9dsz34348as98da98sfghgfd90a8s90d8aDASSDASDSADsjdfghfga9sud91212312391hasuihdaskhd280-=13891238jhasjkdhasdas",
-        "9d23423426563zxcxz8as98da9fghfg8sfghfgd90a8s90dfghgf8asdasasjda9sud90-=0-1291hasuihd12fghgf312askhd2812312313891238jhasjkdhasdas",
-        "9d13d2342348as98da9fghgf0-=-08sd90a8s90d8asjda9sud9129LKLIUIOUIOUIO1ha24121312s0-=0-uihdaskhd2813891238jhasjkdhasdas",
-        "9dzxczx8as98da98sd90aasdsa8s90d8asjda9sud91291hasuihdaskhd2813891238jhasjkdhasdas",
+        "9d23423426563zxcxz8as98da9fghfg8sfghfgd90a8s90dfghgf8asdasasjda9sud90-=0-1291hasuihd12fghgf312askhd2812312366613891238jhasjkdhasdas",
+        "9d13d2342348as98da9fghgf0-=-08sd90a8s90d8asjda9sud9129LKLIUIOUIOUIO1ha24121312s0-=77744560-uihdaskhd2813891238jhasjkdhasdas",
+        "9dzxczx8as98da98sd90aasdsa8s90d8asmlkkkkjda9sud91291hasuihdaskhd2813891238jhasjkdhasdas",
     ];
 
     ans = ans + padding[app.hashCode(ans)%padding.length];
@@ -203,10 +203,12 @@ app.printPuzzleBlock = function (puzzleNum, title, desc) {
 
 
 app.storeValue = function(key, value) {
+    key = key + "mystery";
     localStorage.setItem(key, value);
 }
 
 app.getStoredValue = function(key, defaultValue) {
+    key = key + "mystery";
     var value = localStorage.getItem(key);
     if (value === undefined || value == null) {
         return defaultValue;
