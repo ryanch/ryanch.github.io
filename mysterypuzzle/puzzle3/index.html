@@ -49,7 +49,7 @@
       <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark">
         <div class="col-md-6 px-0">
           <h1 class="display-4 font-italic"><script>document.write(section_title);</script></h1>
-          <p class="lead my-3">Read below to solve this puzzle.</p>
+          <p class="lead my-3">Twist it up to crack this one. <b>Note, the text boxes are for note taking - not part of puzzle.</b></p>
           <script>
             app.printPuzzleAnswerInputBlock(puzzle_number);
           </script>
@@ -63,7 +63,39 @@
 
 
             <!-- start story -->
-            TODO
+            
+            <script>
+              function printPuzzleLine( word1, word2 ) {
+                document.write("<tr>");
+                document.write('<td align="right">' + word1 + "</td>");
+                document.write('<td><input type="text" style="text-align: center;" size="30" ></td>');
+                document.write('<td align="left" >' + word2 + "</td>");
+                document.write("</tr>");
+              }
+            </script>
+
+        
+            <table cellpadding="5" style="margin-left:auto; margin-right:auto;"  >
+
+              <script>
+                  printPuzzleLine( "cookbook", "skiing" );
+                  printPuzzleLine( "floppy", "hour" );
+                  printPuzzleLine( "hampton", "summer" );
+                  printPuzzleLine( "mechanism", "technical" );
+              </script>
+
+              <tr><td>&#160;</td></tr>
+
+              <script>
+                  printPuzzleLine( "player", "lace" );
+                  printPuzzleLine( "pasta", "hate" );
+                  printPuzzleLine( "driver", "poll" );
+                  printPuzzleLine( "deviant", "choice" );
+              </script>
+
+            </table>
+          
+
             <!-- end story -->
 
 

@@ -3,7 +3,7 @@ var app = {};
 app.puzzleMetaData = [
     {num:"1", title:"Double Agent", short:"Find the double agent."},
     {num:"2", title:"Red Herrings", short:"Be distracted."},
-    {num:"3", title:"Puz3Name", short:"puzShort Text 3"},
+    {num:"3", title:"The Twist", short:"Twist it up to crack this one."},
     {num:"4", title:"Puz4Name", short:"puzShort Text 4"},
     {num:"5", title:"Puz5Name", short:"puzShort Text 5"},
     {num:"6", title:"Puz6Name", short:"puzShort Text 6"},
@@ -54,7 +54,8 @@ app.checkAnswer = function(answer, puzzleNumber) {
         "d78bace1594084f29a9dbd3469fed2cb-5": true,
         "ec8c1b73dedc0e4caceddfffec40329d-7": true,
         "bcef32f6887a0f77318d70a86d7e2a09-4": true,
-        "f0f35ce6b460101d386f13741da64ae0-3": true,
+        "51df9436510388dee547d29d5c0ec558-3": true,
+        "454fdedb930b03fe544c6407b3f99d9d-3": true,
         "073e6c090297c0f474e7a31ff70c470f-8": true
     };
     return puzzleHashLookup[hash + "-" + puzzleNumber]===true;
