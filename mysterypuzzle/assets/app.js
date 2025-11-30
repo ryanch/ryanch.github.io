@@ -48,7 +48,7 @@ app.checkAnswer = function(answer, puzzleNumber) {
 
     var hash = app.makeHash(answer);
     var puzzleHashLookup = {
-        "f59ea7e7e6ff2e38e97233e2d3b7228a-2": true,
+        "7dd3c7ce4a874e870081758700e727bb-2": true,
         "40ad2b590d8e40433982281179f0ceef-1": true,
         "deafca35b068ab4cdd12f5a59652bc18-6": true,
         "d78bace1594084f29a9dbd3469fed2cb-5": true,
