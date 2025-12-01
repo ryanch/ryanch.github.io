@@ -581,7 +581,15 @@
                 const currentWordId = `${currentHoveredWord.location}_${currentHoveredWord.index}`;
                 if (!currentlyCollidingWords.has(currentWordId)) {
                     // We're no longer touching the current word
-                    currentHoveredWord = null;
+                    // If we're still colliding with other words, select one of them
+                    if (currentlyCollidingWords.size > 0) {
+                        // Select the first word we're colliding with
+                        const wordId = Array.from(currentlyCollidingWords)[0];
+                        const [location, index] = wordId.split('_');
+                        currentHoveredWord = textBlocks[location][parseInt(index)];
+                    } else {
+                        currentHoveredWord = null;
+                    }
                 }
             }
 
