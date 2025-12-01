@@ -4,7 +4,7 @@ app.puzzleMetaData = [
     {num:"1", title:"Double Agent", short:"Find the double agent."},
     {num:"2", title:"Red Herrings", short:"Be distracted."},
     {num:"3", title:"The Twist", short:"Twist it up to crack this one."},
-    {num:"4", title:"Puz4Name", short:"puzShort Text 4"},
+    {num:"4", title:"Foreshadow", short:"Complete the quest."},
     {num:"5", title:"Puz5Name", short:"puzShort Text 5"},
     {num:"6", title:"Puz6Name", short:"puzShort Text 6"},
     {num:"7", title:"Puz7Name", short:"puzShort Text 7"},

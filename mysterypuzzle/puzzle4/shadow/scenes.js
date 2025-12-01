@@ -1,6 +1,8 @@
 const scenes = [
+
+    // starting place
     {
-        scene: "inside",
+        scene: "home",
         start: {
             setTopText1: "The hero walks arround the room searching for a door."
         },
@@ -14,8 +16,11 @@ const scenes = [
         }
     },
 
+    // 
+
+    // inside the room
     {
-        scene: "home",
+        scene: "inside",
         start: {
             setTopText1: "The hero opened a door, and entered a room.",
             setLeftText2: "The hero found a chest.",
@@ -23,7 +28,26 @@ const scenes = [
         }, 
         if_ChestOpened: {
             match: "*hero opened chest.",
-            setBottomText3: "The hero opened the chest, and found a sword."
+            setBottomText1: "The hero opened the chest, and found a secret passage."
+        }, 
+        if_AChestOpened: {
+            match: "*hero opened a chest.",
+            setBottomText1: "The hero opened the chest, and found a secret passage."
+        }, 
+        if_PassageFollowed: {
+            match: "*hero entered secret passage.",
+            gotoScene: "secret_passage"
         }
-    }
+    },
+
+    // secret passage
+    {
+        scene: "secret_passage",
+        start: {
+            setBottomText1: "The hero descends into the secret passage.",
+            setTopText2: "",
+        }
+    },
+
+
 ];
