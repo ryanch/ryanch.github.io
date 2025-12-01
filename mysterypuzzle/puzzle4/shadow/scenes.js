@@ -1,6 +1,6 @@
 const scenes = [
     {
-        scene: "home",
+        scene: "inside",
         start: {
             setTopText1: "The hero walks arround the room searching for a door."
         },
@@ -15,14 +15,14 @@ const scenes = [
     },
 
     {
-        scene: "inside",
+        scene: "home",
         start: {
             setTopText1: "The hero opened a door, and entered a room.",
             setLeftText2: "The hero found a chest.",
             setRightText3: "And was excited about it.",
-        },
+        }, 
         if_ChestOpened: {
-            match: "*opened*chest",
+            match: "*hero opened chest.",
             setBottomText3: "The hero opened the chest, and found a sword."
         }
     }

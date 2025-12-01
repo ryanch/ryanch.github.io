@@ -220,8 +220,16 @@
 
         // Check if text matches a pattern (supports * wildcard)
         function matchesPattern(text, pattern) {
+            // Normalize the pattern the same way text is normalized
+            // Remove punctuation and convert to lowercase, but preserve *
+            const normalizedPattern = pattern
+                .replace(/[.,\/#!$%\^&\;:{}=\-_`~()]/g, '')
+                .toLowerCase()
+                .replace(/\s+/g, ' ')
+                .trim();
+
             // Escape special regex characters except *
-            const regexPattern = pattern
+            const regexPattern = normalizedPattern
                 .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
                 .replace(/\*/g, '.*');
             const regex = new RegExp('^' + regexPattern + '$', 'i');
@@ -470,6 +478,150 @@
                 }
             });
         }
+
+        // Test suite for match feature
+        function runMatchTests() {
+            console.log('=== Running Match Feature Tests ===');
+
+            const tests = [
+                // User's specific test case
+                {
+                    name: "User test: 'The hero opened chest.' matches '*hero opened chest.'",
+                    text: "The hero opened chest.",
+                    pattern: "*hero opened chest.",
+                    expected: true
+                },
+                // Basic exact match
+                {
+                    name: "Exact match",
+                    text: "hello world",
+                    pattern: "hello world",
+                    expected: true
+                },
+                // Exact match with different case
+                {
+                    name: "Case insensitive match",
+                    text: "Hello World",
+                    pattern: "hello world",
+                    expected: true
+                },
+                // Wildcard at start
+                {
+                    name: "Wildcard at start",
+                    text: "the big door",
+                    pattern: "*door",
+                    expected: true
+                },
+                // Wildcard at end
+                {
+                    name: "Wildcard at end",
+                    text: "the big door",
+                    pattern: "the*",
+                    expected: true
+                },
+                // Wildcard in middle
+                {
+                    name: "Wildcard in middle",
+                    text: "the big heavy door",
+                    pattern: "the*door",
+                    expected: true
+                },
+                // Multiple wildcards
+                {
+                    name: "Multiple wildcards",
+                    text: "the big locked heavy wooden door",
+                    pattern: "the*locked*door",
+                    expected: true
+                },
+                // Punctuation removed in normalization
+                {
+                    name: "Punctuation removed",
+                    text: "hello, world!",
+                    pattern: "hello world",
+                    expected: true
+                },
+                // Should not match - different text
+                {
+                    name: "No match - different text",
+                    text: "hello world",
+                    pattern: "goodbye world",
+                    expected: false
+                },
+                // Should not match - pattern requires more
+                {
+                    name: "No match - pattern too specific",
+                    text: "door",
+                    pattern: "the door",
+                    expected: false
+                },
+                // Wildcard matches empty string
+                {
+                    name: "Wildcard matches nothing",
+                    text: "the door",
+                    pattern: "the*door",
+                    expected: true
+                },
+                // Complex example with punctuation
+                {
+                    name: "Complex with punctuation",
+                    text: "The hero walked around, searching for the door.",
+                    pattern: "*hero*door",
+                    expected: true
+                },
+                // Test with period
+                {
+                    name: "Pattern with period at end",
+                    text: "opened chest.",
+                    pattern: "opened chest",
+                    expected: true
+                },
+                // Another user scenario variant
+                {
+                    name: "Variant: 'hero opened chest' matches '*opened chest'",
+                    text: "hero opened chest",
+                    pattern: "*opened chest",
+                    expected: true
+                }
+            ];
+
+            let passed = 0;
+            let failed = 0;
+
+            tests.forEach((test, index) => {
+                // Normalize text (simulate what normalizeText does)
+                const normalizedText = test.text
+                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+                    .toLowerCase()
+                    .replace(/\s+/g, ' ')
+                    .trim();
+
+                const result = matchesPattern(normalizedText, test.pattern);
+                const status = result === test.expected ? 'PASS' : 'FAIL';
+
+                if (result === test.expected) {
+                    passed++;
+                    console.log(`✓ Test ${index + 1}: ${test.name}`);
+                } else {
+                    failed++;
+                    console.error(`✗ Test ${index + 1}: ${test.name}`);
+                    console.error(`  Text: "${test.text}" (normalized: "${normalizedText}")`);
+                    console.error(`  Pattern: "${test.pattern}"`);
+                    console.error(`  Expected: ${test.expected}, Got: ${result}`);
+                }
+            });
+
+            console.log('\n=== Test Summary ===');
+            console.log(`Total: ${tests.length}`);
+            console.log(`Passed: ${passed}`);
+            console.log(`Failed: ${failed}`);
+            console.log(`Success Rate: ${((passed / tests.length) * 100).toFixed(1)}%`);
+            console.log('====================\n');
+
+            return { passed, failed, total: tests.length };
+        }
+
+        // Run match tests at startup
+        runMatchTests();
 
         // Run validation on load
         const validation = validateScenes();
