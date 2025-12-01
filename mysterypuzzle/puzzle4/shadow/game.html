@@ -311,13 +311,20 @@
                 if (!key.startsWith('if_')) return;
                 if (triggeredBlocks.has(key)) return; // Already triggered
 
-                const pattern = block.match;
-                if (!pattern) return;
+                const matchValue = block.match;
+                if (!matchValue) return;
+
+                // Convert single pattern to array for uniform processing
+                const patterns = Array.isArray(matchValue) ? matchValue : [matchValue];
 
                 // Check each location separately
                 ['top', 'left', 'right', 'bottom'].forEach(location => {
                     const normalized = normalizeText(location);
-                    if (matchesPattern(normalized, pattern)) {
+
+                    // Check if any pattern matches
+                    const hasMatch = patterns.some(pattern => matchesPattern(normalized, pattern));
+
+                    if (hasMatch) {
                         // Trigger this block
                         triggeredBlocks.add(key);
                         executeActions(block);
@@ -423,8 +430,18 @@
 
                     if (!block.match) {
                         errors.push(`${sceneId} (${scene.scene}) ${key}: Missing required 'match' field`);
-                    } else if (typeof block.match !== 'string') {
-                        errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' must be a string`);
+                    } else if (typeof block.match !== 'string' && !Array.isArray(block.match)) {
+                        errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' must be a string or an array`);
+                    } else if (Array.isArray(block.match)) {
+                        // Validate array elements are strings
+                        if (block.match.length === 0) {
+                            errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' array cannot be empty`);
+                        }
+                        block.match.forEach((pattern, index) => {
+                            if (typeof pattern !== 'string') {
+                                errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' array element ${index} must be a string`);
+                            }
+                        });
                     }
 
                     validateActions(block, `${sceneId} (${scene.scene}) ${key}`, errors, warnings);
@@ -1000,7 +1017,7 @@
                 if (!game.hasStartedMoving) {
                     game.hasStartedMoving = true;
                     // Load the home scene
-                    loadScene('inside');
+                    loadScene('home');
                 }
             } else {
                 game.isMoving = false;

@@ -1,5 +1,46 @@
 const scenes = [
 
+    {
+        scene: "home",
+        start: {
+            setTopText1: "Tessa walks arround the village searching for her father.",
+            setLeftText4: "Tessa has not found her father."
+        },
+        if_FoundFather: {
+            match: ["Tessa has found her father", "Tessa found her father"],
+            gotoScene: "intro"
+        },
+    },
+
+    {
+        scene: "intro",
+        start: {
+            setTopText1: "Her father looking deeply concerned, faces Tessa.",
+            setLeftText2: "'As you, know the river is dry, and our crops are failing.'",
+            setRightText3: "'You must begin your journey and find the cause of the dry river.'"
+        },
+        if_Begin: {
+            match: "begin journey*",
+            gotoScene: "begin"
+        },
+    },
+
+
+    {
+        scene: "begin",
+        start: {
+            setLeftText1: "Tessa journeys east, following the open dry bed of the river.",
+            setTopText2: "She continues, and finds her path is blocked by boulders."
+        },
+        if_PathOpen: {
+            match: ["Finds her path is open.", "She continues, and Finds her path is open." ],
+            setRightText1: "Ahead she sees an abandoned mine.",
+            setBottomText2: "The door to the mine is sealed.",
+        },
+    },
+
+
+    /*
     // starting place
     {
         scene: "home",
@@ -49,5 +90,5 @@ const scenes = [
         }
     },
 
-
+    */
 ];
