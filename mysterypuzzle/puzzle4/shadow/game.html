@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Walking Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #character {
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        #debug-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <img id="character" src="frames/08_Elliot_RPG_Walk Down_0.png" alt="Character">
+        <div id="debug-info"></div>
+    </div>
+
+    <script>
+        const character = document.getElementById('character');
+        const gameContainer = document.getElementById('game-container');
+        const debugInfo = document.getElementById('debug-info');
+
+        // Game state
+        const game = {
+            x: window.innerWidth / 2 - 32,
+            y: window.innerHeight / 2 - 32,
+            speed: 3.5,
+            direction: 'down',
+            frame: 0,
+            isMoving: false,
+            keys: {
+                w: false,
+                a: false,
+                s: false,
+                d: false
+            }
+        };
+
+        // Animation frames for each direction
+        const animations = {
+            up: Array.from({length: 8}, (_, i) => `frames/08_Elliot_RPG_Walk Up_${i}.png`),
+            down: Array.from({length: 8}, (_, i) => `frames/08_Elliot_RPG_Walk Down_${i}.png`),
+            left: Array.from({length: 8}, (_, i) => `frames/08_Elliot_RPG_Walk Left_${i}.png`),
+            right: Array.from({length: 8}, (_, i) => `frames/08_Elliot_RPG_Walk Right_${i}.png`)
+        };
+
+        // Animation frame counter
+        let frameCounter = 0;
+        const frameDelay = 6; // Change frame every 6 game frames
+
+        // Initialize character position
+        character.style.left = game.x + 'px';
+        character.style.top = game.y + 'px';
+
+        // Keyboard event listeners
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key in game.keys) {
+                game.keys[key] = true;
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (key in game.keys) {
+                game.keys[key] = false;
+                e.preventDefault();
+            }
+        });
+
+        // Update game state
+        function update() {
+            let moved = false;
+            let newDirection = game.direction;
+
+            // Calculate new position based on keys pressed
+            if (game.keys.w) {
+                game.y -= game.speed;
+                newDirection = 'up';
+                moved = true;
+            }
+            if (game.keys.s) {
+                game.y += game.speed;
+                newDirection = 'down';
+                moved = true;
+            }
+            if (game.keys.a) {
+                game.x -= game.speed;
+                newDirection = 'left';
+                moved = true;
+            }
+            if (game.keys.d) {
+                game.x += game.speed;
+                newDirection = 'right';
+                moved = true;
+            }
+
+            // Constrain to viewport
+            const charWidth = 64;
+            const charHeight = 64;
+            game.x = Math.max(0, Math.min(window.innerWidth - charWidth, game.x));
+            game.y = Math.max(0, Math.min(window.innerHeight - charHeight, game.y));
+
+            // Update direction if changed
+            if (moved && newDirection !== game.direction) {
+                game.direction = newDirection;
+                game.frame = 0;
+                frameCounter = 0;
+            }
+
+            // Update animation frame if moving
+            if (moved) {
+                frameCounter++;
+                if (frameCounter >= frameDelay) {
+                    frameCounter = 0;
+                    game.frame = (game.frame + 1) % 8;
+                }
+                game.isMoving = true;
+            } else {
+                game.isMoving = false;
+                game.frame = 0; // Reset to idle frame when not moving
+            }
+
+            // Update character sprite
+            character.src = animations[game.direction][game.frame];
+            character.style.left = game.x + 'px';
+            character.style.top = game.y + 'px';
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const charWidth = 64;
+            const charHeight = 64;
+            game.x = Math.max(0, Math.min(window.innerWidth - charWidth, game.x));
+            game.y = Math.max(0, Math.min(window.innerHeight - charHeight, game.y));
+        });
+
+        // Start the game
+        gameLoop();
+    </script>
+</body>
+</html>
