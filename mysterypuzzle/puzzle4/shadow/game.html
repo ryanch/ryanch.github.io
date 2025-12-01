@@ -543,17 +543,35 @@
         // Pick up a word (spacebar on hovered word, no carried word)
         function pickUpWord() {
             if (currentHoveredWord && !game.carriedWord) {
-                game.carriedWord = currentHoveredWord.text;
-                // Remove the word from the text block
                 const location = currentHoveredWord.location;
                 const index = currentHoveredWord.index;
+                const wordText = currentHoveredWord.text;
+
+                // Check if word ends with a period
+                const hasPeriod = wordText.endsWith('.');
+
+                // Remove period from carried word if present
+                game.carriedWord = hasPeriod ? wordText.slice(0, -1) : wordText;
+
+                // Remove the word from the text block
                 currentHoveredWord.element.remove();
                 textBlocks[location].splice(index, 1);
+
                 // Update indices
                 textBlocks[location].forEach((word, i) => {
                     word.index = i;
                     word.element.dataset.index = i;
                 });
+
+                // If word had a period, add it to the last word in the text block
+                if (hasPeriod && textBlocks[location].length > 0) {
+                    const lastWord = textBlocks[location][textBlocks[location].length - 1];
+                    if (!lastWord.text.endsWith('.')) {
+                        lastWord.text += '.';
+                        lastWord.element.textContent = lastWord.text;
+                    }
+                }
+
                 currentHoveredWord = null;
 
                 // Check triggers after text change
