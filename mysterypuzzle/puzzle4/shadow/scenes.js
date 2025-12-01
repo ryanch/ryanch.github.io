@@ -18,7 +18,8 @@ const scenes = [
         scene: "inside",
         start: {
             setTopText1: "The hero opened a door, and entered a room.",
-            setLeftText2: "The hero found a chest."
+            setLeftText2: "The hero found a chest.",
+            setRightText3: "And was excited about it.",
         },
         if_ChestOpened: {
             match: "*opened*chest",

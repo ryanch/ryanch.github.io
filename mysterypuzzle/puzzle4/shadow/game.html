@@ -46,7 +46,7 @@
             font-weight: bold;
             color: #333;
             opacity: 0;
-            transition: opacity 1.5s ease-in;
+            transition: opacity 1.5s ease-in-out;
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
@@ -79,7 +79,7 @@
             transform: translateY(-50%);
             flex-direction: column;
             align-items: flex-start;
-            max-width: 20%;
+            max-width: 40%;
         }
 
         #text-right {
@@ -88,7 +88,7 @@
             transform: translateY(-50%);
             flex-direction: column;
             align-items: flex-end;
-            max-width: 20%;
+            max-width: 40%;
         }
 
         .word {
@@ -304,16 +304,25 @@
             // Clear carried word
             game.carriedWord = null;
 
-            // Clear all text
+            // Fade out all existing text
             ['top', 'left', 'right', 'bottom'].forEach(location => {
-                setText(location, '', false);
                 textContainers[location].classList.remove('visible');
             });
 
-            // Execute start actions
-            if (scene.start) {
-                executeActions(scene.start);
-            }
+            // Wait for fade-out transition to complete (1.5s) before clearing and loading new scene
+            setTimeout(() => {
+                // Clear all text content
+                ['top', 'left', 'right', 'bottom'].forEach(location => {
+                    setText(location, '', false);
+                });
+
+                // Execute start actions after a small delay to ensure clean slate
+                setTimeout(() => {
+                    if (scene.start) {
+                        executeActions(scene.start);
+                    }
+                }, 50);
+            }, 1500);
         }
 
         // Validate scenes.js file format
@@ -449,6 +458,9 @@
 
             if (!text) return;
 
+            // Ensure container is hidden before adding new content
+            container.classList.remove('visible');
+
             // Create word elements
             const wordArray = text.split(' ');
             wordArray.forEach((wordText, index) => {
@@ -468,9 +480,13 @@
                 });
             });
 
-            // Fade in if requested
+            // Fade in if requested (after a brief delay to ensure initial state is rendered)
             if (fadeIn) {
-                container.classList.add('visible');
+                // Force a reflow to ensure the opacity:0 state is rendered before transitioning
+                container.offsetHeight;
+                requestAnimationFrame(() => {
+                    container.classList.add('visible');
+                });
             }
         }
 
