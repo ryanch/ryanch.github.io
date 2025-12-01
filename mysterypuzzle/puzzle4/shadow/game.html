@@ -77,18 +77,17 @@
             left: 50px;
             top: 50%;
             transform: translateY(-50%);
-            flex-direction: column;
             align-items: flex-start;
-            max-width: 40%;
+            width: 40%;
         }
 
         #text-right {
             right: 50px;
             top: 50%;
             transform: translateY(-50%);
-            flex-direction: column;
             align-items: flex-end;
-            max-width: 40%;
+            width: 40%;
+            justify-content: flex-end;
         }
 
         .word {
@@ -299,18 +298,23 @@
                 return;
             }
 
+            const isFirstLoad = currentScene === null;
             currentScene = sceneName;
             triggeredBlocks.clear();
 
             // Clear carried word
             game.carriedWord = null;
 
-            // Fade out all existing text
-            ['top', 'left', 'right', 'bottom'].forEach(location => {
-                textContainers[location].classList.remove('visible');
-            });
+            // Fade out all existing text (skip if first load)
+            if (!isFirstLoad) {
+                ['top', 'left', 'right', 'bottom'].forEach(location => {
+                    textContainers[location].classList.remove('visible');
+                });
+            }
 
             // Wait for fade-out transition to complete (1.5s) before clearing and loading new scene
+            // Skip delay on first load since there's nothing to fade out
+            const fadeOutDelay = isFirstLoad ? 0 : 1500;
             setTimeout(() => {
                 // Clear all text content
                 ['top', 'left', 'right', 'bottom'].forEach(location => {
@@ -323,7 +327,7 @@
                         executeActions(scene.start);
                     }
                 }, 50);
-            }, 1500);
+            }, fadeOutDelay);
         }
 
         // Validate scenes.js file format
