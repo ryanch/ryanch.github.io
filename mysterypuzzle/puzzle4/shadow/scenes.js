@@ -37,7 +37,52 @@ const scenes = [
             setRightText1: "Ahead she sees an abandoned mine.",
             setBottomText2: "The door to the mine is sealed.",
         },
+        if_MineOpen: {
+            match: ["The door to the mine is open.", "mine is open." ],
+            gotoScene:"mine"
+        },
     },
+
+
+    {
+        scene: "mine",
+        start: {
+            setLeftText1: "Tessa is at the entrance to the mine.",
+            setTopText2: "There is a ladder she can take up.",
+            setBottomText3: "There are stairs going down.",
+            setRightText4: "Tessa is unsure where to go."
+        },
+        if_GoingUp: {
+            match: ["Tessa*going up", "*take ladder*" ],
+            gotoScene:"mine_up"
+        },
+        if_GoingDown: {
+            match: ["Tessa*going down", "*take stairs*" ],
+            gotoScene:"mine_down"
+        },
+
+    },
+
+
+    {
+        scene: "mine_down",
+        start: {
+            setLeftText1: "Tessa descends stairs in the mine, going deep into the mountain.",
+            setTopText2: "No wonder the villagers don't return to this mine.",
+            setRightText3: "The ground is slippery and wet, she is concerned she may up and fall.",
+            setBottomText4: "Tessa is unsure if she should continue down."
+        },
+        if_GoingUp: {
+            match: ["Tessa return", "Tessa should return", "Tessa should continue up", "Tessa continue up" ],
+            gotoScene:"mine"
+        },
+        if_GoingDown: {
+            match: ["Tessa continue down", "Tessa should continue down" ],
+            gotoScene:"mine_down_deep"
+        },
+
+    },
+
 
 
     /*
