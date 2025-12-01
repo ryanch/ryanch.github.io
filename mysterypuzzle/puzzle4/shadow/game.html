@@ -40,11 +40,8 @@
             display: none;
         }
 
-        #text-container {
+        .text-container {
             position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
             font-size: 48px;
             font-weight: bold;
             color: #333;
@@ -52,14 +49,46 @@
             transition: opacity 1.5s ease-in;
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
             gap: 12px;
-            max-width: 90%;
             pointer-events: none;
         }
 
-        #text-container.visible {
+        .text-container.visible {
             opacity: 1;
+        }
+
+        #text-top {
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            justify-content: center;
+            max-width: 90%;
+        }
+
+        #text-bottom {
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            justify-content: center;
+            max-width: 90%;
+        }
+
+        #text-left {
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            flex-direction: column;
+            align-items: flex-start;
+            max-width: 20%;
+        }
+
+        #text-right {
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            flex-direction: column;
+            align-items: flex-end;
+            max-width: 20%;
         }
 
         .word {
@@ -77,20 +106,45 @@
             text-decoration: line-through;
             text-decoration-thickness: 3px;
         }
+
+        #carried-word {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066cc;
+            pointer-events: none;
+            display: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        #carried-word.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <div id="text-container"></div>
+        <div id="text-top" class="text-container"></div>
+        <div id="text-left" class="text-container"></div>
+        <div id="text-right" class="text-container"></div>
+        <div id="text-bottom" class="text-container"></div>
+        <div id="carried-word"></div>
         <img id="character" src="frames/08_Elliot_RPG_Walk Down_0.png" alt="Character">
         <div id="debug-info"></div>
     </div>
 
+    <script src="scenes.js"></script>
     <script>
         const character = document.getElementById('character');
         const gameContainer = document.getElementById('game-container');
         const debugInfo = document.getElementById('debug-info');
-        const textContainer = document.getElementById('text-container');
+        const textContainers = {
+            top: document.getElementById('text-top'),
+            left: document.getElementById('text-left'),
+            right: document.getElementById('text-right'),
+            bottom: document.getElementById('text-bottom')
+        };
+        const carriedWordElement = document.getElementById('carried-word');
 
         // Game state
         const game = {
@@ -101,6 +155,7 @@
             frame: 0,
             isMoving: false,
             hasStartedMoving: false,
+            carriedWord: null,
             keys: {
                 w: false,
                 a: false,
@@ -109,27 +164,323 @@
             }
         };
 
-        // Text and word management
-        const gameText = "The hero walks arround the room searching for a door.";
-        const words = [];
+        // Text blocks management
+        const textBlocks = {
+            top: [],
+            left: [],
+            right: [],
+            bottom: []
+        };
         let currentHoveredWord = null;
 
-        // Create word elements
-        function createWordElements() {
-            const wordArray = gameText.split(' ');
+        // Scene management
+        let currentScene = null;
+        let triggeredBlocks = new Set();
+
+        // Normalize text for matching (lowercase, remove punctuation, remove strikethrough, collapse spaces)
+        function normalizeText(location) {
+            const words = textBlocks[location];
+            const textParts = words
+                .filter(word => !word.strikethrough)
+                .map(word => word.text);
+            const text = textParts.join(' ');
+            // Remove punctuation and convert to lowercase
+            const normalized = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '').toLowerCase();
+            // Collapse multiple spaces
+            return normalized.replace(/\s+/g, ' ').trim();
+        }
+
+        // Check if text matches a pattern (supports * wildcard)
+        function matchesPattern(text, pattern) {
+            // Escape special regex characters except *
+            const regexPattern = pattern
+                .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+                .replace(/\*/g, '.*');
+            const regex = new RegExp('^' + regexPattern + '$', 'i');
+            return regex.test(text);
+        }
+
+        // Get scene by name
+        function getScene(sceneName) {
+            return scenes.find(s => s.scene === sceneName);
+        }
+
+        // Parse action key (e.g., "setTopText1" -> {action: "setText", location: "top", order: 1})
+        function parseActionKey(key) {
+            const setTextMatch = key.match(/^set(Top|Left|Right|Bottom)Text(\d+)$/);
+            if (setTextMatch) {
+                return {
+                    action: 'setText',
+                    location: setTextMatch[1].toLowerCase(),
+                    order: parseInt(setTextMatch[2])
+                };
+            }
+            if (key === 'gotoScene') {
+                return { action: 'gotoScene' };
+            }
+            return null;
+        }
+
+        // Execute actions with proper ordering and timing
+        function executeActions(actions) {
+            // Group actions by order
+            const actionsByOrder = {};
+            const gotoSceneAction = { action: null, value: null };
+
+            Object.entries(actions).forEach(([key, value]) => {
+                const parsed = parseActionKey(key);
+                if (!parsed) return;
+
+                if (parsed.action === 'gotoScene') {
+                    gotoSceneAction.action = parsed.action;
+                    gotoSceneAction.value = value;
+                } else if (parsed.action === 'setText') {
+                    const order = parsed.order || 1;
+                    if (!actionsByOrder[order]) {
+                        actionsByOrder[order] = [];
+                    }
+                    actionsByOrder[order].push({ ...parsed, value });
+                }
+            });
+
+            // Execute setText actions in order with delays
+            const orders = Object.keys(actionsByOrder).sort((a, b) => a - b);
+            orders.forEach((order, index) => {
+                const delay = index * 2000; // 2 seconds between each order
+                setTimeout(() => {
+                    actionsByOrder[order].forEach(action => {
+                        setText(action.location, action.value, true);
+                    });
+                }, delay);
+            });
+
+            // Execute gotoScene if present (after all setText actions)
+            if (gotoSceneAction.action === 'gotoScene') {
+                const totalDelay = orders.length * 2000 + 500;
+                setTimeout(() => {
+                    loadScene(gotoSceneAction.value);
+                }, totalDelay);
+            }
+        }
+
+        // Check if_ triggers
+        function checkTriggers() {
+            if (!currentScene) return;
+
+            const scene = getScene(currentScene);
+            if (!scene) return;
+
+            // Check all if_ blocks
+            Object.entries(scene).forEach(([key, block]) => {
+                if (!key.startsWith('if_')) return;
+                if (triggeredBlocks.has(key)) return; // Already triggered
+
+                const pattern = block.match;
+                if (!pattern) return;
+
+                // Check each location separately
+                ['top', 'left', 'right', 'bottom'].forEach(location => {
+                    const normalized = normalizeText(location);
+                    if (matchesPattern(normalized, pattern)) {
+                        // Trigger this block
+                        triggeredBlocks.add(key);
+                        executeActions(block);
+                    }
+                });
+            });
+        }
+
+        // Load a scene
+        function loadScene(sceneName) {
+            const scene = getScene(sceneName);
+            if (!scene) {
+                console.error('Scene not found:', sceneName);
+                return;
+            }
+
+            currentScene = sceneName;
+            triggeredBlocks.clear();
+
+            // Clear carried word
+            game.carriedWord = null;
+
+            // Clear all text
+            ['top', 'left', 'right', 'bottom'].forEach(location => {
+                setText(location, '', false);
+                textContainers[location].classList.remove('visible');
+            });
+
+            // Execute start actions
+            if (scene.start) {
+                executeActions(scene.start);
+            }
+        }
+
+        // Validate scenes.js file format
+        function validateScenes() {
+            const errors = [];
+            const warnings = [];
+
+            if (!Array.isArray(scenes)) {
+                errors.push('scenes must be an array');
+                return { valid: false, errors, warnings };
+            }
+
+            const sceneNames = new Set();
+
+            scenes.forEach((scene, index) => {
+                const sceneId = `Scene ${index}`;
+
+                // Check for required 'scene' field
+                if (!scene.scene) {
+                    errors.push(`${sceneId}: Missing required 'scene' field`);
+                } else {
+                    if (typeof scene.scene !== 'string') {
+                        errors.push(`${sceneId}: 'scene' must be a string`);
+                    }
+                    if (sceneNames.has(scene.scene)) {
+                        errors.push(`${sceneId}: Duplicate scene name '${scene.scene}'`);
+                    }
+                    sceneNames.add(scene.scene);
+                }
+
+                // Check start block if present
+                if (scene.start) {
+                    if (typeof scene.start !== 'object') {
+                        errors.push(`${sceneId} (${scene.scene}): 'start' must be an object`);
+                    } else {
+                        validateActions(scene.start, `${sceneId} (${scene.scene}) start`, errors, warnings);
+                    }
+                }
+
+                // Check if_ blocks
+                Object.entries(scene).forEach(([key, block]) => {
+                    if (!key.startsWith('if_')) return;
+                    if (key === 'if_') {
+                        errors.push(`${sceneId} (${scene.scene}): if_ block must have a name after 'if_'`);
+                        return;
+                    }
+
+                    if (typeof block !== 'object') {
+                        errors.push(`${sceneId} (${scene.scene}) ${key}: if_ block must be an object`);
+                        return;
+                    }
+
+                    if (!block.match) {
+                        errors.push(`${sceneId} (${scene.scene}) ${key}: Missing required 'match' field`);
+                    } else if (typeof block.match !== 'string') {
+                        errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' must be a string`);
+                    }
+
+                    validateActions(block, `${sceneId} (${scene.scene}) ${key}`, errors, warnings);
+                });
+            });
+
+            return {
+                valid: errors.length === 0,
+                errors,
+                warnings
+            };
+        }
+
+        // Validate action block
+        function validateActions(actions, location, errors, warnings) {
+            const validLocations = ['Top', 'Left', 'Right', 'Bottom'];
+            const referencedScenes = new Set();
+
+            Object.entries(actions).forEach(([key, value]) => {
+                if (key === 'match') return; // Skip match field
+
+                const setTextMatch = key.match(/^set(Top|Left|Right|Bottom)Text(\d+)$/);
+                if (setTextMatch) {
+                    const loc = setTextMatch[1];
+                    const order = parseInt(setTextMatch[2]);
+
+                    if (!validLocations.includes(loc)) {
+                        errors.push(`${location}: Invalid location '${loc}' in '${key}'`);
+                    }
+                    if (order < 1 || order > 4) {
+                        warnings.push(`${location}: Order ${order} in '${key}' is outside typical range (1-4)`);
+                    }
+                    if (typeof value !== 'string') {
+                        errors.push(`${location}: Value for '${key}' must be a string`);
+                    }
+                } else if (key === 'gotoScene') {
+                    if (typeof value !== 'string') {
+                        errors.push(`${location}: gotoScene value must be a string`);
+                    } else {
+                        referencedScenes.add(value);
+                    }
+                } else {
+                    warnings.push(`${location}: Unknown action '${key}'`);
+                }
+            });
+
+            // Check if referenced scenes exist
+            referencedScenes.forEach(sceneName => {
+                if (!scenes.find(s => s.scene === sceneName)) {
+                    errors.push(`${location}: Referenced scene '${sceneName}' does not exist`);
+                }
+            });
+        }
+
+        // Run validation on load
+        const validation = validateScenes();
+        if (!validation.valid) {
+            console.error('Scene validation errors:');
+            validation.errors.forEach(err => console.error('  - ' + err));
+        }
+        if (validation.warnings.length > 0) {
+            console.warn('Scene validation warnings:');
+            validation.warnings.forEach(warn => console.warn('  - ' + warn));
+        }
+        if (validation.valid) {
+            console.log('Scenes file validated successfully');
+        }
+
+        // Set text for a specific location
+        function setText(location, text, fadeIn = true) {
+            const container = textContainers[location];
+            if (!container) return;
+
+            // Clear existing text
+            container.innerHTML = '';
+            textBlocks[location] = [];
+
+            if (!text) return;
+
+            // Create word elements
+            const wordArray = text.split(' ');
             wordArray.forEach((wordText, index) => {
                 const wordSpan = document.createElement('span');
                 wordSpan.className = 'word';
                 wordSpan.textContent = wordText;
+                wordSpan.dataset.location = location;
                 wordSpan.dataset.index = index;
-                textContainer.appendChild(wordSpan);
+                container.appendChild(wordSpan);
 
-                words.push({
+                textBlocks[location].push({
                     element: wordSpan,
                     text: wordText,
-                    strikethrough: false
+                    strikethrough: false,
+                    location: location,
+                    index: index
                 });
             });
+
+            // Fade in if requested
+            if (fadeIn) {
+                container.classList.add('visible');
+            }
+        }
+
+        // Get all words from all text blocks
+        function getAllWords() {
+            const allWords = [];
+            ['top', 'left', 'right', 'bottom'].forEach(location => {
+                allWords.push(...textBlocks[location]);
+            });
+            return allWords;
         }
 
         // Check collision between character and word
@@ -146,8 +497,9 @@
         // Update word hover states
         function updateWordHovers() {
             let hoveredWord = null;
+            const allWords = getAllWords();
 
-            words.forEach(word => {
+            allWords.forEach(word => {
                 if (checkWordCollision(word.element)) {
                     word.element.classList.add('hover');
                     hoveredWord = word;
@@ -157,6 +509,84 @@
             });
 
             currentHoveredWord = hoveredWord;
+        }
+
+        // Update carried word position
+        function updateCarriedWord() {
+            if (game.carriedWord) {
+                carriedWordElement.textContent = game.carriedWord;
+                carriedWordElement.classList.add('visible');
+                // Position above character
+                carriedWordElement.style.left = (game.x + 32) + 'px';
+                carriedWordElement.style.top = (game.y - 30) + 'px';
+            } else {
+                carriedWordElement.classList.remove('visible');
+            }
+        }
+
+        // Pick up a word (spacebar on hovered word, no carried word)
+        function pickUpWord() {
+            if (currentHoveredWord && !game.carriedWord) {
+                game.carriedWord = currentHoveredWord.text;
+                // Remove the word from the text block
+                const location = currentHoveredWord.location;
+                const index = currentHoveredWord.index;
+                currentHoveredWord.element.remove();
+                textBlocks[location].splice(index, 1);
+                // Update indices
+                textBlocks[location].forEach((word, i) => {
+                    word.index = i;
+                    word.element.dataset.index = i;
+                });
+                currentHoveredWord = null;
+
+                // Check triggers after text change
+                checkTriggers();
+            }
+        }
+
+        // Insert carried word after hovered word
+        function insertWord() {
+            if (game.carriedWord && currentHoveredWord) {
+                const location = currentHoveredWord.location;
+                const index = currentHoveredWord.index;
+
+                // Create new word element
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'word';
+                wordSpan.textContent = game.carriedWord;
+                wordSpan.dataset.location = location;
+
+                // Insert after the hovered word
+                const nextElement = currentHoveredWord.element.nextSibling;
+                if (nextElement) {
+                    textContainers[location].insertBefore(wordSpan, nextElement);
+                } else {
+                    textContainers[location].appendChild(wordSpan);
+                }
+
+                // Update data structure
+                const newWord = {
+                    element: wordSpan,
+                    text: game.carriedWord,
+                    strikethrough: false,
+                    location: location,
+                    index: index + 1
+                };
+                textBlocks[location].splice(index + 1, 0, newWord);
+
+                // Update indices
+                textBlocks[location].forEach((word, i) => {
+                    word.index = i;
+                    word.element.dataset.index = i;
+                });
+
+                // Clear carried word
+                game.carriedWord = null;
+
+                // Check triggers after text change
+                checkTriggers();
+            }
         }
 
         // Animation frames for each direction
@@ -190,6 +620,19 @@
                     currentHoveredWord.element.classList.add('strikethrough');
                 } else {
                     currentHoveredWord.element.classList.remove('strikethrough');
+                }
+                e.preventDefault();
+
+                // Check triggers after text change
+                checkTriggers();
+            }
+
+            // Handle spacebar
+            if (e.key === ' ') {
+                if (game.carriedWord) {
+                    insertWord();
+                } else {
+                    pickUpWord();
                 }
                 e.preventDefault();
             }
@@ -252,10 +695,11 @@
                 }
                 game.isMoving = true;
 
-                // Trigger text fade-in on first movement
+                // Trigger on first movement
                 if (!game.hasStartedMoving) {
                     game.hasStartedMoving = true;
-                    textContainer.classList.add('visible');
+                    // Load the home scene
+                    loadScene('home');
                 }
             } else {
                 game.isMoving = false;
@@ -269,6 +713,9 @@
 
             // Update word hover states
             updateWordHovers();
+
+            // Update carried word position
+            updateCarriedWord();
         }
 
         // Game loop
@@ -284,9 +731,6 @@
             game.x = Math.max(0, Math.min(window.innerWidth - charWidth, game.x));
             game.y = Math.max(0, Math.min(window.innerHeight - charHeight, game.y));
         });
-
-        // Initialize the game
-        createWordElements();
 
         // Start the game
         gameLoop();
