@@ -345,6 +345,9 @@
             currentScene = sceneName;
             triggeredBlocks.clear();
 
+            // Update URL hash
+            window.location.hash = sceneName;
+
             // Clear carried word
             game.carriedWord = null;
 
@@ -1049,6 +1052,23 @@
             game.x = Math.max(0, Math.min(window.innerWidth - charWidth, game.x));
             game.y = Math.max(0, Math.min(window.innerHeight - charHeight, game.y));
         });
+
+        // Check for scene in URL hash on page load
+        function loadSceneFromHash() {
+            const hash = window.location.hash.slice(1); // Remove the '#' character
+            if (hash) {
+                const scene = getScene(hash);
+                if (scene) {
+                    game.hasStartedMoving = true; // Skip waiting for first movement
+                    loadScene(hash);
+                } else {
+                    console.warn('Scene in URL hash not found:', hash);
+                }
+            }
+        }
+
+        // Load scene from hash on page load
+        loadSceneFromHash();
 
         // Start the game
         gameLoop();
