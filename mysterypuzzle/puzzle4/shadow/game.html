@@ -172,6 +172,7 @@
             bottom: []
         };
         let currentHoveredWord = null;
+        let lastHoveredWords = new Set(); // Track which words we were hovering last frame
 
         // Scene management
         let currentScene = null;
@@ -512,19 +513,52 @@
 
         // Update word hover states
         function updateWordHovers() {
-            let hoveredWord = null;
             const allWords = getAllWords();
+            const currentlyCollidingWords = new Set();
 
+            // Find all words we're currently colliding with
             allWords.forEach(word => {
                 if (checkWordCollision(word.element)) {
+                    const wordId = `${word.location}_${word.index}`;
+                    currentlyCollidingWords.add(wordId);
+                }
+            });
+
+            // Check if we've touched a new word (not in lastHoveredWords)
+            let newlyTouchedWord = null;
+            for (const wordId of currentlyCollidingWords) {
+                if (!lastHoveredWords.has(wordId)) {
+                    // This is a newly touched word
+                    const [location, index] = wordId.split('_');
+                    newlyTouchedWord = textBlocks[location][parseInt(index)];
+                    break; // Use the first newly touched word we find
+                }
+            }
+
+            // Update the current hovered word
+            if (newlyTouchedWord) {
+                // We touched a new word, select it
+                currentHoveredWord = newlyTouchedWord;
+            } else if (currentHoveredWord) {
+                // Check if we're still hovering the current word
+                const currentWordId = `${currentHoveredWord.location}_${currentHoveredWord.index}`;
+                if (!currentlyCollidingWords.has(currentWordId)) {
+                    // We're no longer touching the current word
+                    currentHoveredWord = null;
+                }
+            }
+
+            // Update hover class - only the current hovered word should have it
+            allWords.forEach(word => {
+                if (word === currentHoveredWord) {
                     word.element.classList.add('hover');
-                    hoveredWord = word;
                 } else {
                     word.element.classList.remove('hover');
                 }
             });
 
-            currentHoveredWord = hoveredWord;
+            // Update lastHoveredWords for next frame
+            lastHoveredWords = currentlyCollidingWords;
         }
 
         // Update carried word position
@@ -540,6 +574,41 @@
             }
         }
 
+        // Normalize text block: move period to end, capitalize first letter, lowercase rest
+        function normalizeTextBlock(location) {
+            const words = textBlocks[location];
+            if (words.length === 0) return;
+
+            // Remove periods from all words
+            words.forEach(word => {
+                if (word.text.endsWith('.')) {
+                    word.text = word.text.slice(0, -1);
+                }
+            });
+
+            // Process each word for capitalization
+            words.forEach((word, index) => {
+                if (index === 0) {
+                    // First word: capitalize first letter, lowercase the rest
+                    word.text = word.text.charAt(0).toUpperCase() + word.text.slice(1).toLowerCase();
+                } else {
+                    // Other words: lowercase everything
+                    word.text = word.text.toLowerCase();
+                }
+            });
+
+            // Add period to the last word
+            const lastWord = words[words.length - 1];
+            if (!lastWord.text.endsWith('.')) {
+                lastWord.text += '.';
+            }
+
+            // Update all element text contents
+            words.forEach(word => {
+                word.element.textContent = word.text;
+            });
+        }
+
         // Pick up a word (spacebar on hovered word, no carried word)
         function pickUpWord() {
             if (currentHoveredWord && !game.carriedWord) {
@@ -547,11 +616,8 @@
                 const index = currentHoveredWord.index;
                 const wordText = currentHoveredWord.text;
 
-                // Check if word ends with a period
-                const hasPeriod = wordText.endsWith('.');
-
                 // Remove period from carried word if present
-                game.carriedWord = hasPeriod ? wordText.slice(0, -1) : wordText;
+                game.carriedWord = wordText.endsWith('.') ? wordText.slice(0, -1) : wordText;
 
                 // Remove the word from the text block
                 currentHoveredWord.element.remove();
@@ -563,16 +629,10 @@
                     word.element.dataset.index = i;
                 });
 
-                // If word had a period, add it to the last word in the text block
-                if (hasPeriod && textBlocks[location].length > 0) {
-                    const lastWord = textBlocks[location][textBlocks[location].length - 1];
-                    if (!lastWord.text.endsWith('.')) {
-                        lastWord.text += '.';
-                        lastWord.element.textContent = lastWord.text;
-                    }
-                }
-
                 currentHoveredWord = null;
+
+                // Normalize the text block (period at end, capitalize first letter, lowercase rest)
+                normalizeTextBlock(location);
 
                 // Check triggers after text change
                 checkTriggers();
@@ -617,6 +677,9 @@
 
                 // Clear carried word
                 game.carriedWord = null;
+
+                // Normalize the text block (period at end, capitalize first letter, lowercase rest)
+                normalizeTextBlock(location);
 
                 // Check triggers after text change
                 checkTriggers();
