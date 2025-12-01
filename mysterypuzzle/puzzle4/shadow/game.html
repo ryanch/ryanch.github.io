@@ -39,10 +39,49 @@
             font-size: 12px;
             display: none;
         }
+
+        #text-container {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            opacity: 0;
+            transition: opacity 1.5s ease-in;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            max-width: 90%;
+            pointer-events: none;
+        }
+
+        #text-container.visible {
+            opacity: 1;
+        }
+
+        .word {
+            position: relative;
+            cursor: default;
+            transition: color 0.2s ease;
+        }
+
+        .word.hover {
+            color: #0066cc;
+            text-shadow: 2px 2px 4px rgba(0, 102, 204, 0.3);
+        }
+
+        .word.strikethrough {
+            text-decoration: line-through;
+            text-decoration-thickness: 3px;
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
+        <div id="text-container"></div>
         <img id="character" src="frames/08_Elliot_RPG_Walk Down_0.png" alt="Character">
         <div id="debug-info"></div>
     </div>
@@ -51,6 +90,7 @@
         const character = document.getElementById('character');
         const gameContainer = document.getElementById('game-container');
         const debugInfo = document.getElementById('debug-info');
+        const textContainer = document.getElementById('text-container');
 
         // Game state
         const game = {
@@ -60,6 +100,7 @@
             direction: 'down',
             frame: 0,
             isMoving: false,
+            hasStartedMoving: false,
             keys: {
                 w: false,
                 a: false,
@@ -67,6 +108,56 @@
                 d: false
             }
         };
+
+        // Text and word management
+        const gameText = "The hero walks arround the room searching for a door.";
+        const words = [];
+        let currentHoveredWord = null;
+
+        // Create word elements
+        function createWordElements() {
+            const wordArray = gameText.split(' ');
+            wordArray.forEach((wordText, index) => {
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'word';
+                wordSpan.textContent = wordText;
+                wordSpan.dataset.index = index;
+                textContainer.appendChild(wordSpan);
+
+                words.push({
+                    element: wordSpan,
+                    text: wordText,
+                    strikethrough: false
+                });
+            });
+        }
+
+        // Check collision between character and word
+        function checkWordCollision(wordElement) {
+            const charRect = character.getBoundingClientRect();
+            const wordRect = wordElement.getBoundingClientRect();
+
+            return !(charRect.right < wordRect.left ||
+                     charRect.left > wordRect.right ||
+                     charRect.bottom < wordRect.top ||
+                     charRect.top > wordRect.bottom);
+        }
+
+        // Update word hover states
+        function updateWordHovers() {
+            let hoveredWord = null;
+
+            words.forEach(word => {
+                if (checkWordCollision(word.element)) {
+                    word.element.classList.add('hover');
+                    hoveredWord = word;
+                } else {
+                    word.element.classList.remove('hover');
+                }
+            });
+
+            currentHoveredWord = hoveredWord;
+        }
 
         // Animation frames for each direction
         const animations = {
@@ -89,6 +180,17 @@
             const key = e.key.toLowerCase();
             if (key in game.keys) {
                 game.keys[key] = true;
+                e.preventDefault();
+            }
+
+            // Handle delete key
+            if (e.key === 'Delete' && currentHoveredWord) {
+                currentHoveredWord.strikethrough = !currentHoveredWord.strikethrough;
+                if (currentHoveredWord.strikethrough) {
+                    currentHoveredWord.element.classList.add('strikethrough');
+                } else {
+                    currentHoveredWord.element.classList.remove('strikethrough');
+                }
                 e.preventDefault();
             }
         });
@@ -149,6 +251,12 @@
                     game.frame = (game.frame + 1) % 8;
                 }
                 game.isMoving = true;
+
+                // Trigger text fade-in on first movement
+                if (!game.hasStartedMoving) {
+                    game.hasStartedMoving = true;
+                    textContainer.classList.add('visible');
+                }
             } else {
                 game.isMoving = false;
                 game.frame = 0; // Reset to idle frame when not moving
@@ -158,6 +266,9 @@
             character.src = animations[game.direction][game.frame];
             character.style.left = game.x + 'px';
             character.style.top = game.y + 'px';
+
+            // Update word hover states
+            updateWordHovers();
         }
 
         // Game loop
@@ -173,6 +284,9 @@
             game.x = Math.max(0, Math.min(window.innerWidth - charWidth, game.x));
             game.y = Math.max(0, Math.min(window.innerHeight - charHeight, game.y));
         });
+
+        // Initialize the game
+        createWordElements();
 
         // Start the game
         gameLoop();
