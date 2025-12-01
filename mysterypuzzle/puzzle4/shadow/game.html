@@ -218,22 +218,76 @@
             return normalized.replace(/\s+/g, ' ').trim();
         }
 
-        // Check if text matches a pattern (supports * wildcard)
+        // Check if text matches a pattern (supports * wildcard and [optional] text)
         function matchesPattern(text, pattern) {
+            // First, extract optional sections [text] and replace with placeholders
+            // Use a placeholder that won't be affected by normalization (no punctuation/underscores)
+            const optionalSections = [];
+            let patternWithPlaceholders = pattern.replace(/\[([^\]]+)\]/g, (match, content) => {
+                optionalSections.push(content);
+                return `XOPTIONALX${optionalSections.length - 1}X`;
+            });
+
             // Normalize the pattern the same way text is normalized
-            // Remove punctuation and convert to lowercase, but preserve *
-            const normalizedPattern = pattern
+            // Remove punctuation and convert to lowercase, but preserve * and placeholders
+            const normalizedPattern = patternWithPlaceholders
                 .replace(/[.,\/#!$%\^&\;:{}=\-_`~()]/g, '')
                 .toLowerCase()
                 .replace(/\s+/g, ' ')
                 .trim();
 
-            // Escape special regex characters except *
-            const regexPattern = normalizedPattern
-                .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-                .replace(/\*/g, '.*');
+            // Replace spaces with a marker before escaping
+            let regexPattern = normalizedPattern.replace(/ /g, 'XSPACEX');
+
+            // Escape special regex characters except * and our markers
+            regexPattern = regexPattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+
+            // Replace placeholders with optional regex groups
+            // The optional word should include the space AFTER it
+            optionalSections.forEach((content, index) => {
+                const normalizedContent = content
+                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+                    .toLowerCase()
+                    .trim();
+                const escapedContent = normalizedContent.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+
+                // Pattern: word [optional] word
+                // Becomes: wordXSPACEX(?:optional\s+)?word
+                // This matches both "word word" and "word optional word"
+                regexPattern = regexPattern.replace(
+                    `xoptionalx${index}xXSPACEX`,
+                    `(?:${escapedContent}\\s+)?`
+                );
+                // If no space after optional, just make the word optional
+                regexPattern = regexPattern.replace(
+                    `xoptionalx${index}x`,
+                    `(?:${escapedContent})?`
+                );
+            });
+
+            // Replace remaining space markers with \s+
+            regexPattern = regexPattern.replace(/XSPACEX/g, '\\s+');
+
+            // Replace * with .* (match unescaped asterisk)
+            regexPattern = regexPattern.replace(/\*/g, '.*');
+
+            // Debug logging for optional patterns
+            if (optionalSections.length > 0) {
+                console.log('Pattern:', pattern);
+                console.log('Normalized:', normalizedPattern);
+                console.log('Final regex:', '^' + regexPattern + '$');
+                console.log('Testing against:', text);
+            }
+
             const regex = new RegExp('^' + regexPattern + '$', 'i');
-            return regex.test(text);
+            const result = regex.test(text);
+
+            if (optionalSections.length > 0) {
+                console.log('Result:', result);
+                console.log('---');
+            }
+
+            return result;
         }
 
         // Get scene by name
@@ -600,6 +654,79 @@
                     name: "Variant: 'hero opened chest' matches '*opened chest'",
                     text: "hero opened chest",
                     pattern: "*opened chest",
+                    expected: true
+                },
+                // Optional text tests
+                {
+                    name: "Optional: 'cat dog' matches 'cat [bear] dog'",
+                    text: "cat dog",
+                    pattern: "cat [bear] dog",
+                    expected: true
+                },
+                {
+                    name: "Optional: 'cat bear dog' matches 'cat [bear] dog'",
+                    text: "cat bear dog",
+                    pattern: "cat [bear] dog",
+                    expected: true
+                },
+                {
+                    name: "Optional: 'the door' matches 'the [big] door'",
+                    text: "the door",
+                    pattern: "the [big] door",
+                    expected: true
+                },
+                {
+                    name: "Optional: 'the big door' matches 'the [big] door'",
+                    text: "the big door",
+                    pattern: "the [big] door",
+                    expected: true
+                },
+                {
+                    name: "Optional: Multiple - 'cat dog' matches 'cat [big] [brown] dog'",
+                    text: "cat dog",
+                    pattern: "cat [big] [brown] dog",
+                    expected: true
+                },
+                {
+                    name: "Optional: Multiple - 'cat big dog' matches 'cat [big] [brown] dog'",
+                    text: "cat big dog",
+                    pattern: "cat [big] [brown] dog",
+                    expected: true
+                },
+                {
+                    name: "Optional: Multiple - 'cat brown dog' matches 'cat [big] [brown] dog'",
+                    text: "cat brown dog",
+                    pattern: "cat [big] [brown] dog",
+                    expected: true
+                },
+                {
+                    name: "Optional: Multiple - 'cat big brown dog' matches 'cat [big] [brown] dog'",
+                    text: "cat big brown dog",
+                    pattern: "cat [big] [brown] dog",
+                    expected: true
+                },
+                {
+                    name: "Optional with wildcard: 'the door' matches '*[big] door'",
+                    text: "the door",
+                    pattern: "*[big] door",
+                    expected: true
+                },
+                {
+                    name: "Optional with wildcard: 'the big door' matches '*[big] door'",
+                    text: "the big door",
+                    pattern: "*[big] door",
+                    expected: true
+                },
+                {
+                    name: "Optional: Should not match wrong text - 'cat mouse' vs 'cat [bear] dog'",
+                    text: "cat mouse",
+                    pattern: "cat [bear] dog",
+                    expected: false
+                },
+                {
+                    name: "Optional: With punctuation - 'Hello, world.' matches 'Hello[,] world[.]'",
+                    text: "Hello, world.",
+                    pattern: "Hello[,] world[.]",
                     expected: true
                 }
             ];
