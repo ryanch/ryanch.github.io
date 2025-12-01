@@ -119,6 +119,32 @@
         #carried-word.visible {
             display: block;
         }
+
+        #reload-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background-color: rgba(0, 102, 204, 0.8);
+            color: white;
+            border: 2px solid rgba(0, 102, 204, 1);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease, background-color 0.2s ease;
+        }
+
+        #reload-button.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #reload-button:hover {
+            background-color: rgba(0, 102, 204, 1);
+        }
     </style>
 </head>
 <body>
@@ -130,6 +156,7 @@
         <div id="carried-word"></div>
         <img id="character" src="frames/08_Elliot_RPG_Walk Down_0.png" alt="Character">
         <div id="debug-info"></div>
+        <button id="reload-button">Reload</button>
     </div>
 
     <script src="scenes.js"></script>
@@ -144,6 +171,7 @@
             bottom: document.getElementById('text-bottom')
         };
         const carriedWordElement = document.getElementById('carried-word');
+        const reloadButton = document.getElementById('reload-button');
 
         // Game state
         const game = {
@@ -304,6 +332,11 @@
 
             // Clear carried word
             game.carriedWord = null;
+
+            // Show reload button after first scene loads
+            if (isFirstLoad) {
+                reloadButton.classList.add('visible');
+            }
 
             // Fade out all existing text (skip if first load)
             if (!isFirstLoad) {
@@ -705,6 +738,13 @@
         // Initialize character position
         character.style.left = game.x + 'px';
         character.style.top = game.y + 'px';
+
+        // Reload button click listener
+        reloadButton.addEventListener('click', () => {
+            if (currentScene) {
+                loadScene(currentScene);
+            }
+        });
 
         // Keyboard event listeners
         document.addEventListener('keydown', (e) => {
