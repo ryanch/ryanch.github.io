@@ -98,7 +98,7 @@ const scenes = [
             setRightText4: "Tessa is unsure where to go or to leave."
         },
         if_GoingUp: {
-            match: ["[take] ladder [up]", "[Tessa] going up", "There is a ladder she going up", "take up" ],
+            match: ["[take] ladder [up]", "[Tessa] going up", "There is a ladder she going up", "take up", "she take ladder up" ],
             gotoScene:"mine_up"
         },
         if_GoingDown: {
@@ -110,6 +110,34 @@ const scenes = [
             gotoScene:"mine_cross_roads"
         },
 
+    },
+
+
+    {
+        scene: "mine_up",
+        start: {
+            setBottomText1: "Tessa climbs a ladder that goes on for what seems like eternity.",
+            setTopText2: "Tessa reaches the top of the ladder, and finds a small room.",
+            setLeftText3: "The room has a carved doorway which leads outside to a landing.",
+            setRightText4: "Tessa sits down for a long deserved rest."
+        },
+        if_GoingDown: {
+            match: ["Tessa goes down [ladder]","Tessa goes down the ladder", "[Tessa] climbs down [ladder]", "[Tessa] climbs down the ladder" ],
+            gotoScene:"mine_lit"
+        },
+        if_GoingOut: {
+            match: ["Tessa goes [to the] outside [landing]", "Tess goes to [the] landing", "reaches [carved] doorway which leads outside to a landing." ],
+            gotoScene:"mine_view"
+        },
+
+    },
+
+
+    {
+        scene: "mine_view",
+        start: {
+            setBottomText1: "TODO",
+        }
     },
 
 
