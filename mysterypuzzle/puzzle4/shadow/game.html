@@ -1099,11 +1099,13 @@
             }
 
             // Handle TAB key - cycle through multiple items at current position
-            if (e.key === 'Tab' && currentlyCollidingWordsList.length > 1) {
-                // Increment selection index and wrap around
-                selectionIndex = (selectionIndex + 1) % currentlyCollidingWordsList.length;
-                currentHoveredWord = currentlyCollidingWordsList[selectionIndex];
+            if (e.key === 'Tab') {
                 e.preventDefault();
+                if (currentlyCollidingWordsList.length > 1) {
+                    // Increment selection index and wrap around
+                    selectionIndex = (selectionIndex + 1) % currentlyCollidingWordsList.length;
+                    currentHoveredWord = currentlyCollidingWordsList[selectionIndex];
+                }
             }
 
             // Handle delete or backspace key
