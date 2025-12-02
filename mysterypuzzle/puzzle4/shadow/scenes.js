@@ -158,9 +158,58 @@ const scenes = [
     {
         scene: "bridge",
         start: {
-            setLeftText1: "TODO",
+            setTopText1: "Tessa approaches the shabby rope bridge. It does not look safe to cross.",
+            setBottomText2: "Far below, Tessa sees the raging river.",
+            setLeftText3: "The safety of the cave calls to Tessa."
+        },
+        if_Cross: {
+            match: ["[Tessa] cross [the] [shabby] [rope] bridge", "Tessa approaches the [shabby] [rope] bridge to cross [it]" ],
+            gotoScene:"river"
+        },
+        if_Back: {
+            match: ["[Tessa] approaches cave", "cave"],
+            gotoScene:"mine_view"
+        },
+        if_MakeSafe: {
+            match: ["*It look safe to cross*"],
+            gotoScene:"safe_bridge"
+        },
+    },
+
+
+    {
+        scene: "safe_bridge",
+        start: {
+            setTopText1: "Tessa approaches the shabby rope bridge. It looks safe enough to cross.",
+            setBottomText2: "Far below, Tessa sees the raging river.",
+            setLeftText3: "The safety of the cave calls to Tessa."
+        },
+        if_Cross: {
+            match: ["[Tessa] cross [the] [shabby] [rope] bridge", "Tessa approaches the [shabby] [rope] bridge to cross [it]" ],
+            gotoScene:"trail"
+        },
+        if_Back: {
+            match: ["[Tessa] approaches [the] cave", "cave"],
+            gotoScene:"mine_view"
         }
     },
+
+
+    {
+        scene: "trail",
+        start: {
+            setTopText1: "TODO",
+        },
+        if_Cross: {
+            match: ["[Tessa] cross [the] [shabby] [rope] bridge"],
+            gotoScene:"trail"
+        },
+        if_Back: {
+            match: ["[Tessa] approaches cave", "cave"],
+            gotoScene:"mine_view"
+        }
+    },
+
 
 
     {
@@ -213,7 +262,7 @@ const scenes = [
     {
         scene: "river",
         start: {
-            setTopText1: "Tessa stumbles and falls into a river, which is running freely.",
+            setTopText1: "Tessa falls into the river, which is running freely.",
             setBottomText2: "Tessa has difficulty swiming in the strong current."
         },
         if_TryRunOnRiver: {
