@@ -136,8 +136,23 @@ const scenes = [
     {
         scene: "mine_view",
         start: {
-            setBottomText1: "TODO",
-        }
+            setLeftText1: "Tessa exits the cave to a sweeping view of the river.",
+            setTopText2:"She observes the river flowing down the mountain, and stopping in cloud of steam.",
+            setBottomText3: "In the steam, she observes the unmistakable shape of a dragon.",
+            setRightText4: "Ahead is a shabby looking rope bridge."
+        },
+        if_Back: {
+            match: ["[exit to] cave", "[she] exits down the mountain", "Tessa exits down the mountain"],
+            gotoScene:"mine_up"
+        },
+        if_EnterBridge: {
+            match: ["ahead", "[ahead to] [the] bridge", "[exit to] [the] bridge"],
+            gotoScene:"bridge"
+        },
+        if_DragonLook: {
+            match: ["*observes [the] dragon*"],
+            setBottomText3:"Tessa observes the dragon is big, red, fiery, and hot. It is making the steam with it's flames."
+        },
     },
 
 
