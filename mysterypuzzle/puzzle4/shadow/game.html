@@ -200,6 +200,8 @@
         };
         let currentHoveredWord = null;
         let lastHoveredWords = new Set(); // Track which words we were hovering last frame
+        let currentlyCollidingWordsList = []; // List of all words currently being collided with
+        let selectionIndex = 0; // Current index in the collision list
 
         // Scene management
         let currentScene = null;
@@ -851,43 +853,72 @@
         function updateWordHovers() {
             const allWords = getAllWords();
             const currentlyCollidingWords = new Set();
+            const collidingWordsList = [];
 
             // Find all words we're currently colliding with
             allWords.forEach(word => {
                 if (checkWordCollision(word.element)) {
                     const wordId = `${word.location}_${word.index}`;
                     currentlyCollidingWords.add(wordId);
+                    collidingWordsList.push(word);
                 }
             });
 
-            // Check if we've touched a new word (not in lastHoveredWords)
-            let newlyTouchedWord = null;
-            for (const wordId of currentlyCollidingWords) {
-                if (!lastHoveredWords.has(wordId)) {
-                    // This is a newly touched word
-                    const [location, index] = wordId.split('_');
-                    newlyTouchedWord = textBlocks[location][parseInt(index)];
-                    break; // Use the first newly touched word we find
-                }
-            }
+            // Check if the set of colliding words has changed
+            const collisionSetChanged =
+                currentlyCollidingWords.size !== lastHoveredWords.size ||
+                !Array.from(currentlyCollidingWords).every(id => lastHoveredWords.has(id));
 
-            // Update the current hovered word
-            if (newlyTouchedWord) {
-                // We touched a new word, select it
-                currentHoveredWord = newlyTouchedWord;
-            } else if (currentHoveredWord) {
-                // Check if we're still hovering the current word
-                const currentWordId = `${currentHoveredWord.location}_${currentHoveredWord.index}`;
-                if (!currentlyCollidingWords.has(currentWordId)) {
-                    // We're no longer touching the current word
-                    // If we're still colliding with other words, select one of them
-                    if (currentlyCollidingWords.size > 0) {
-                        // Select the first word we're colliding with
-                        const wordId = Array.from(currentlyCollidingWords)[0];
+            // Update the colliding words list and reset selection index if collision set changed
+            if (collisionSetChanged) {
+                currentlyCollidingWordsList = collidingWordsList;
+                selectionIndex = 0;
+
+                // Check if we've touched new words (not in lastHoveredWords)
+                let newlyTouchedWord = null;
+                for (const wordId of currentlyCollidingWords) {
+                    if (!lastHoveredWords.has(wordId)) {
+                        // This is a newly touched word
                         const [location, index] = wordId.split('_');
-                        currentHoveredWord = textBlocks[location][parseInt(index)];
+                        newlyTouchedWord = textBlocks[location][parseInt(index)];
+                        break; // Use the first newly touched word we find
+                    }
+                }
+
+                // Update the current hovered word
+                if (newlyTouchedWord) {
+                    // We touched a new word, select it
+                    currentHoveredWord = newlyTouchedWord;
+                    // Update selectionIndex to match
+                    selectionIndex = collidingWordsList.indexOf(newlyTouchedWord);
+                    if (selectionIndex === -1) selectionIndex = 0;
+                } else if (currentHoveredWord) {
+                    // Check if we're still hovering the current word
+                    const currentWordId = `${currentHoveredWord.location}_${currentHoveredWord.index}`;
+                    if (!currentlyCollidingWords.has(currentWordId)) {
+                        // We're no longer touching the current word
+                        // If we're still colliding with other words, select one of them
+                        if (currentlyCollidingWords.size > 0) {
+                            currentHoveredWord = collidingWordsList[0];
+                            selectionIndex = 0;
+                        } else {
+                            currentHoveredWord = null;
+                            selectionIndex = 0;
+                        }
                     } else {
-                        currentHoveredWord = null;
+                        // Still hovering the same word, update its index in the new list
+                        selectionIndex = collidingWordsList.indexOf(currentHoveredWord);
+                        if (selectionIndex === -1) selectionIndex = 0;
+                    }
+                }
+            } else {
+                // Collision set hasn't changed, update list but keep selection
+                currentlyCollidingWordsList = collidingWordsList;
+                // Update selectionIndex to match currentHoveredWord in the updated list
+                if (currentHoveredWord) {
+                    const newIndex = collidingWordsList.indexOf(currentHoveredWord);
+                    if (newIndex !== -1) {
+                        selectionIndex = newIndex;
                     }
                 }
             }
@@ -1058,6 +1089,14 @@
             const key = e.key.toLowerCase();
             if (key in game.keys) {
                 game.keys[key] = true;
+                e.preventDefault();
+            }
+
+            // Handle TAB key - cycle through multiple items at current position
+            if (e.key === 'Tab' && currentlyCollidingWordsList.length > 1) {
+                // Increment selection index and wrap around
+                selectionIndex = (selectionIndex + 1) % currentlyCollidingWordsList.length;
+                currentHoveredWord = currentlyCollidingWordsList[selectionIndex];
                 e.preventDefault();
             }
 
