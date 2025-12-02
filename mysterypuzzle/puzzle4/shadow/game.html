@@ -215,7 +215,7 @@
                 .map(word => word.text);
             const text = textParts.join(' ');
             // Remove punctuation and convert to lowercase
-            const normalized = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '').toLowerCase();
+            const normalized = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '').toLowerCase();
             // Collapse multiple spaces
             return normalized.replace(/\s+/g, ' ').trim();
         }
@@ -233,7 +233,7 @@
             // Normalize the pattern the same way text is normalized
             // Remove punctuation and convert to lowercase, but preserve * and placeholders
             const normalizedPattern = patternWithPlaceholders
-                .replace(/[.,\/#!$%\^&\;:{}=\-_`~()]/g, '')
+                .replace(/[.,\/#!$%\^&\;:{}=\-_`~()'"]/g, '')
                 .toLowerCase()
                 .replace(/\s+/g, ' ')
                 .trim();
@@ -248,7 +248,7 @@
             // The optional word should include the space AFTER it
             optionalSections.forEach((content, index) => {
                 const normalizedContent = content
-                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '')
                     .toLowerCase()
                     .trim();
                 const escapedContent = normalizedContent.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
@@ -720,6 +720,12 @@
                     expected: true
                 },
                 {
+                    name: "Optional with wildcard at front: 'the big door on the floor' matches '[the] big door*'",
+                    text: "the big door on the floor",
+                    pattern: "[the] big door*",
+                    expected: true
+                },
+                {
                     name: "Optional: Should not match wrong text - 'cat mouse' vs 'cat [bear] dog'",
                     text: "cat mouse",
                     pattern: "cat [bear] dog",
@@ -739,7 +745,7 @@
             tests.forEach((test, index) => {
                 // Normalize text (simulate what normalizeText does)
                 const normalizedText = test.text
-                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '')
                     .toLowerCase()
                     .replace(/\s+/g, ' ')
                     .trim();
