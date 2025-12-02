@@ -48,16 +48,18 @@ app.checkAnswer = function(answer, puzzleNumber) {
 
     var hash = app.makeHash(answer);
     var puzzleHashLookup = {
-        "7dd3c7ce4a874e870081758700e727bb-2": true,
         "40ad2b590d8e40433982281179f0ceef-1": true,
-        "deafca35b068ab4cdd12f5a59652bc18-6": true,
-        "d78bace1594084f29a9dbd3469fed2cb-5": true,
-        "ec8c1b73dedc0e4caceddfffec40329d-7": true,
-        "bcef32f6887a0f77318d70a86d7e2a09-4": true,
+        "a53ad02c7188bd871d0d4b8457caa061-2": true,
+        "7dd3c7ce4a874e870081758700e727bb-2": true,
         "51df9436510388dee547d29d5c0ec558-3": true,
         "454fdedb930b03fe544c6407b3f99d9d-3": true,
+        "bcef32f6887a0f77318d70a86d7e2a09-4": true,
+        "d78bace1594084f29a9dbd3469fed2cb-5": true,
+        "deafca35b068ab4cdd12f5a59652bc18-6": true,
+        "ec8c1b73dedc0e4caceddfffec40329d-7": true,
         "073e6c090297c0f474e7a31ff70c470f-8": true
     };
+
     return puzzleHashLookup[hash + "-" + puzzleNumber]===true;
 }
 
