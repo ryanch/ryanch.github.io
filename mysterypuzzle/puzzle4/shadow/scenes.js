@@ -126,7 +126,7 @@ const scenes = [
             gotoScene:"mine_lit"
         },
         if_GoingOut: {
-            match: ["Tessa goes [to the] outside [landing]", "Tess goes to [the] landing", "reaches [carved] doorway which leads outside to a landing." ],
+            match: ["Tessa goes [to the] outside [landing]", "Tess goes to [the] landing", "reaches [carved] doorway [which leads] outside to a landing." ],
             gotoScene:"mine_view"
         },
 
@@ -146,13 +146,20 @@ const scenes = [
             gotoScene:"mine_up"
         },
         if_EnterBridge: {
-            match: ["ahead", "[ahead to] [the] bridge", "[exit to] [the] bridge"],
+            match: ["ahead", "[ahead to] [the] [rope] bridge", "[exit to] [the] [rope] bridge"],
             gotoScene:"bridge"
         },
         if_DragonLook: {
             match: ["*observes [the] dragon*"],
             setBottomText3:"Tessa observes the dragon is big, red, fiery, and hot. It is making the steam with it's flames."
         },
+    },
+
+    {
+        scene: "bridge",
+        start: {
+            setLeftText1: "TODO",
+        }
     },
 
 
