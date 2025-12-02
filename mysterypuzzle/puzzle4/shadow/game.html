@@ -908,6 +908,25 @@
             const container = textContainers[location];
             if (!container) return;
 
+            // Check if there's existing content that needs to fade out first
+            const hasExistingContent = textBlocks[location].length > 0;
+
+            if (hasExistingContent && fadeIn) {
+                // Fade out existing content first
+                container.classList.remove('visible');
+
+                // Wait for fade-out transition to complete (1.5s) before updating content
+                setTimeout(() => {
+                    updateTextContent(container, location, text, fadeIn);
+                }, 1500);
+            } else {
+                // No existing content or no fade requested, update immediately
+                updateTextContent(container, location, text, fadeIn);
+            }
+        }
+
+        // Helper function to update text content (separated for fade-out logic)
+        function updateTextContent(container, location, text, fadeIn) {
             // Clear existing text
             container.innerHTML = '';
             textBlocks[location] = [];
