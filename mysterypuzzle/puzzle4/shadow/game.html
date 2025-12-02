@@ -1100,8 +1100,8 @@
                 e.preventDefault();
             }
 
-            // Handle delete key
-            if (e.key === 'Delete' && currentHoveredWord) {
+            // Handle delete or backspace key
+            if ((e.key === 'Delete' || e.key === 'Backspace') && currentHoveredWord) {
                 currentHoveredWord.strikethrough = !currentHoveredWord.strikethrough;
                 if (currentHoveredWord.strikethrough) {
                     currentHoveredWord.element.classList.add('strikethrough');
