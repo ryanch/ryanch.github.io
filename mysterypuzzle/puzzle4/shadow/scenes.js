@@ -29,13 +29,13 @@ const scenes = [
     {
         scene: "mine_cross_roads",
         start: {
-            setLeftText1: "Tessa journeys forward, following the open path of dry bed of the river.",
+            setLeftText1: "Tessa journeys forward, following the open path of the dry river bed.",
             setTopText2: "She continues, and finds her path is blocked by boulders."
         },
         if_PathOpen: {
-            match: ["*Finds [her] path [is] open." ],
+            match: ["*Finds [her] path [is] open.", "*Finds her path"],
             setRightText1: "North she sees an abandoned mine with a sealed door.",
-            setBottomText2: "East she sees impassible woods.",
+            setBottomText2: "East she sees impassible woods."
         },
         if_MineOpen: {
             match: [ "*with a [open] door" ],
@@ -45,24 +45,28 @@ const scenes = [
             match: [ "*sees woods" ],
             gotoScene:"woods"
         },
+        if_EnterNorth: {
+            match: [ "Tessa journeys North*" ],
+            setTopText1: "She attempts to enter the door of the mine but it is sealed."
+        },
     },
 
 
     {
         scene: "woods",
         start: {
-            setTopText1: "Tessa walks through the scary dense forest that is beside the dry river, leaving the mine entrance behind.",
-            setBottomText2: "Ahead the path is a steep incline. In the distance, Tessa sees.. steam?",
+            setTopText1: "Tessa walks through the scary dense forest that is beside the dry river, leaving the mine entrance far behind.",
+            setBottomText2: "Ahead the path is a steep incline. In the distance, Tessa hears rushing water.",
             setLeftText3: "Tessa is proud for not turning back.",
-            setRightText4: "Tessa is unsure if she should investigate the steam."
+            setRightText4: "Tessa is unsure if she should investigate the river."
         },
         if_Return: {
             match: ["Tessa is [for] turning back" ],
             gotoScene:"mine_cross_roads"
         },
         if_Steam: {
-            match: ["Tessa [should] investigate the steam" ],
-            gotoScene:"dragon"
+            match: ["Tessa [should] investigate the river" ],
+            gotoScene:"river_shore"
         },
     },
 
@@ -146,7 +150,7 @@ const scenes = [
     {
         scene: "mine_down_deep_lit",
         start: {
-            setTopText1: "Tessa wakes after falling, and finds herself at the bottom of a deep pit. Miraculously with a lit torch in her hand.",
+            setTopText1: "Tessa wakes after falling, and finds herself at the bottom of a deep pit. Miraculously, with a lit torch in her hand.",
             setRightText2: "On the right, she hears running water.",
             setBottomText3: "With the light, she can see there is not a path to the water."
         },
@@ -156,60 +160,34 @@ const scenes = [
         }
     },
 
+    {
+        scene: "river",
+        start: {
+            setTopText1: "Tessa stumbles and falls into a river, which is running freely.",
+            setBottomText2: "Tessa has difficulty swiming in the strong current."
+        },
+        if_TryRunOnRiver: {
+            match:["Tessa is running in the river"],
+            setLeftText1:"Tessa attempts to run on the river, which fails."
+        },
+        if_CanSwim: {
+            match: ["Tessa is swiming in the [strong] current.", "Tessa is swiming in the [strong] river." ],
+            gotoScene:"river_shore"
+        }
+    },
+
+    {
+        scene: "river_shore",
+        start: {
+            setLeftText1: "Tessa reaches the river shore.",
+            setTopText2: "Tessa sees the river going off into the distance."
+        },
+    },
+
+
 
 // climb mine, see overlook and spot a dragon
 // take zip line down | other way
 // 
 
-    /*
-    // starting place
-    {
-        scene: "home",
-        start: {
-            setTopText1: "The hero walks arround the room searching for a door."
-        },
-        if_RemovedSearch: {
-            match: "The hero walks arround the room for a door",
-            setBottomText1: "The locked door."
-        },
-        if_DoorOpened: {
-            match: "The door",
-            gotoScene: "inside"
-        }
-    },
-
-    // 
-
-    // inside the room
-    {
-        scene: "inside",
-        start: {
-            setTopText1: "The hero opened a door, and entered a room.",
-            setLeftText2: "The hero found a chest.",
-            setRightText3: "And was excited about it.",
-        }, 
-        if_ChestOpened: {
-            match: "*hero opened chest.",
-            setBottomText1: "The hero opened the chest, and found a secret passage."
-        }, 
-        if_AChestOpened: {
-            match: "*hero opened a chest.",
-            setBottomText1: "The hero opened the chest, and found a secret passage."
-        }, 
-        if_PassageFollowed: {
-            match: "*hero entered secret passage.",
-            gotoScene: "secret_passage"
-        }
-    },
-
-    // secret passage
-    {
-        scene: "secret_passage",
-        start: {
-            setBottomText1: "The hero descends into the secret passage.",
-            setTopText2: "",
-        }
-    },
-
-    */
 ];
