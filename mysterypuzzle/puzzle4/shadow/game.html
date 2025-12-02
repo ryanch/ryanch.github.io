@@ -383,6 +383,7 @@
             // Replace * with .* (match unescaped asterisk)
             regexPattern = regexPattern.replace(/\*/g, '.*');
 
+            /*
             // Debug logging for optional patterns
             if (optionalSections.length > 0) {
                 console.log('Pattern:', pattern);
@@ -390,14 +391,17 @@
                 console.log('Final regex:', '^' + regexPattern + '$');
                 console.log('Testing against:', text);
             }
+            */
 
             const regex = new RegExp('^' + regexPattern + '$', 'i');
             const result = regex.test(text);
 
+            /*
             if (optionalSections.length > 0) {
                 console.log('Result:', result);
                 console.log('---');
             }
+            */
 
             return result;
         }
