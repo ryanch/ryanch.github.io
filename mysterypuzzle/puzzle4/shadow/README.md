@@ -84,10 +84,35 @@ When evaluating a match, each text box should be compared against a lower case v
 
 # Implementation plan
 
-1) Update the existing game to support top, left, right, and bottom text. Start with text saying "top text", "left text", "right text", and "bottom text".
-2) Update the game so the player can press spacebar to put text above their head, and insert it into other blocks of text.
-3) Create the scenes.js file using the sample scenes file. Update the game to load the scenes file only processing the "start" block in scenes. Setup the code to load the "home" scene after the player moves. 
-4) Update the scene loading to support the if_ blocks.
-5) Add tests for scene formating.
+1) ✅ Update the existing game to support top, left, right, and bottom text. Start with text saying "top text", "left text", "right text", and "bottom text".
+2) ✅ Update the game so the player can press spacebar to put text above their head, and insert it into other blocks of text.
+3) ✅ Create the scenes.js file using the sample scenes file. Update the game to load the scenes file only processing the "start" block in scenes. Setup the code to load the "home" scene after the player moves.
+4) ✅ Update the scene loading to support the if_ blocks.
+5) ✅ Add tests for scene formating.
+6) ✅ Add compromise.js integration for semantic pattern matching (NLP features)
 
-tell me what questions you have before you start. Use a plan following the plan above. 
+## NLP Pattern Matching Feature
+
+The game now supports **semantic pattern matching** using compromise.js as an optional enhancement to the wildcard/optional text system.
+
+### Usage
+
+Add an `nlpMatch` field to any `if_` trigger:
+
+```javascript
+if_GoingDown: {
+    match: ["going down", "went down"],  // Optional: keep for backward compatibility
+    nlpMatch: (doc, helpers) => {
+        return helpers.hasVerb(doc, 'go') && helpers.hasDirection(doc, 'down');
+    },
+    gotoScene: "mine_down"
+}
+```
+
+### Benefits
+- **Verb flexibility**: Matches "goes", "went", "going", "has gone" automatically
+- **Negation detection**: Easily detect "does not go", "doesn't go", "never goes"
+- **Semantic understanding**: More robust than rigid string patterns
+- **Helper functions**: Pre-built utilities for common patterns
+
+See CLAUDE.md for full documentation and examples. 

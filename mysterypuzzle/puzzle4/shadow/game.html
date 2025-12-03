@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Foreshadow Puzzle</title>
+    <script src="https://unpkg.com/compromise"></script>
     <style>
         body {
             margin: 0;
@@ -219,6 +220,7 @@
             display: block;
         }
     </style>
+     <script src="https://unpkg.com/compromise"></script>
 </head>
 <body>
     <div id="game-container">
@@ -282,6 +284,15 @@
         const controlsButton = document.getElementById('controls-button');
         const controlsModal = document.getElementById('controls-modal');
         const modalOverlay = document.getElementById('modal-overlay');
+
+        // Check if compromise.js loaded successfully
+        let nlpAvailable = false;
+        if (typeof nlp !== 'undefined') {
+            nlpAvailable = true;
+            console.log('Compromise.js loaded successfully');
+        } else {
+            console.warn('Compromise.js not available - nlpMatch features disabled');
+        }
 
         // Game state
         const game = {
@@ -406,6 +417,127 @@
             return result;
         }
 
+        // NLP helper functions
+        const nlpHelpers = {
+            // Check if text has negation
+            hasNegation(doc) {
+                // Get the raw text to check for both contracted and non-contracted forms
+                const text = doc.text().toLowerCase();
+
+                // Check for common negation words and their normalized forms (without apostrophes)
+                const negationWords = [
+                    'not', 'never', 'no',
+                    "doesn't", "doesnt", "don't", "dont",
+                    "won't", "wont", "can't", "cant",
+                    "isn't", "isnt", "aren't", "arent",
+                    "wasn't", "wasnt", "weren't", "werent",
+                    "hasn't", "hasnt", "haven't", "havent",
+                    "shouldn't", "shouldnt", "wouldn't", "wouldnt",
+                    "couldn't", "couldnt"
+                ];
+
+                // Check if any negation word appears in the text
+                for (let neg of negationWords) {
+                    const regex = new RegExp('\\b' + neg + '\\b');
+                    if (regex.test(text)) {
+                        return true;
+                    }
+                }
+
+                // Also check compromise's built-in negation detection
+                return doc.has('#Negative');
+            },
+
+            // Check if doc has verb with specific root
+            hasVerb(doc, verb) {
+                const verbLower = verb.toLowerCase();
+
+                // First check if the full document's verbs contain or match the target
+                const allVerbs = doc.verbs();
+                const verbTexts = allVerbs.out('array');
+
+                // Direct match or contains
+                for (let v of verbTexts) {
+                    const vLower = v.toLowerCase();
+                    if (vLower === verbLower || vLower.includes(verbLower)) {
+                        return true;
+                    }
+                }
+
+                // Check infinitive forms of all verbs in the document
+                const infinitives = allVerbs.toInfinitive().out('array');
+                for (let inf of infinitives) {
+                    if (inf.toLowerCase() === verbLower) {
+                        return true;
+                    }
+                }
+
+                // Fallback: check each word individually
+                // This is needed for cases where compromise doesn't detect verbs in context
+                const words = doc.terms().out('array');
+                for (let word of words) {
+                    const wordLower = word.toLowerCase();
+
+                    // Direct word match
+                    if (wordLower === verbLower) {
+                        const wordDoc = nlp(word);
+                        if (wordDoc.has('#Verb')) {
+                            return true;
+                        }
+                    }
+
+                    // Check if individual word is a verb form of target
+                    const wordDoc = nlp(word);
+                    if (wordDoc.has('#Verb')) {
+                        const inf = wordDoc.verbs().toInfinitive().text().toLowerCase().trim();
+                        if (inf === verbLower) {
+                            return true;
+                        }
+
+                        // Also check if word contains the verb (for "goes" contains "go")
+                        if (wordLower.startsWith(verbLower)) {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            },
+
+            // Check if doc has any of the direction words
+            hasDirection(doc, ...directions) {
+                const text = doc.text().toLowerCase();
+                return directions.some(dir => {
+                    const dirLower = dir.toLowerCase();
+                    // Match as whole word using word boundaries
+                    const regex = new RegExp('\\b' + dirLower + '\\b');
+                    return regex.test(text);
+                });
+            }
+        };
+
+        // Check if text matches an NLP function
+        function nlpMatchesFunction(text, matchFunction) {
+            if (!nlpAvailable) {
+                console.warn('nlpMatch used but compromise.js not loaded');
+                return false;
+            }
+
+            if (typeof matchFunction !== 'function') {
+                console.error('nlpMatch must be a function, got:', typeof matchFunction);
+                return false;
+            }
+
+            try {
+                const doc = nlp(text);
+                const result = matchFunction(doc, nlpHelpers);
+                return Boolean(result);
+            } catch (error) {
+                console.error('nlpMatch function error:', error);
+                return false;
+            }
+        }
+
         // Get scene by name
         function getScene(sceneName) {
             return scenes.find(s => s.scene === sceneName);
@@ -481,25 +613,43 @@
                 if (!key.startsWith('if_')) return;
                 if (triggeredBlocks.has(key)) return; // Already triggered
 
+                let shouldTrigger = false;
+
+                // Check legacy match field
                 const matchValue = block.match;
-                if (!matchValue) return;
+                if (matchValue) {
+                    // Convert single pattern to array for uniform processing
+                    const patterns = Array.isArray(matchValue) ? matchValue : [matchValue];
 
-                // Convert single pattern to array for uniform processing
-                const patterns = Array.isArray(matchValue) ? matchValue : [matchValue];
+                    // Check each location separately
+                    ['top', 'left', 'right', 'bottom'].forEach(location => {
+                        const normalized = normalizeText(location);
 
-                // Check each location separately
-                ['top', 'left', 'right', 'bottom'].forEach(location => {
-                    const normalized = normalizeText(location);
+                        // Check if any pattern matches
+                        const hasMatch = patterns.some(pattern => matchesPattern(normalized, pattern));
 
-                    // Check if any pattern matches
-                    const hasMatch = patterns.some(pattern => matchesPattern(normalized, pattern));
+                        if (hasMatch) {
+                            shouldTrigger = true;
+                        }
+                    });
+                }
 
-                    if (hasMatch) {
-                        // Trigger this block
-                        triggeredBlocks.add(key);
-                        executeActions(block);
-                    }
-                });
+                // Check new nlpMatch field
+                const nlpMatchValue = block.nlpMatch;
+                if (nlpMatchValue && !shouldTrigger) {
+                    const nlpFunctions = Array.isArray(nlpMatchValue) ? nlpMatchValue : [nlpMatchValue];
+
+                    ['top', 'left', 'right', 'bottom'].forEach(location => {
+                        const normalized = normalizeText(location);
+                        const hasMatch = nlpFunctions.some(fn => nlpMatchesFunction(normalized, fn));
+                        if (hasMatch) shouldTrigger = true;
+                    });
+                }
+
+                if (shouldTrigger) {
+                    triggeredBlocks.add(key);
+                    executeActions(block);
+                }
             });
         }
 
@@ -602,20 +752,46 @@
                         return;
                     }
 
-                    if (!block.match) {
-                        errors.push(`${sceneId} (${scene.scene}) ${key}: Missing required 'match' field`);
-                    } else if (typeof block.match !== 'string' && !Array.isArray(block.match)) {
-                        errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' must be a string or an array`);
-                    } else if (Array.isArray(block.match)) {
-                        // Validate array elements are strings
-                        if (block.match.length === 0) {
-                            errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' array cannot be empty`);
-                        }
-                        block.match.forEach((pattern, index) => {
-                            if (typeof pattern !== 'string') {
-                                errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' array element ${index} must be a string`);
+                    // Validate match or nlpMatch exists
+                    if (!block.match && !block.nlpMatch) {
+                        errors.push(`${sceneId} (${scene.scene}) ${key}: Missing required 'match' or 'nlpMatch' field`);
+                    }
+
+                    // Validate match field if present
+                    if (block.match) {
+                        if (typeof block.match !== 'string' && !Array.isArray(block.match)) {
+                            errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' must be a string or an array`);
+                        } else if (Array.isArray(block.match)) {
+                            // Validate array elements are strings
+                            if (block.match.length === 0) {
+                                errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' array cannot be empty`);
                             }
-                        });
+                            block.match.forEach((pattern, index) => {
+                                if (typeof pattern !== 'string') {
+                                    errors.push(`${sceneId} (${scene.scene}) ${key}: 'match' array element ${index} must be a string`);
+                                }
+                            });
+                        }
+                    }
+
+                    // Validate nlpMatch field if present
+                    if (block.nlpMatch) {
+                        if (typeof block.nlpMatch !== 'function' && !Array.isArray(block.nlpMatch)) {
+                            errors.push(`${sceneId} (${scene.scene}) ${key}: 'nlpMatch' must be a function or array`);
+                        } else if (Array.isArray(block.nlpMatch)) {
+                            if (block.nlpMatch.length === 0) {
+                                errors.push(`${sceneId} (${scene.scene}) ${key}: 'nlpMatch' array cannot be empty`);
+                            }
+                            block.nlpMatch.forEach((fn, index) => {
+                                if (typeof fn !== 'function') {
+                                    errors.push(`${sceneId} (${scene.scene}) ${key}: 'nlpMatch' array element ${index} must be a function`);
+                                }
+                            });
+                        }
+
+                        if (!nlpAvailable) {
+                            warnings.push(`${sceneId} (${scene.scene}) ${key}: nlpMatch field used but compromise.js not loaded`);
+                        }
                     }
 
                     validateActions(block, `${sceneId} (${scene.scene}) ${key}`, errors, warnings);
@@ -635,7 +811,7 @@
             const referencedScenes = new Set();
 
             Object.entries(actions).forEach(([key, value]) => {
-                if (key === 'match') return; // Skip match field
+                if (key === 'match' || key === 'nlpMatch') return; // Skip match and nlpMatch fields
 
                 const setTextMatch = key.match(/^set(Top|Left|Right|Bottom)Text(\d+)$/);
                 if (setTextMatch) {
@@ -892,6 +1068,134 @@
 
         // Run match tests at startup
         runMatchTests();
+
+        // Test suite for NLP match feature
+        function runNLPMatchTests() {
+            if (!nlpAvailable) {
+                console.log('=== NLP Match Tests Skipped (compromise.js not loaded) ===\n');
+                return { passed: 0, failed: 0, total: 0, skipped: true };
+            }
+
+            console.log('=== Running NLP Match Feature Tests ===');
+
+            const tests = [
+                {
+                    name: "Basic: 'she goes down the stairs' matches hasVerb(go) && hasDirection(down)",
+                    text: "she goes down the stairs",
+                    fn: (doc, h) => h.hasVerb(doc, 'go') && h.hasDirection(doc, 'down'),
+                    expected: true
+                },
+                {
+                    name: "Verb tense: 'she went down stairs' matches hasVerb(go) && hasDirection(down)",
+                    text: "she went down stairs",
+                    fn: (doc, h) => h.hasVerb(doc, 'go') && h.hasDirection(doc, 'down'),
+                    expected: true
+                },
+                {
+                    name: "Negation: 'she does not go down' matches hasNegation && hasVerb(go)",
+                    text: "she does not go down",
+                    fn: (doc, h) => h.hasNegation(doc) && h.hasVerb(doc, 'go'),
+                    expected: true
+                },
+                {
+                    name: "Negation: 'she goes down' does NOT match hasNegation && hasVerb(go)",
+                    text: "she goes down",
+                    fn: (doc, h) => h.hasNegation(doc) && h.hasVerb(doc, 'go'),
+                    expected: false
+                },
+                {
+                    name: "No negation: 'she goes down' matches !hasNegation && hasVerb(go)",
+                    text: "she goes down",
+                    fn: (doc, h) => !h.hasNegation(doc) && h.hasVerb(doc, 'go'),
+                    expected: true
+                },
+                {
+                    name: "No negation: 'she does not go down' does NOT match !hasNegation && hasVerb(go)",
+                    text: "she does not go down",
+                    fn: (doc, h) => !h.hasNegation(doc) && h.hasVerb(doc, 'go'),
+                    expected: false
+                },
+                {
+                    name: "Contraction: 'she doesn't go down' matches hasNegation && hasVerb(go)",
+                    text: "she doesn't go down",
+                    fn: (doc, h) => h.hasNegation(doc) && h.hasVerb(doc, 'go'),
+                    expected: true
+                },
+                {
+                    name: "Direction: 'she moves up' matches hasDirection('up')",
+                    text: "she moves up",
+                    fn: (doc, h) => h.hasDirection(doc, 'up'),
+                    expected: true
+                },
+                {
+                    name: "Multiple directions: 'going left' matches hasDirection('up', 'down', 'left')",
+                    text: "going left",
+                    fn: (doc, h) => h.hasDirection(doc, 'up', 'down', 'left'),
+                    expected: true
+                },
+                {
+                    name: "Complex: 'she continues down the stairs' matches hasVerb && hasDirection",
+                    text: "she continues down the stairs",
+                    fn: (doc, h) => h.hasVerb(doc, 'continue') && h.hasDirection(doc, 'down'),
+                    expected: true
+                },
+                {
+                    name: "Using compromise API: 'she is scared' matches doc.has('#Pronoun') && doc.has('scared')",
+                    text: "she is scared",
+                    fn: (doc, h) => doc.has('#Pronoun') && doc.has('scared'),
+                    expected: true
+                },
+                {
+                    name: "Proper noun: 'Tessa is scared' matches checking for Tessa or pronoun",
+                    text: "Tessa is scared",
+                    fn: (doc, h) => (doc.has('#ProperNoun') || doc.has('#Pronoun')) && doc.has('scared'),
+                    expected: true
+                },
+                {
+                    name: "No match: 'she climbs up' vs hasVerb(go) && hasDirection(down)",
+                    text: "she climbs up",
+                    fn: (doc, h) => h.hasVerb(doc, 'go') && h.hasDirection(doc, 'down'),
+                    expected: false
+                }
+            ];
+
+            let passed = 0;
+            let failed = 0;
+
+            tests.forEach((test, index) => {
+                // Normalize text (simulate what normalizeText does)
+                const normalizedText = test.text
+                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '')
+                    .toLowerCase()
+                    .replace(/\s+/g, ' ')
+                    .trim();
+
+                const result = nlpMatchesFunction(normalizedText, test.fn);
+                const status = result === test.expected ? 'PASS' : 'FAIL';
+
+                if (result === test.expected) {
+                    passed++;
+                    console.log(`✓ NLP Test ${index + 1}: ${test.name}`);
+                } else {
+                    failed++;
+                    console.error(`✗ NLP Test ${index + 1}: ${test.name}`);
+                    console.error(`  Text: "${test.text}" (normalized: "${normalizedText}")`);
+                    console.error(`  Expected: ${test.expected}, Got: ${result}`);
+                }
+            });
+
+            console.log('\n=== NLP Test Summary ===');
+            console.log(`Total: ${tests.length}`);
+            console.log(`Passed: ${passed}`);
+            console.log(`Failed: ${failed}`);
+            console.log(`Success Rate: ${((passed / tests.length) * 100).toFixed(1)}%`);
+            console.log('========================\n');
+
+            return { passed, failed, total: tests.length };
+        }
+
+        // Run NLP tests at startup
+        runNLPMatchTests();
 
         // Run validation on load
         const validation = validateScenes();

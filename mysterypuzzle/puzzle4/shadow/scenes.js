@@ -103,6 +103,7 @@ const scenes = [
         },
         if_GoingDown: {
             match: ["[take] stairs [going] [down]", "[Tessa] going down" ],
+            nlpMatch: (doc, h) => h.hasVerb(doc, 'go') && h.hasDirection(doc, 'down'),
             gotoScene:"mine_down"
         },
         if_GoingBack: {

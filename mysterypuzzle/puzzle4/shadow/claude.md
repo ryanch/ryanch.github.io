@@ -134,6 +134,117 @@ match: ["pattern1", "pattern2", "pattern3"]
 ```
 Triggers if ANY pattern matches ANY text block.
 
+### NLP Pattern Matching (Optional - compromise.js)
+
+In addition to wildcard/optional text matching, triggers can use **semantic NLP matching** via the `nlpMatch` field. This provides more intelligent pattern matching that understands verb tenses, negation, and parts of speech.
+
+#### NLP Match Syntax
+
+```javascript
+nlpMatch: (doc, helpers) => boolean
+```
+
+- `doc` - compromise.js document object for analyzing the text
+- `helpers` - utility object with common matching functions
+- Returns `true` if the text should trigger the block
+
+#### Available Helper Functions
+
+```javascript
+helpers.hasNegation(doc)           // Returns true if text contains negation
+helpers.hasVerb(doc, 'go')         // Returns true if text has verb "go" (any tense)
+helpers.hasDirection(doc, 'down')  // Returns true if text has direction word(s)
+```
+
+#### NLP Match Examples
+
+**Simple verb + direction matching:**
+```javascript
+if_GoingDown: {
+    match: ["going down", "went down"],  // Old way (rigid)
+    nlpMatch: (doc, h) => h.hasVerb(doc, 'go') && h.hasDirection(doc, 'down'),  // Flexible!
+    gotoScene: "mine_down"
+}
+// Matches: "going down", "goes down", "went down", "has gone down", etc.
+```
+
+**Negation detection:**
+```javascript
+if_DoesNotWant: {
+    nlpMatch: (doc, h) => h.hasNegation(doc) && h.hasVerb(doc, 'want'),
+    setBottomText1: "Fear holds her back."
+}
+// Matches: "does not want", "doesn't want", "never wants", etc.
+```
+
+**Multiple directions:**
+```javascript
+if_AnyDirection: {
+    nlpMatch: (doc, h) => h.hasDirection(doc, 'up', 'down', 'left', 'right'),
+    setTopText1: "Tessa moves forward."
+}
+// Matches any direction word
+```
+
+**Using compromise.js API directly:**
+```javascript
+if_IsScared: {
+    nlpMatch: (doc, h) => doc.has('#Pronoun') && doc.has('scared'),
+    setLeftText1: "She trembles."
+}
+// Uses compromise POS tags for more control
+```
+
+**Complex conditional logic:**
+```javascript
+if_ComplexTrigger: {
+    nlpMatch: (doc, h) => {
+        const hasGo = h.hasVerb(doc, 'go');
+        const hasDown = h.hasDirection(doc, 'down');
+        const isNegated = h.hasNegation(doc);
+
+        // Trigger if positive "going down" OR negative "not going up"
+        return (hasGo && hasDown && !isNegated) ||
+               (hasGo && doc.has('up') && isNegated);
+    },
+    gotoScene: "next_scene"
+}
+```
+
+**Array of functions (OR logic):**
+```javascript
+if_MultipleOptions: {
+    nlpMatch: [
+        (doc, h) => h.hasVerb(doc, 'climb') && h.hasDirection(doc, 'up'),
+        (doc, h) => h.hasVerb(doc, 'ascend')
+    ],
+    gotoScene: "mine_up"
+}
+// Triggers if ANY function returns true
+```
+
+#### NLP vs Pattern Matching
+
+| Feature | Pattern Match (`match`) | NLP Match (`nlpMatch`) |
+|---------|------------------------|----------------------|
+| Verb tenses | Must list each: "goes", "went", "gone" | Automatic: `hasVerb(doc, 'go')` |
+| Negation | Complex wildcards: `"*not*go*"` | Simple: `hasNegation(doc)` |
+| Flexibility | Rigid string patterns | Semantic understanding |
+| Performance | Fast regex | ~20-50ms per check |
+| Backwards compatible | Yes (always works) | Requires compromise.js loaded |
+
+**Best practices:**
+- Use `match` for simple exact phrase matching
+- Use `nlpMatch` for verb variations, negation, or semantic matching
+- Both can coexist in same trigger (fires if EITHER matches)
+- If compromise.js fails to load, `nlpMatch` is silently disabled
+
+#### Compromise.js Integration
+
+The game automatically loads compromise.js from CDN. Check console for:
+- ✓ `"Compromise.js loaded successfully"` - NLP features available
+- ⚠ `"Compromise.js not available"` - Only `match` patterns work
+
 ## Current Story (scenes.js)
 
 ### Scene Flow
