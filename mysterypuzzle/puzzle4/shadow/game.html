@@ -419,6 +419,11 @@
 
         // NLP helper functions
         const nlpHelpers = {
+
+            simple(doc) {
+                return doc.delete('#Determiner').delete('#Adjective').delete('#Adverb').delete("her").delete("Tessa").delete("she");
+            },
+
             // Check if text has negation
             hasNegation(doc) {
                 // Get the raw text to check for both contracted and non-contracted forms

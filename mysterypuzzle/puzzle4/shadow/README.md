@@ -109,10 +109,35 @@ if_GoingDown: {
 }
 ```
 
+
+ For reference, here are useful tags for game design:
+
+  | Tag         | Matches               | Example         |
+  |-------------|-----------------------|-----------------|
+  | #Pronoun    | she, he, I, you, they | "she goes"      |
+  | #ProperNoun | Tessa, John, London   | "Tessa goes"    |
+  | #Verb       | goes, went, running   | "she goes down" |
+  | #Adjective  | scared, brave, big    | "she is scared" |
+  | #Adverb     | quickly, slowly       | "walks quickly" |
+  | #Negative   | not, never, no        | "does not go"   |
+
+  Helper Function for Character Matching
+
+  You can now easily match either character names or pronouns:
+
+  nlpMatch: (doc, h) => {
+      const hasCharacter = doc.has('#ProperNoun') || doc.has('#Pronoun');
+      const isScared = doc.has('scared') || doc.has('afraid');
+      return hasCharacter && isScared;
+  }
+  // Matches: "she is scared", "Tessa is scared", "he is afraid", etc.
+
 ### Benefits
 - **Verb flexibility**: Matches "goes", "went", "going", "has gone" automatically
 - **Negation detection**: Easily detect "does not go", "doesn't go", "never goes"
 - **Semantic understanding**: More robust than rigid string patterns
 - **Helper functions**: Pre-built utilities for common patterns
+
+
 
 See CLAUDE.md for full documentation and examples. 
