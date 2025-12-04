@@ -10,7 +10,7 @@ const scenes = [
             setLeftText4: "Tessa has not found her father."
         },
         if_FoundFather: {
-            nlpMatch: (doc, h) => h.simple(doc).match("^has? found father").text() != "",
+            nlpMatch: (doc, h) => h.simple(doc).ifNo("not").match("^has? found father").text() != "",
             match: "found father",
             gotoScene: "intro"
         },
@@ -38,7 +38,7 @@ const scenes = [
             setTopText2: "She continues, and finds her path is blocked by boulders."
         },
         if_PathOpen: {
-            nlpMatch: (doc, h) => h.simple(doc).match("finds path open?$").text() != "",
+            nlpMatch: (doc, h) => h.simple(doc).ifNo("blocked").match("finds path open?$").text() != "",
             //match: ["*Finds [her] path [is] open.", "*Finds her path"],
             setRightText1: "North she sees an abandoned mine with a sealed door.",
             setBottomText2: "East she sees impassible woods."
@@ -71,7 +71,8 @@ const scenes = [
             gotoScene:"mine_cross_roads"
         },
         if_Steam: {
-            match: ["[Tessa] [should] investigate the river" ],
+            nlpMatch: (doc, h) => h.simple(doc).match("^(walks|investigate) (water|river)$").text() != "",
+            match: ["[Tessa] [should] investigate the river" ,"[Tessa] [should] investigate water" ],
             gotoScene:"river_shore"
         },
     },
@@ -153,13 +154,13 @@ const scenes = [
             gotoScene:"mine_up"
         },
         if_EnterBridge: {
-            nlpMatch: (doc, h) => h.simple(doc).match("#verb bridge").text() != "",
-            match: ["ahead", "[ahead to] [the] [rope] bridge", "[exit to] [the] [rope] bridge"],
+            nlpMatch: (doc, h) => h.simple(doc).match("^(view|exits|observes) bridge").text() != "",
+            match: ["ahead", "[ahead to] [the] [rope] bridge", "[exits to] [the] [rope] bridge"],
             gotoScene:"bridge"
         },
         if_DragonLook: {
-            match: ["*observes [the] dragon*"],
-            nlpMatch: (doc, h) => h.simple(doc).match("#verb dragon").text() != "",
+            match: ["*observes [the] dragon*", "*view [the] dragon*", "view dragon" ],
+            nlpMatch: (doc, h) => h.simple(doc).match("^(view|observes) dragon").text() != "",
             setBottomText3:"Tessa observes the dragon is big, red, fiery, and hot. It is making the steam with it's flames."
         },
     },
@@ -172,17 +173,17 @@ const scenes = [
             setLeftText3: "The safety of the cave calls to Tessa."
         },
         if_Cross: {
-            nlpMatch: (doc, h) => h.simple(doc).match("#verb bridge").text() != "",
+            nlpMatch: (doc, h) => h.simple(doc).match("(approaches|cross) bridge$").text() != "",
             match: ["[Tessa] cross [the] [shabby] [rope] bridge", "Tessa approaches the [shabby] [rope] bridge to cross [it]" ],
             gotoScene:"river"
         },
         if_Back: {
-            nlpMatch: (doc, h) => h.simple(doc).match("#verb cave").text() != "",
+            nlpMatch: (doc, h) => h.simple(doc).match("(sees|approaches) cave$").text() != "",
             match: ["[Tessa] approaches cave", "cave"],
             gotoScene:"mine_view"
         },
         if_MakeSafe: {
-            nlpMatch: (doc, h) => doc.match("does? look safe to cross").text() != "",    
+            nlpMatch: (doc, h) => !h.hasNegation(doc) && doc.match("does? look safe to cross").text() != "",    
             match: ["*It look safe to cross*"],
             gotoScene:"safe_bridge"
         },
@@ -197,12 +198,12 @@ const scenes = [
             setLeftText3: "The safety of the cave calls to Tessa."
         },
         if_Cross: {
-            nlpMatch: (doc, h) => h.simple(doc).match("#verb bridge").text() != "",
+            nlpMatch: (doc, h) => h.simple(doc).match("(approaches|cross) bridge$").text() != "",
             match: ["[Tessa] cross [the] [shabby] [rope] bridge", "Tessa approaches the [shabby] [rope] bridge to cross [it]" ],
             gotoScene:"trail"
         },
         if_Back: {
-            nlpMatch: (doc, h) => h.simple(doc).match("#verb cave").text() != "",
+            nlpMatch: (doc, h) => h.simple(doc).match("(sees|approaches) cave$").text() != "",
             match: ["[Tessa] approaches cave", "cave"],
             gotoScene:"mine_view"
         }
@@ -255,7 +256,7 @@ const scenes = [
             setLeftText4: "Beside her is the torch, which is extinguished."
         },
         if_LightTorch: {
-            match: ["Beside her is the torch" ],
+            match: ["Beside her is the torch", "finds torch beside her" ],
             gotoScene:"mine_down_deep_lit"
         }
     },
@@ -268,7 +269,7 @@ const scenes = [
             setBottomText3: "With the light, she can see there is not a path to the water."
         },
         if_LightTorch: {
-            match: ["*there is a path to the water" ],
+            match: ["*there is a path to the water", "*see [there] [is] [a] path to [the] water", "*[see] there is [a] path to [the] water" ],
             gotoScene:"river"
         }
     },
@@ -280,12 +281,12 @@ const scenes = [
             setBottomText2: "Tessa has difficulty swiming in the strong current."
         },
         if_TryRunOnRiver: {
-            match:["Tessa is running in the river"],
+            match:["Tessa [is] running in [the] river"],
             setLeftText1:"Tessa attempts to run on the river, which fails."
         },
         if_CanSwim: {
-            nlpMatch: (doc, h) => doc.delete('#Determiner').delete("her").delete("Tessa").delete("she").ifNo("difficulty").match("is swiming in").text() !="",
-            match: ["Tessa is swiming in the [strong] current.", "Tessa is swiming in the [strong] river." ],
+            nlpMatch: (doc, h) => doc.delete('#Determiner').delete("her").delete("Tessa").delete("she").ifNo("difficulty").if("(river|current)").match("is swiming in").text() !="",
+            match: ["Tessa is swiming in the [strong] current.", "Tessa is swiming in the [strong] river.", "[Tessa] swiming in the [strong current] [river]" ],
             gotoScene:"river_shore"
         }
     },
