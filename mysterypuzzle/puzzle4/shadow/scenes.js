@@ -302,15 +302,15 @@ const scenes = [
     {
         scene: "river_shore",
         start: {
-            setLeftText1: "TODO Tessa reaches the river shore.",
-            setTopText2: "Tessa sees the river going off into the distance."
+            setLeftText1: "Tessa reaches the river shore.",
+            setTopText2: "Other than this one patch of dry land, there is no other clear place to stand.",
+            setBottomText3: "All arround the shore are dense sharp bushes."
         },
-    },
-
-
-
-// climb mine, see overlook and spot a dragon
-// take zip line down | other way
-// 
+        if_clearPath: {
+            nlpMatch: (doc, h) => doc.match("^all? arround the shore (is|are) (clear land|bushes|place to stand)$").text() != "",
+            match: ["[all] arround shore are clear land", "[all] arround the shore are bushes"],
+            gotoScene: "trail"
+        }
+    }
 
 ];

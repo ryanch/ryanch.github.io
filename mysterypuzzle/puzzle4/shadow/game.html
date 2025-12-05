@@ -1240,8 +1240,8 @@
                 const index = currentHoveredWord.index;
                 const wordText = currentHoveredWord.text;
 
-                // Remove period from carried word if present
-                game.carriedWord = wordText.endsWith('.') ? wordText.slice(0, -1) : wordText;
+                // Remove all trailing punctuation from carried word
+                game.carriedWord = wordText.replace(/[.,;:!?'")\]}>-]+$/, '');
 
                 // Remove the word from the text block
                 currentHoveredWord.element.remove();
