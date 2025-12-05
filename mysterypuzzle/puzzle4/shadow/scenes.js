@@ -39,7 +39,7 @@ const scenes = [
         },
         if_PathOpen: {
             nlpMatch: (doc, h) => h.simple(doc).ifNo("blocked").match("finds path open?$").text() != "",
-            //match: ["*Finds [her] path [is] open.", "*Finds her path"],
+            match: ["*Finds [her] path [is] open.", "*Finds her path"],
             setRightText1: "North she sees an abandoned mine with a sealed door.",
             setBottomText2: "East she sees impassible woods."
         },
@@ -308,8 +308,12 @@ const scenes = [
         },
         if_clearPath: {
             nlpMatch: (doc, h) => doc.match("^all? arround the shore (is|are) (clear land|bushes|place to stand)$").text() != "",
-            match: ["[all] arround shore are clear land", "[all] arround the shore are bushes"],
+            match: ["[all] arround shore are clear land", "[all] arround the shore are bushes", "[Tessa] is sure where to go"],
             gotoScene: "trail"
+        },
+        if_dryLand: {
+            match: ["Tessa reaches [dry] land", "Tessa reaches [the] land"],
+            setRightText1:"Tessa is on land for sure, but unsure where to go."
         }
     }
 
