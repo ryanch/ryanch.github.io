@@ -213,17 +213,25 @@ const scenes = [
     {
         scene: "trail",
         start: {
-            setTopText1: "TODO",
+            setTopText1: "Tessa enters find a trail, and moves quickly through the wooded forest.",
+            setLeftText2: "Tessa runs up a hill,",
+            setRightText3: "and finds a bear blocking the path.",
+            setBottomText4: 'Tessa thinks to her self, "Just my luck, a bear! Why not a nice rabbit?"'
         },
         if_Cross: {
-            match: ["[Tessa] cross [the] [shabby] [rope] bridge"],
-            gotoScene:"trail"
-        },
-        if_Back: {
-            match: ["[Tessa] approaches cave", "cave"],
-            gotoScene:"mine_view"
+            match: ["[and] finds a [nice] rabbit blocking the path", "[and] finds a [nice] rabbit"],
+            gotoScene:"dragon"
         }
     },
+
+
+    {
+        scene: "dragon",
+        start: {
+            setTopText1: "TODO",
+        }
+    },
+
 
 
 
@@ -294,7 +302,7 @@ const scenes = [
     {
         scene: "river_shore",
         start: {
-            setLeftText1: "Tessa reaches the river shore.",
+            setLeftText1: "TODO Tessa reaches the river shore.",
             setTopText2: "Tessa sees the river going off into the distance."
         },
     },

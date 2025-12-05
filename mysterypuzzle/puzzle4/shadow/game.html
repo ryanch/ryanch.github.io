@@ -834,6 +834,12 @@
                     text: "Hello, world.",
                     pattern: "Hello[,] world[.]",
                     expected: true
+                },
+                {
+                    name: "matches bear",
+                    text: "and finds a rabbit? blocking the path",
+                    pattern: "[and] finds a [nice] rabbit blocking the path",
+                    expected: true
                 }
             ];
 
@@ -841,12 +847,8 @@
             let failed = 0;
 
             tests.forEach((test, index) => {
-                // Normalize text (simulate what normalizeText does)
-                const normalizedText = test.text
-                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '')
-                    .toLowerCase()
-                    .replace(/\s+/g, ' ')
-                    .trim();
+                // Normalize text using shared function
+                const normalizedText = normalizeTextFromString(test.text);
 
                 const result = matchesPattern(normalizedText, test.pattern);
                 const status = result === test.expected ? 'PASS' : 'FAIL';
@@ -970,12 +972,8 @@
             let failed = 0;
 
             tests.forEach((test, index) => {
-                // Normalize text (simulate what normalizeText does)
-                const normalizedText = test.text
-                    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '')
-                    .toLowerCase()
-                    .replace(/\s+/g, ' ')
-                    .trim();
+                // Normalize text using shared function
+                const normalizedText = normalizeTextFromString(test.text);
 
                 const result = nlpMatchesFunction(normalizedText, test.fn);
                 const status = result === test.expected ? 'PASS' : 'FAIL';

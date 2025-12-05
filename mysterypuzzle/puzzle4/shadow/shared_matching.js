@@ -5,7 +5,7 @@
 // Note: In game.html this takes a location parameter, but here we accept text directly
 function normalizeTextFromString(text) {
     // Remove punctuation and convert to lowercase
-    const normalized = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '').toLowerCase();
+    const normalized = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"?]/g, '').toLowerCase();
     // Collapse multiple spaces
     return normalized.replace(/\s+/g, ' ').trim();
 }
@@ -23,7 +23,7 @@ function matchesPattern(text, pattern) {
     // Normalize the pattern the same way text is normalized
     // Remove punctuation and convert to lowercase, but preserve * and placeholders
     const normalizedPattern = patternWithPlaceholders
-        .replace(/[.,\/#!$%\^&\;:{}=\-_`~()'"]/g, '')
+        .replace(/[.,\/#!$%\^&\;:{}=\-_`~()'"?]/g, '')
         .toLowerCase()
         .replace(/\s+/g, ' ')
         .trim();
@@ -38,7 +38,7 @@ function matchesPattern(text, pattern) {
     // The optional word should include the space AFTER it
     optionalSections.forEach((content, index) => {
         const normalizedContent = content
-            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, '')
+            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"?]/g, '')
             .toLowerCase()
             .trim();
         const escapedContent = normalizedContent.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
