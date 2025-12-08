@@ -20,19 +20,19 @@ const scenes = [
         scene: "intro",
         start: {
             setTopText1: "Her father looking deeply concerned, faces Tessa.",
-            setLeftText2: "'As you, know the river is dry, and our crops are failing.'",
-            setRightText3: "'You must begin your journey to find the cause of the dry river.'"
+            setLeftText2: '"As you, know the river is dry, and our crops are failing."',
+            setRightText3: '"You must begin your journey to find the cause of the dry river."'
         },
         if_Begin: {
             match:["begin looking", "begin journey"],
             nlpMatch: (doc, h) => h.simple(doc).delete("cause of").match("^begin? journey to find? river").text() != "",
-            gotoScene: "mine_cross_roads"
+            gotoScene: "mcr1"
         },
     },
 
 
     {
-        scene: "mine_cross_roads",
+        scene: "mcr1",
         start: {
             setLeftText1: "Tessa journeys forward, following the open dry river bed.",
             setTopText2: "She continues, and finds her path is blocked by boulders."
@@ -49,7 +49,7 @@ const scenes = [
         },
         if_EnterWoods: {
             match: [ "*sees woods" ],
-            gotoScene:"woods"
+            gotoScene:"wds"
         },
         if_EnterNorth: {
             match: [ "*journeys North*" ],
@@ -59,7 +59,7 @@ const scenes = [
 
 
     {
-        scene: "woods",
+        scene: "wds",
         start: {
             setTopText1: "Tessa walks through the scary dense forest that is beside the dry river, leaving the mine entrance far behind.",
             setBottomText2: "Ahead the path is a steep incline. In the distance, Tessa hears rushing water.",
@@ -68,12 +68,12 @@ const scenes = [
         },
         if_Return: {
             match: ["[Tessa is] [for] turning back" ],
-            gotoScene:"mine_cross_roads"
+            gotoScene:"mcr1"
         },
         if_Steam: {
             nlpMatch: (doc, h) => h.simple(doc).match("^(walks|investigate) (water|river)$").text() != "",
             match: ["[Tessa] [should] investigate the river" ,"[Tessa] [should] investigate water" ],
-            gotoScene:"river_shore"
+            gotoScene:"rs001"
         },
     },
 
@@ -87,17 +87,17 @@ const scenes = [
         },
         if_HoldingTorch: {
             match:["[Inside] Tessa sees a torch"],
-            gotoScene:"mine_lit"
+            gotoScene:"ml10"
         },
         if_GoingBack: {
             match: ["[Tessa] [is] [going] [to] leave"  ],
-            gotoScene:"mine_cross_roads"
+            gotoScene:"mcr1"
         },
 
     },
 
     {
-        scene: "mine_lit",
+        scene: "ml10",
         start: {
             setLeftText1: "Tessa is at the entrance to the mine, she is holding a torch so she can see.",
             setTopText2: "There is a ladder she can take up.",
@@ -106,22 +106,22 @@ const scenes = [
         },
         if_GoingUp: {
             match: ["[take] ladder [up]", "[Tessa] going up", "There is a ladder she going up", "take up", "she take ladder up" ],
-            gotoScene:"mine_up"
+            gotoScene:"mup12"
         },
         if_GoingDown: {
             match: ["[take] stairs [going] [down]", "[Tessa] going down" ],
-            gotoScene:"mine_down"
+            gotoScene:"md01"
         },
         if_GoingBack: {
             match: ["[Tessa] [is] [going] [to] leave"  ],
-            gotoScene:"mine_cross_roads"
+            gotoScene:"mcr1"
         },
 
     },
 
 
     {
-        scene: "mine_up",
+        scene: "mup12",
         start: {
             setBottomText1: "Tessa climbs a ladder that goes on for what seems like eternity.",
             setTopText2: "Tessa reaches the top of the ladder, and finds a small room.",
@@ -130,19 +130,19 @@ const scenes = [
         },
         if_GoingDown: {
             match: ["Tessa goes down [ladder]","Tessa goes down [the] ladder", "[Tessa] climbs down [ladder]", "[Tessa] climbs down the ladder" ],
-            gotoScene:"mine_lit"
+            gotoScene:"ml10"
         },
         if_GoingOut: {
             nlpMatch: (doc, h) => doc.delete('#Determiner').delete('#Adverb').delete("her").delete("Tessa").match("^#Verb outside landing?").text() != "",
             match: ["Tessa goes [to the] outside [landing]", "Tessa goes to [the] landing", "reaches [carved] doorway [which leads] outside to a landing.", "[Tessa] goes outside" ],
-            gotoScene:"mine_view"
+            gotoScene:"mv99"
         },
 
     },
 
 
     {
-        scene: "mine_view",
+        scene: "mv99",
         start: {
             setLeftText1: "Tessa exits the cave to a sweeping view of the river.",
             setTopText2:"She observes the river flowing down the mountain, and stopping in cloud of steam.",
@@ -151,12 +151,12 @@ const scenes = [
         },
         if_Back: {
             match: ["[exit to] cave", "[she] exits down the mountain", "Tessa exits down the mountain"],
-            gotoScene:"mine_up"
+            gotoScene:"mup12"
         },
         if_EnterBridge: {
             nlpMatch: (doc, h) => h.simple(doc).match("^(view|exits|observes) bridge").text() != "",
             match: ["ahead", "[ahead to] [the] [rope] bridge", "[exits to] [the] [rope] bridge"],
-            gotoScene:"bridge"
+            gotoScene:"b3rd"
         },
         if_DragonLook: {
             match: ["*observes [the] dragon*", "*view [the] dragon*", "view dragon" ],
@@ -166,7 +166,7 @@ const scenes = [
     },
 
     {
-        scene: "bridge",
+        scene: "b3rd",
         start: {
             setTopText1: "Tessa approaches the shabby rope bridge. It does not look safe to cross.",
             setBottomText2: "Far below, Tessa sees the raging river.",
@@ -175,23 +175,23 @@ const scenes = [
         if_Cross: {
             nlpMatch: (doc, h) => h.simple(doc).match("(approaches|cross) bridge$").text() != "",
             match: ["[Tessa] cross [the] [shabby] [rope] bridge", "Tessa approaches the [shabby] [rope] bridge to cross [it]" ],
-            gotoScene:"river"
+            gotoScene:"rvr3"
         },
         if_Back: {
             nlpMatch: (doc, h) => h.simple(doc).match("(sees|approaches) cave$").text() != "",
             match: ["[Tessa] approaches cave", "cave"],
-            gotoScene:"mine_view"
+            gotoScene:"mv99"
         },
         if_MakeSafe: {
             nlpMatch: (doc, h) => !h.hasNegation(doc) && doc.match("does? look safe to cross").text() != "",    
             match: ["*It look safe to cross*"],
-            gotoScene:"safe_bridge"
+            gotoScene:"sfb32"
         },
     },
 
 
     {
-        scene: "safe_bridge",
+        scene: "sfb32",
         start: {
             setTopText1: "Tessa approaches the shabby rope bridge. It looks safe enough to cross.",
             setBottomText2: "Far below, Tessa sees the raging river.",
@@ -200,18 +200,18 @@ const scenes = [
         if_Cross: {
             nlpMatch: (doc, h) => h.simple(doc).match("(approaches|cross) bridge$").text() != "",
             match: ["[Tessa] cross [the] [shabby] [rope] bridge", "Tessa approaches the [shabby] [rope] bridge to cross [it]" ],
-            gotoScene:"trail"
+            gotoScene:"tr1"
         },
         if_Back: {
             nlpMatch: (doc, h) => h.simple(doc).match("(sees|approaches) cave$").text() != "",
             match: ["[Tessa] approaches cave", "cave"],
-            gotoScene:"mine_view"
+            gotoScene:"mv99"
         }
     },
 
 
     {
-        scene: "trail",
+        scene: "tr1",
         start: {
             setTopText1: "Tessa enters find a trail, and moves quickly through the wooded forest.",
             setLeftText2: "Tessa runs up a hill,",
@@ -220,13 +220,13 @@ const scenes = [
         },
         if_Cross: {
             match: ["[and] finds a [nice] rabbit blocking the path", "[and] finds a [nice] rabbit"],
-            gotoScene:"dragon"
+            gotoScene:"drg00n"
         }
     },
 
 
     {
-        scene: "dragon",
+        scene: "drg00n",
         start: {
             setTopText1: "Tessa comes out of woods, and approaches the river, ready to investigate, and is rewarded with a clear view of a dragon.",
             setBottomText2: "The dragon is blowing fire to boil away the flowing river.",
@@ -234,7 +234,7 @@ const scenes = [
         },
         if_LookCloser: {
             match: "*investigate [the] dragon*", 
-            gotoScene: "dragon_inspect"
+            gotoScene: "dri_1"
         },
         if_ItIsClear: {
             match: "*clear why [the] dragon*",
@@ -243,7 +243,7 @@ const scenes = [
     },
 
     {
-        scene: "dragon_inspect",
+        scene: "dri_1",
         start: {
             setTopText1: "Tessa carefully approaches the dragon to determine what is going on.",
             setBottomText2: "Tessa notices in the river bed is a dragon egg!",
@@ -252,7 +252,7 @@ const scenes = [
         },
         if_ProtectEgg: {
             match: ["Tessa protecting [the] egg", "[Tessa] protect [the] egg", "Tessa protect [the] egg from [the] water", "Tessa protecting [the] egg from [the] water"  ],
-            gotoScene: "dragon_help"
+            gotoScene: "drh01"
         },
         if_ApproachEgg: {
             match: ["Tessa [carefully] approaches the egg"],
@@ -261,7 +261,7 @@ const scenes = [
     },
 
     {
-        scene: "dragon_help",
+        scene: "drh01",
         start: {
             setLeftText1: "Tessa runs into the dry river bed, and retrieves the egg. As soon as she lifts the egg, the dragon stops blowing fire, and watches Tessa.",
             setTopText2: "As the water starts to flow again, Tessa steps out of river to go towards the dragon.",
@@ -270,12 +270,12 @@ const scenes = [
         },
         if_goHome: {
             match: ["[Tessa] starts home", "[Tessa] go home", "[Tessa] go towards home", "[to] home"],
-            gotoScene: "final"
+            gotoScene: "s902"
         }
     },
 
     {
-        scene: "final",
+        scene: "s902",
         start: {
             setLeftText1: "Tessa returns home and finds her father.",
             setTopText2: 'Her father says, "You solved the puzzle, saving the dragon egg was the solution."',
@@ -285,7 +285,7 @@ const scenes = [
     },
 
     {
-        scene: "mine_down",
+        scene: "md01",
         start: {
             setLeftText1: "Tessa descends stairs in the mine, going deep into the mountain.",
             setTopText2: "No wonder the villagers don't return to this mine.",
@@ -298,14 +298,14 @@ const scenes = [
         },
         if_GoingDown: {
             match: ["Tessa [should] continue down", "[she] [should] continue down" ],
-            gotoScene:"mine_down_deep"
+            gotoScene:"mdd"
         },
 
     },
 
 
     {
-        scene: "mine_down_deep",
+        scene: "mdd",
         start: {
             setTopText1: "Tessa continues deeper into the cave, and looses her footing and falls.",
             setBottomText2: "Tessa wakes after falling, and finds herself at the bottom of a deep pit.",
@@ -314,12 +314,12 @@ const scenes = [
         },
         if_LightTorch: {
             match: ["Beside her is the torch", "finds torch beside her" ],
-            gotoScene:"mine_down_deep_lit"
+            gotoScene:"mddli1"
         }
     },
 
     {
-        scene: "mine_down_deep_lit",
+        scene: "mddli1",
         start: {
             setTopText1: "Tessa wakes after falling, and finds herself at the bottom of a deep pit. Miraculously, with a lit torch in her hand.",
             setRightText2: "On the right, she hears running water.",
@@ -327,12 +327,12 @@ const scenes = [
         },
         if_LightTorch: {
             match: ["*there is a path to the water", "*see [there] [is] [a] path to [the] water", "*[see] there is [a] path to [the] water" ],
-            gotoScene:"river"
+            gotoScene:"rvr3"
         }
     },
 
     {
-        scene: "river",
+        scene: "rvr3",
         start: {
             setTopText1: "Tessa falls into the river, which is running freely.",
             setBottomText2: "Tessa has difficulty swiming in the strong current."
@@ -344,12 +344,12 @@ const scenes = [
         if_CanSwim: {
             nlpMatch: (doc, h) => doc.delete('#Determiner').delete("her").delete("Tessa").delete("she").ifNo("difficulty").if("(river|current)").match("is swiming in").text() !="",
             match: ["Tessa is swiming in the [strong] current.", "Tessa is swiming in the [strong] river.", "[Tessa] swiming in the [strong current] [river]" ],
-            gotoScene:"river_shore"
+            gotoScene:"rs001"
         }
     },
 
     {
-        scene: "river_shore",
+        scene: "rs001",
         start: {
             setLeftText1: "Tessa reaches the river shore.",
             setTopText2: "Other than this one patch of dry land, there is no other clear place to stand.",
@@ -358,7 +358,7 @@ const scenes = [
         if_clearPath: {
             nlpMatch: (doc, h) => doc.match("^all? arround the shore (is|are) (clear land|bushes|place to stand)$").text() != "",
             match: ["[all] arround shore are clear land", "[all] arround the shore are bushes", "[Tessa] is sure where to go"],
-            gotoScene: "trail"
+            gotoScene: "tr1"
         },
         if_dryLand: {
             match: ["Tessa reaches [dry] land", "Tessa reaches [the] land"],
