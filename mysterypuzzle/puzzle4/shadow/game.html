@@ -270,6 +270,12 @@
     <script src="game_scenes.js"></script>
     <script src="shared_matching.js"></script>
     <script>
+
+        var mus = {};
+        mus.log = function(s) {
+            //console.log(s);
+        }
+
         // ===== SCENE DECODER =====
         // Substitution cipher decoder - matches encoder in encode_scenes.py
 
@@ -397,7 +403,7 @@
 
         // ===== DECODER TESTS =====
         function testDecoder() {
-            console.log('=== Testing Decoder ===');
+            mus.log('=== Testing Decoder ===');
 
             // Helper function for testing - encodes using same mapping
             function encodeStringForTest(str) {
@@ -513,7 +519,7 @@
             const test8 = decodeString("@#$%^&*");
             console.assert(test8 === "@#$%^&*", "Test 8 Failed: Special chars");
 
-            console.log('✓ All decoder tests passed');
+            mus.log('✓ All decoder tests passed');
         }
 
         // Run tests before decoding actual scenes
@@ -522,7 +528,7 @@
         // Decode scenes immediately after loading
         if (typeof scenes !== 'undefined') {
             decodeScenes(scenes);
-            console.log('✓ Scenes decoded successfully');
+            mus.log('✓ Scenes decoded successfully');
         } else {
             console.error('✗ Scenes array not found!');
         }
@@ -549,7 +555,7 @@
         let nlpAvailable = false;
         if (typeof nlp !== 'undefined') {
             nlpAvailable = true;
-            console.log('Compromise.js loaded successfully');
+            mus.log('Compromise.js loaded successfully');
         } else {
             console.warn('Compromise.js not available - nlpMatch features disabled');
         }
@@ -914,7 +920,7 @@
 
         // Test suite for match feature
         function runMatchTests() {
-            console.log('=== Running Match Feature Tests ===');
+            mus.log('=== Running Match Feature Tests ===');
 
             const tests = [
                 // User's specific test case
@@ -1114,7 +1120,7 @@
 
                 if (result === test.expected) {
                     passed++;
-                    console.log(`✓ Test ${index + 1}: ${test.name}`);
+                    mus.log(`✓ Test ${index + 1}: ${test.name}`);
                 } else {
                     failed++;
                     console.error(`✗ Test ${index + 1}: ${test.name}`);
@@ -1124,12 +1130,12 @@
                 }
             });
 
-            console.log('\n=== Test Summary ===');
-            console.log(`Total: ${tests.length}`);
-            console.log(`Passed: ${passed}`);
-            console.log(`Failed: ${failed}`);
-            console.log(`Success Rate: ${((passed / tests.length) * 100).toFixed(1)}%`);
-            console.log('====================\n');
+            mus.log('\n=== Test Summary ===');
+            mus.log(`Total: ${tests.length}`);
+            mus.log(`Passed: ${passed}`);
+            mus.log(`Failed: ${failed}`);
+            mus.log(`Success Rate: ${((passed / tests.length) * 100).toFixed(1)}%`);
+            mus.log('====================\n');
 
             return { passed, failed, total: tests.length };
         }
@@ -1140,11 +1146,11 @@
         // Test suite for NLP match feature
         function runNLPMatchTests() {
             if (!nlpAvailable) {
-                console.log('=== NLP Match Tests Skipped (compromise.js not loaded) ===\n');
+                mus.log('=== NLP Match Tests Skipped (compromise.js not loaded) ===\n');
                 return { passed: 0, failed: 0, total: 0, skipped: true };
             }
 
-            console.log('=== Running NLP Match Feature Tests ===');
+            mus.log('=== Running NLP Match Feature Tests ===');
 
             const tests = [
                 {
@@ -1239,7 +1245,7 @@
 
                 if (result === test.expected) {
                     passed++;
-                    console.log(`✓ NLP Test ${index + 1}: ${test.name}`);
+                    mus.log(`✓ NLP Test ${index + 1}: ${test.name}`);
                 } else {
                     failed++;
                     console.error(`✗ NLP Test ${index + 1}: ${test.name}`);
@@ -1248,12 +1254,12 @@
                 }
             });
 
-            console.log('\n=== NLP Test Summary ===');
-            console.log(`Total: ${tests.length}`);
-            console.log(`Passed: ${passed}`);
-            console.log(`Failed: ${failed}`);
-            console.log(`Success Rate: ${((passed / tests.length) * 100).toFixed(1)}%`);
-            console.log('========================\n');
+            mus.log('\n=== NLP Test Summary ===');
+            mus.log(`Total: ${tests.length}`);
+            mus.log(`Passed: ${passed}`);
+            mus.log(`Failed: ${failed}`);
+            mus.log(`Success Rate: ${((passed / tests.length) * 100).toFixed(1)}%`);
+            mus.log('========================\n');
 
             return { passed, failed, total: tests.length };
         }
@@ -1272,7 +1278,7 @@
             validation.warnings.forEach(warn => console.warn('  - ' + warn));
         }
         if (validation.valid) {
-            console.log('Scenes file validated successfully');
+            mus.log('Scenes file validated successfully');
         }
 
         // Set text for a specific location
