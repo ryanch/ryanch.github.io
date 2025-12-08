@@ -228,12 +228,61 @@ const scenes = [
     {
         scene: "dragon",
         start: {
-            setTopText1: "TODO",
+            setTopText1: "Tessa comes out of woods, and approaches the river, ready to investigate, and is rewarded with a clear view of a dragon.",
+            setBottomText2: "The dragon is blowing fire to boil away the flowing river.",
+            setLeftText3: "From this distance it is unclear why the dragon is doing this."
+        },
+        if_LookCloser: {
+            match: "*investigate [the] dragon*", 
+            gotoScene: "dragon_inspect"
+        },
+        if_ItIsClear: {
+            match: "*clear why [the] dragon*",
+            setRightText1:"Tessa guesses the dragon wants to prevent the water from flowing, but does not know why."
         }
     },
 
+    {
+        scene: "dragon_inspect",
+        start: {
+            setTopText1: "Tessa carefully approaches the dragon to determine what is going on.",
+            setBottomText2: "Tessa notices in the river bed is a dragon egg!",
+            setLeftText3: "If any water reaches the egg, the dragon inside will die - it must be kept warm at all times.",
+            setRightText3: "This explains the dragon's behavior, it is protecting the egg."
+        },
+        if_ProtectEgg: {
+            match: ["Tessa protecting [the] egg", "[Tessa] protect [the] egg", "Tessa protect [the] egg from [the] water", "Tessa protecting [the] egg from [the] water"  ],
+            gotoScene: "dragon_help"
+        },
+        if_ApproachEgg: {
+            match: ["Tessa [carefully] approaches the egg"],
+            setTopText1: "Tessa approaches the egg to see if she can help protect it from the water."
+        }
+    },
 
+    {
+        scene: "dragon_help",
+        start: {
+            setLeftText1: "Tessa runs into the dry river bed, and retrieves the egg. As soon as she lifts the egg, the dragon stops blowing fire, and watches Tessa.",
+            setTopText2: "As the water starts to flow again, Tessa steps out of river to go towards the dragon.",
+            setRightText3: "Tessa places the egg at the feet of the dragon and slowly backs away.",
+            setBottomText4: "The dragon retrieves the egg, and flys away to its home."
+        },
+        if_goHome: {
+            match: ["[Tessa] starts home", "[Tessa] go home", "[Tessa] go towards home", "[to] home"],
+            gotoScene: "final"
+        }
+    },
 
+    {
+        scene: "final",
+        start: {
+            setLeftText1: "Tessa returns home and finds her father.",
+            setTopText2: 'Her father says, "You solved the puzzle, saving the dragon egg was the solution."',
+            setRightText3: '"Congratulaions!"',
+            setBottomText4: "The village cellebrate their new hero, Tessa!"
+        }
+    },
 
     {
         scene: "mine_down",
