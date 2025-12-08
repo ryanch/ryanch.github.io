@@ -267,8 +267,268 @@
         </div>
     </div>
 
-    <script src="scenes.js"></script>
+    <script src="game_scenes.js"></script>
     <script src="shared_matching.js"></script>
+    <script>
+        // ===== SCENE DECODER =====
+        // Substitution cipher decoder - matches encoder in encode_scenes.py
+
+        function decodeString(encoded) {
+            // Hardcoded reverse mapping table (inverse of encoder table)
+            const DECODE_MAP = {
+                "!": "?",
+                "(": ")",
+                ")": "(",
+                ",": ":",
+                "-": "-",
+                ".": ";",
+                "0": "5",
+                "1": "3",
+                "2": "9",
+                "3": "7",
+                "4": "1",
+                "5": "8",
+                "6": "4",
+                "7": "0",
+                "8": "6",
+                "9": "2",
+                ":": ",",
+                ";": ".",
+                "?": "!",
+                "A": "V",
+                "B": "S",
+                "C": "P",
+                "D": "H",
+                "E": "C",
+                "F": "J",
+                "G": "K",
+                "H": "M",
+                "I": "Y",
+                "J": "Z",
+                "K": "R",
+                "L": "W",
+                "M": "U",
+                "N": "T",
+                "O": "X",
+                "P": "I",
+                "Q": "A",
+                "R": "D",
+                "S": "L",
+                "T": "E",
+                "U": "G",
+                "V": "Q",
+                "W": "B",
+                "X": "O",
+                "Y": "F",
+                "Z": "N",
+                "a": "v",
+                "b": "s",
+                "c": "p",
+                "d": "h",
+                "e": "c",
+                "f": "j",
+                "g": "k",
+                "h": "m",
+                "i": "y",
+                "j": "z",
+                "k": "r",
+                "l": "w",
+                "m": "u",
+                "n": "t",
+                "o": "x",
+                "p": "i",
+                "q": "a",
+                "r": "d",
+                "s": "l",
+                "t": "e",
+                "u": "g",
+                "v": "q",
+                "w": "b",
+                "x": "o",
+                "y": "f",
+                "z": "n"
+            };
+
+            let decoded = '';
+            for (let char of encoded) {
+                decoded += DECODE_MAP[char] || char; // decode or pass through
+            }
+            return decoded;
+        }
+
+        function decodeScenes(scenesArray) {
+            // Recursively decode all string values in scenes
+            scenesArray.forEach(scene => {
+                // Decode start block text actions
+                if (scene.start) {
+                    Object.keys(scene.start).forEach(key => {
+                        if (typeof scene.start[key] === 'string' && key !== 'scene' && key !== 'gotoScene') {
+                            scene.start[key] = decodeString(scene.start[key]);
+                        }
+                    });
+                }
+
+                // Decode if_ block text actions and match patterns
+                Object.keys(scene).forEach(key => {
+                    if (key.startsWith('if_')) {
+                        const block = scene[key];
+
+                        // Decode match field (string or array)
+                        if (block.match) {
+                            if (typeof block.match === 'string') {
+                                block.match = decodeString(block.match);
+                            } else if (Array.isArray(block.match)) {
+                                block.match = block.match.map(p => decodeString(p));
+                            }
+                        }
+
+                        // Decode text actions (skip nlpMatch functions and gotoScene)
+                        Object.keys(block).forEach(actionKey => {
+                            if (typeof block[actionKey] === 'string' &&
+                                actionKey !== 'gotoScene' &&
+                                actionKey !== 'match') {
+                                block[actionKey] = decodeString(block[actionKey]);
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
+        // ===== DECODER TESTS =====
+        function testDecoder() {
+            console.log('=== Testing Decoder ===');
+
+            // Helper function for testing - encodes using same mapping
+            function encodeStringForTest(str) {
+                const ENCODE_MAP = {
+                    "!": "?",
+                    "(": ")",
+                    ")": "(",
+                    ",": ":",
+                    "-": "-",
+                    ".": ";",
+                    "0": "7",
+                    "1": "4",
+                    "2": "9",
+                    "3": "1",
+                    "4": "6",
+                    "5": "0",
+                    "6": "8",
+                    "7": "3",
+                    "8": "5",
+                    "9": "2",
+                    ":": ",",
+                    ";": ".",
+                    "?": "!",
+                    "A": "Q",
+                    "B": "W",
+                    "C": "E",
+                    "D": "R",
+                    "E": "T",
+                    "F": "Y",
+                    "G": "U",
+                    "H": "D",
+                    "I": "P",
+                    "J": "F",
+                    "K": "G",
+                    "L": "S",
+                    "M": "H",
+                    "N": "Z",
+                    "O": "X",
+                    "P": "C",
+                    "Q": "V",
+                    "R": "K",
+                    "S": "B",
+                    "T": "N",
+                    "U": "M",
+                    "V": "A",
+                    "W": "L",
+                    "X": "O",
+                    "Y": "I",
+                    "Z": "J",
+                    "a": "q",
+                    "b": "w",
+                    "c": "e",
+                    "d": "r",
+                    "e": "t",
+                    "f": "y",
+                    "g": "u",
+                    "h": "d",
+                    "i": "p",
+                    "j": "f",
+                    "k": "g",
+                    "l": "s",
+                    "m": "h",
+                    "n": "z",
+                    "o": "x",
+                    "p": "c",
+                    "q": "v",
+                    "r": "k",
+                    "s": "b",
+                    "t": "n",
+                    "u": "m",
+                    "v": "a",
+                    "w": "l",
+                    "x": "o",
+                    "y": "i",
+                    "z": "j"
+                };
+                let encoded = '';
+                for (let char of str) {
+                    encoded += ENCODE_MAP[char] || char;
+                }
+                return encoded;
+            }
+
+            // Test 1: Basic string decode
+            const test1 = decodeString(encodeStringForTest("Hello World"));
+            console.assert(test1 === "Hello World", "Test 1 Failed: Basic string");
+
+            // Test 2: String with punctuation
+            const test2 = decodeString(encodeStringForTest("Hello, World!"));
+            console.assert(test2 === "Hello, World!", "Test 2 Failed: Punctuation");
+
+            // Test 3: Mixed case
+            const test3 = decodeString(encodeStringForTest("ThE QuIcK bRoWn FoX"));
+            console.assert(test3 === "ThE QuIcK bRoWn FoX", "Test 3 Failed: Mixed case");
+
+            // Test 4: Numbers
+            const test4 = decodeString(encodeStringForTest("Test 123 numbers"));
+            console.assert(test4 === "Test 123 numbers", "Test 4 Failed: Numbers");
+
+            // Test 5: Real scene text
+            const test5 = decodeString(encodeStringForTest("Tessa walks arround the village."));
+            console.assert(test5 === "Tessa walks arround the village.", "Test 5 Failed: Real text");
+
+            // Test 6: Pattern text
+            const test6 = decodeString(encodeStringForTest("found father"));
+            console.assert(test6 === "found father", "Test 6 Failed: Pattern");
+
+            // Test 7: Empty string
+            const test7 = decodeString(encodeStringForTest(""));
+            console.assert(test7 === "", "Test 7 Failed: Empty string");
+
+            // Test 8: Special characters that should pass through unchanged
+            const test8 = decodeString("@#$%^&*");
+            console.assert(test8 === "@#$%^&*", "Test 8 Failed: Special chars");
+
+            console.log('✓ All decoder tests passed');
+        }
+
+        // Run tests before decoding actual scenes
+        testDecoder();
+
+        // Decode scenes immediately after loading
+        if (typeof scenes !== 'undefined') {
+            decodeScenes(scenes);
+            console.log('✓ Scenes decoded successfully');
+        } else {
+            console.error('✗ Scenes array not found!');
+        }
+
+        // ===== END DECODER =====
+    </script>
     <script>
         const character = document.getElementById('character');
         const gameContainer = document.getElementById('game-container');
