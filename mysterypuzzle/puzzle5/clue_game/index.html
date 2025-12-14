@@ -17,7 +17,7 @@
             --grid-bg: #1a1a2e;
             --static-cell: #2d2d44;
             --editable-cell: #3a3a5a;
-            --shape-color: rgba(255, 0, 255, 0.6);
+            --shape-color: rgba(255, 0, 255, 0.3);
             --shape-border: #ff00ff;
         }
 
@@ -187,34 +187,38 @@
 
         // Configuration
         const gameGrid = [
-            "  P,  *,  M,  E,  *, IG",
-            "  P, AS,  *,  X, MA, MA",
-            "  *,  Y,  O,  X, RK,  X",
-            " ST,  *, RD,  X,  X,  X",
-            " YM,  I,  X,  X,  X,  S",
-            "  E,  L,  X, TE,  R,  *",
+            "  P,   *,   M,   E,   *, IG",
+            "  P,  AS,  *,  PH,  *, MA",
+            "  TR,  *,   O,  CI,   S,  *",
+            "  S,   C,  RD,   *,  NS, EU",
+            "  *,  E,  AR,   S,  IG,  T",
+            "  NO, CU,   L,   T,   H,  H",
         ];
 
         const pieces = [
 
-            // MAP
             {
                 shape: [
-                    "LLL"
+                    "RR",
+                    " D",
+                    "LL"
                    ],
                 id: 1
             },
 
-            // ENIGMA
+
+
+
             {
                 shape: [
-                    "RRR",
-                    "  D",
+                    "RR",
+                    " D",
+                    " D",
+                    " D"
                    ],
                 id: 2
             },
 
-            // PASSWORD
             {
                 shape: [
                     "RRR",
@@ -224,111 +228,59 @@
                 id: 3
             },
 
-            // MARKER
-            {
-                shape: [
-                    "D",
-                    "D",
-                    "D"
-                   ],
-                id: 4
-            },
 
-
-            // SECRET
-            {
-                shape: [
-                    "  D",
-                    "LLL"
-                   ],
-                id: 5
-            },
-
-            // MYSTERY
             {
                 shape: [
                     "RR",
                     "U ",
-                    "U "
                    ],
-                id: 6
-            },
-
-
-            // FILE
-            {
-                shape: [
-                    " D",
-                    " D",
-                    "LL"
-                   ],
-                id: 7
-            },
-
-            /*
-            // 4 wide piece with left arrow
-            {
-                shape: [
-                    "  D",
-                    "  D",
-                    "  D",
-                    "LLL"
-                   ],
-                id: 1
-            },
-            // 4 tall piece with down arrow
-            {
-                shape: [
-                    "D",
-                    "D",
-                    "D",
-                    "D"
-                ],
-                id: 2
-            },
-            // zig zag shape
-            {
-                shape: [
-                    "RRR  ",
-                    "  RRR"
-                ],
-                id: 3
-            },
-            // bump shape
-            {
-                shape: [
-                    "  LLL  ",
-                    "LLL LL"
-                ],
                 id: 4
             },
-            // L shape
+
+
             {
                 shape: [
-                    "U ",
-                    "U ",
-                    "UUU"
-                ],
+                    "RR",
+                    " D",
+                    " D"
+                   ],
                 id: 5
             },
-            // small down shape
+
+
             {
                 shape: [
-                    "D",
-                    "D",
-                    "D"
-                ],
+                    "D RR",
+                    "RRU"
+                   ],
                 id: 6
             },
-            // small backwards L shape
+
+
             {
                 shape: [
-                    " D",
-                    "LL"
-                ],
+                    "RRR",
+                    "  D",
+                   ],
                 id: 7
-            }
-                */
+            },
+
+
+
+            {
+                shape: [
+                    "LLL"
+                   ],
+                id: 8
+            },
+
+
+
+
+
+
+
+
         ];
 
         // Game state
@@ -377,12 +329,13 @@
             // Position pieces around the board: left, top, right, and bottom
             const positions = [
                 {x: 40, y: 100},      // Piece 1: Top-left
-                {x: 40, y: 380},      // Piece 2: Left-middle
-                {x: 40, y: 620},      // Piece 3: Bottom-left
+                {x: 40, y: 350},      // Piece 2: Left-middle
+                {x: 40, y: 670},      // Piece 3: Bottom-left
                 {x: 430, y: 30},      // Piece 4: Top-center
                 {x: 820, y: 100},     // Piece 5: Top-right
                 {x: 820, y: 380},     // Piece 6: Right-middle
-                {x: 820, y: 620}      // Piece 7: Bottom-right
+                {x: 820, y: 620},     // Piece 7: Bottom-right
+                {x: 430, y: 720}      // Piece 8: Bottom-center
             ];
 
             pieces.forEach((piece, index) => {
