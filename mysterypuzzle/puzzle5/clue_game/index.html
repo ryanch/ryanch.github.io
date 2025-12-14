@@ -382,6 +382,20 @@
             const shapeData = parseShape(piece.shape);
             pieceEl.dataset.shapeData = JSON.stringify(shapeData);
 
+            // Define unique colors for each piece
+            const pieceColors = {
+                1: { bg: 'rgba(0, 255, 255, 0.3)', border: '#00ffff' },     // Cyan
+                2: { bg: 'rgba(255, 0, 255, 0.3)', border: '#ff00ff' },     // Magenta
+                3: { bg: 'rgba(255, 255, 0, 0.3)', border: '#ffff00' },     // Yellow
+                4: { bg: 'rgba(255, 102, 0, 0.3)', border: '#ff6600' },     // Orange
+                5: { bg: 'rgba(0, 255, 0, 0.3)', border: '#00ff00' },       // Green
+                6: { bg: 'rgba(255, 0, 0, 0.3)', border: '#ff0000' },       // Red
+                7: { bg: 'rgba(0, 102, 255, 0.3)', border: '#0066ff' },     // Blue
+                8: { bg: 'rgba(153, 0, 255, 0.3)', border: '#9900ff' }      // Purple
+            };
+
+            const colors = pieceColors[piece.id];
+
             // Calculate which borders each cell should have for perimeter outline
             const borders = calculatePerimeterBorders(shapeData);
 
@@ -391,6 +405,11 @@
                 cellEl.style.position = 'absolute';
                 cellEl.style.left = (cell.col * 60) + 'px';
                 cellEl.style.top = (cell.row * 60) + 'px';
+
+                // Apply piece-specific colors
+                cellEl.style.background = colors.bg;
+                cellEl.style.backgroundClip = 'content-box';
+                cellEl.style.boxShadow = `0 0 10px ${colors.border}`;
 
                 // Calculate padding for perimeter edges (5px on outer edges only)
                 const paddingTop = borders[index].top ? 10 : 0;
@@ -407,7 +426,7 @@
                 // Apply selective borders based on perimeter detection
                 const borderWidth = '3px';
                 const borderStyle = 'solid';
-                const borderColor = 'var(--shape-border)';
+                const borderColor = colors.border;
 
                 if (borders[index].top) {
                     cellEl.style.borderTop = `${borderWidth} ${borderStyle} ${borderColor}`;
