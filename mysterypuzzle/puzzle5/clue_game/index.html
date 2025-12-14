@@ -393,10 +393,10 @@
                 cellEl.style.top = (cell.row * 60) + 'px';
 
                 // Calculate padding for perimeter edges (5px on outer edges only)
-                const paddingTop = borders[index].top ? 5 : 0;
-                const paddingRight = borders[index].right ? 5 : 0;
-                const paddingBottom = borders[index].bottom ? 5 : 0;
-                const paddingLeft = borders[index].left ? 5 : 0;
+                const paddingTop = borders[index].top ? 10 : 0;
+                const paddingRight = borders[index].right ? 10 : 0;
+                const paddingBottom = borders[index].bottom ? 10 : 0;
+                const paddingLeft = borders[index].left ? 10 : 0;
 
                 // Apply padding to create visual gaps
                 cellEl.style.paddingTop = paddingTop + 'px';
@@ -437,8 +437,10 @@
                     indicator.textContent = '▶';
                 } else if (cell.dir === 'U') {
                     indicator.textContent = '▲';
+                    indicator.style.fontSize = "17px";
                 } else if (cell.dir === 'D') {
                     indicator.textContent = '▼';
+                    indicator.style.fontSize = "17px";
                 }
 
                 cellEl.appendChild(indicator);
