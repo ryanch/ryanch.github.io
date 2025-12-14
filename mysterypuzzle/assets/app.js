@@ -5,7 +5,7 @@ app.puzzleMetaData = [
     {num:"2", title:"Red Herrings", short:"Be distracted."},
     {num:"3", title:"The Twist", short:"Twist it up to crack this one."},
     {num:"4", title:"Foreshadow", short:"Complete the quest."},
-    {num:"5", title:"Puz5Name", short:"puzShort Text 5"},
+    {num:"5", title:"Clues", short:"Find the clues."},
     {num:"6", title:"Puz6Name", short:"puzShort Text 6"},
     {num:"7", title:"Puz7Name", short:"puzShort Text 7"},
     {num:"8", title:"Puz8Name", short:"puzShort Text 8"}
@@ -56,7 +56,8 @@ app.checkAnswer = function(answer, puzzleNumber) {
         "27499426ff7305af0f8b5827165f6cfd-4": true,
         "e849d2f8e63e56a06084e49ba2b8f64f-4": true,
         "a539f1ee8a87bf58acedbb3bc182f00f-4": true,
-        "d78bace1594084f29a9dbd3469fed2cb-5": true,
+        "18de2e7aae836fa335f08761c482940a-5": true,
+        "44ed56d714ba466126e66be9866a76b1-5": true,
         "deafca35b068ab4cdd12f5a59652bc18-6": true,
         "ec8c1b73dedc0e4caceddfffec40329d-7": true,
         "073e6c090297c0f474e7a31ff70c470f-8": true
