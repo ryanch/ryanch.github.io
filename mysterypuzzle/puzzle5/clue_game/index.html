@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clues</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-magenta: #ff00ff;
+            --neon-yellow: #ffff00;
+            --neon-orange: #ff6600;
+            --dark-bg: #0a0a1a;
+            --grid-bg: #1a1a2e;
+            --static-cell: #2d2d44;
+            --editable-cell: #3a3a5a;
+            --shape-color: rgba(255, 0, 255, 0.6);
+            --shape-border: #ff00ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            background: var(--dark-bg);
+            background-image:
+                repeating-linear-gradient(0deg, rgba(0, 255, 255, 0.03) 0px, transparent 1px, transparent 2px, rgba(0, 255, 255, 0.03) 3px),
+                repeating-linear-gradient(90deg, rgba(255, 0, 255, 0.03) 0px, transparent 1px, transparent 2px, rgba(255, 0, 255, 0.03) 3px);
+            color: var(--neon-cyan);
+            overflow: hidden;
+            width: 1000px;
+            height: 800px;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+        }
+
+        #game-container {
+            width: 1000px;
+            height: 800px;
+            position: relative;
+        }
+
+        #title {
+            font-family: 'Audiowide', sans-serif;
+            font-size: 48px;
+            color: var(--neon-yellow);
+            text-shadow:
+                0 0 10px var(--neon-yellow),
+                0 0 20px var(--neon-yellow),
+                0 0 30px var(--neon-orange);
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            letter-spacing: 8px;
+            z-index: 100;
+        }
+
+        #game-board {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: grid;
+            grid-template-columns: repeat(6, 60px);
+            grid-template-rows: repeat(6, 60px);
+            gap: 2px;
+            background: var(--neon-cyan);
+            padding: 3px;
+            box-shadow:
+                0 0 20px var(--neon-cyan),
+                0 0 40px rgba(0, 255, 255, 0.5),
+                inset 0 0 20px rgba(0, 255, 255, 0.2);
+            border: 2px solid var(--neon-cyan);
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background: var(--grid-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: normal;
+            position: relative;
+            cursor: default;
+        }
+
+        .cell.static {
+            background: var(--static-cell);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        .cell.editable {
+            background: var(--editable-cell);
+            cursor: text;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 5px var(--neon-yellow);
+        }
+
+        .cell.editable.active {
+            background: #4a4a6a;
+            box-shadow: inset 0 0 10px var(--neon-yellow);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: inset 0 0 10px var(--neon-yellow); }
+            50% { box-shadow: inset 0 0 20px var(--neon-yellow), inset 0 0 30px var(--neon-yellow); }
+        }
+
+        .game-piece {
+            position: absolute;
+            cursor: grab;
+            z-index: 50;
+        }
+
+        .game-piece.dragging {
+            cursor: grabbing;
+            opacity: 0.8;
+            z-index: 1000;
+        }
+
+        .game-piece.highlighted {
+            filter: brightness(1.5);
+        }
+
+        .piece-cell {
+            width: 60px;
+            height: 60px;
+            background: var(--shape-color);
+            background-clip: content-box;
+            box-shadow: 0 0 10px var(--shape-border);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .direction-indicator {
+            position: absolute;
+            font-size: 12px;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 5px var(--neon-yellow);
+            font-weight: bold;
+        }
+
+        .shape-overlay {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .shape-overlay .piece-cell {
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="title">CLUES</div>
+        <div id="game-board"></div>
+    </div>
+
+    <script>
+
+
+/*
+            " *, *, *,   *, *, *",
+            " *, *, *,   *, *, *",
+            " *, *, *,   *, *,  *",
+            " *, *, *,  *, *, *",
+            " *, *, *,   *, *, *",
+            " *, *, *,   *, *, *",
+
+*/
+
+
+        // Configuration
+        const gameGrid = [
+            "  P,  *,  M,  E,  *, IG",
+            "  P, AS,  *,  X, MA, MA",
+            "  *,  Y,  O,  X, RK,  X",
+            " ST,  *, RD,  X,  X,  X",
+            " YM,  I,  X,  X,  X,  S",
+            "  E,  L,  X, TE,  R,  *",
+        ];
+
+        const pieces = [
+
+            // MAP
+            {
+                shape: [
+                    "LLL"
+                   ],
+                id: 1
+            },
+
+            // ENIGMA
+            {
+                shape: [
+                    "RRR",
+                    "  D",
+                   ],
+                id: 2
+            },
+
+            // PASSWORD
+            {
+                shape: [
+                    "RRR",
+                    "  D",
+                    "  D"
+                   ],
+                id: 3
+            },
+
+            // MARKER
+            {
+                shape: [
+                    "D",
+                    "D",
+                    "D"
+                   ],
+                id: 4
+            },
+
+
+            // SECRET
+            {
+                shape: [
+                    "  D",
+                    "LLL"
+                   ],
+                id: 5
+            },
+
+            // MYSTERY
+            {
+                shape: [
+                    "RR",
+                    "U ",
+                    "U "
+                   ],
+                id: 6
+            },
+
+
+            // FILE
+            {
+                shape: [
+                    " D",
+                    " D",
+                    "LL"
+                   ],
+                id: 7
+            },
+
+            /*
+            // 4 wide piece with left arrow
+            {
+                shape: [
+                    "  D",
+                    "  D",
+                    "  D",
+                    "LLL"
+                   ],
+                id: 1
+            },
+            // 4 tall piece with down arrow
+            {
+                shape: [
+                    "D",
+                    "D",
+                    "D",
+                    "D"
+                ],
+                id: 2
+            },
+            // zig zag shape
+            {
+                shape: [
+                    "RRR  ",
+                    "  RRR"
+                ],
+                id: 3
+            },
+            // bump shape
+            {
+                shape: [
+                    "  LLL  ",
+                    "LLL LL"
+                ],
+                id: 4
+            },
+            // L shape
+            {
+                shape: [
+                    "U ",
+                    "U ",
+                    "UUU"
+                ],
+                id: 5
+            },
+            // small down shape
+            {
+                shape: [
+                    "D",
+                    "D",
+                    "D"
+                ],
+                id: 6
+            },
+            // small backwards L shape
+            {
+                shape: [
+                    " D",
+                    "LL"
+                ],
+                id: 7
+            }
+                */
+        ];
+
+        // Game state
+        let gridData = [];
+        let placedShapes = []; // {pieceId, gridX, gridY, shape}
+        let draggedPiece = null;
+        let dragOffset = {x: 0, y: 0};
+        let activeCell = null;
+
+        // Parse grid configuration
+        function parseGrid() {
+            gridData = gameGrid.map(row => {
+                return row.split(',').map(cell => cell.trim());
+            });
+        }
+
+        // Initialize game board
+        function initBoard() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 6; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+
+                    const value = gridData[row][col];
+                    if (value === '*') {
+                        cell.className += ' editable';
+                        cell.textContent = '';
+                    } else {
+                        cell.className += ' static';
+                        cell.textContent = value;
+                    }
+
+                    cell.addEventListener('click', handleCellClick);
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        // Initialize game pieces
+        function initPieces() {
+            // Position pieces around the board: left, top, right, and bottom
+            const positions = [
+                {x: 40, y: 100},      // Piece 1: Top-left
+                {x: 40, y: 380},      // Piece 2: Left-middle
+                {x: 40, y: 620},      // Piece 3: Bottom-left
+                {x: 430, y: 30},      // Piece 4: Top-center
+                {x: 820, y: 100},     // Piece 5: Top-right
+                {x: 820, y: 380},     // Piece 6: Right-middle
+                {x: 820, y: 620}      // Piece 7: Bottom-right
+            ];
+
+            pieces.forEach((piece, index) => {
+                const pieceEl = createPieceElement(piece, positions[index]);
+                document.getElementById('game-container').appendChild(pieceEl);
+            });
+        }
+
+        // Calculate which borders each cell should have based on shape perimeter
+        function calculatePerimeterBorders(shapeData) {
+            const borders = [];
+            const cellMap = new Map();
+
+            // Create a lookup map for quick adjacency checks
+            shapeData.cells.forEach(cell => {
+                cellMap.set(`${cell.row},${cell.col}`, true);
+            });
+
+            // For each cell, determine which edges are on the perimeter
+            shapeData.cells.forEach((cell, index) => {
+                const hasCellAbove = cellMap.has(`${cell.row - 1},${cell.col}`);
+                const hasCellRight = cellMap.has(`${cell.row},${cell.col + 1}`);
+                const hasCellBelow = cellMap.has(`${cell.row + 1},${cell.col}`);
+                const hasCellLeft = cellMap.has(`${cell.row},${cell.col - 1}`);
+
+                borders[index] = {
+                    top: !hasCellAbove,
+                    right: !hasCellRight,
+                    bottom: !hasCellBelow,
+                    left: !hasCellLeft
+                };
+            });
+
+            return borders;
+        }
+
+        function createPieceElement(piece, position) {
+            const pieceEl = document.createElement('div');
+            pieceEl.className = 'game-piece';
+            pieceEl.dataset.pieceId = piece.id;
+            pieceEl.style.left = position.x + 'px';
+            pieceEl.style.top = position.y + 'px';
+
+            const shapeData = parseShape(piece.shape);
+            pieceEl.dataset.shapeData = JSON.stringify(shapeData);
+
+            // Calculate which borders each cell should have for perimeter outline
+            const borders = calculatePerimeterBorders(shapeData);
+
+            shapeData.cells.forEach((cell, index) => {
+                const cellEl = document.createElement('div');
+                cellEl.className = 'piece-cell';
+                cellEl.style.position = 'absolute';
+                cellEl.style.left = (cell.col * 60) + 'px';
+                cellEl.style.top = (cell.row * 60) + 'px';
+
+                // Calculate padding for perimeter edges (5px on outer edges only)
+                const paddingTop = borders[index].top ? 5 : 0;
+                const paddingRight = borders[index].right ? 5 : 0;
+                const paddingBottom = borders[index].bottom ? 5 : 0;
+                const paddingLeft = borders[index].left ? 5 : 0;
+
+                // Apply padding to create visual gaps
+                cellEl.style.paddingTop = paddingTop + 'px';
+                cellEl.style.paddingRight = paddingRight + 'px';
+                cellEl.style.paddingBottom = paddingBottom + 'px';
+                cellEl.style.paddingLeft = paddingLeft + 'px';
+
+                // Apply selective borders based on perimeter detection
+                const borderWidth = '3px';
+                const borderStyle = 'solid';
+                const borderColor = 'var(--shape-border)';
+
+                if (borders[index].top) {
+                    cellEl.style.borderTop = `${borderWidth} ${borderStyle} ${borderColor}`;
+                }
+                if (borders[index].right) {
+                    cellEl.style.borderRight = `${borderWidth} ${borderStyle} ${borderColor}`;
+                }
+                if (borders[index].bottom) {
+                    cellEl.style.borderBottom = `${borderWidth} ${borderStyle} ${borderColor}`;
+                }
+                if (borders[index].left) {
+                    cellEl.style.borderLeft = `${borderWidth} ${borderStyle} ${borderColor}`;
+                }
+
+                const indicator = document.createElement('div');
+                indicator.className = 'direction-indicator';
+
+                // Position relative to content area, accounting for padding
+                const indicatorTop = (borders[index].top ? 7 : 2);
+                const indicatorLeft = (borders[index].left ? 7 : 2);
+                indicator.style.top = indicatorTop + 'px';
+                indicator.style.left = indicatorLeft + 'px';
+
+                if (cell.dir === 'L') {
+                    indicator.textContent = '◀';
+                } else if (cell.dir === 'R') {
+                    indicator.textContent = '▶';
+                } else if (cell.dir === 'U') {
+                    indicator.textContent = '▲';
+                } else if (cell.dir === 'D') {
+                    indicator.textContent = '▼';
+                }
+
+                cellEl.appendChild(indicator);
+                pieceEl.appendChild(cellEl);
+            });
+
+            pieceEl.addEventListener('mousedown', handlePieceMouseDown);
+            return pieceEl;
+        }
+
+        function parseShape(shape) {
+            const cells = [];
+            shape.forEach((row, rowIndex) => {
+                for (let colIndex = 0; colIndex < row.length; colIndex++) {
+                    const char = row[colIndex];
+                    if (char !== ' ') {
+                        cells.push({
+                            row: rowIndex,
+                            col: colIndex,
+                            dir: char
+                        });
+                    }
+                }
+            });
+            return {cells, width: Math.max(...cells.map(c => c.col)) + 1, height: shape.length};
+        }
+
+        function handleCellClick(e) {
+            const cell = e.target;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+
+            // Check if there's a shape on this cell
+            const shapeOnCell = placedShapes.find(ps =>
+                ps.cells.some(c => c.gridRow === row && c.gridCol === col)
+            );
+
+            // Priority: editable cell > shape
+            if (cell.classList.contains('editable')) {
+                if (activeCell) {
+                    activeCell.classList.remove('active');
+                }
+                cell.classList.add('active');
+                activeCell = cell;
+                cell.focus();
+            } else if (shapeOnCell) {
+                const pieceEl = document.querySelector(`[data-piece-id="${shapeOnCell.pieceId}"]`);
+                if (pieceEl) {
+                    pieceEl.classList.add('highlighted');
+                    setTimeout(() => pieceEl.classList.remove('highlighted'), 200);
+                }
+            }
+        }
+
+        // Handle typing in editable cells
+        document.addEventListener('keydown', (e) => {
+            if (!activeCell) return;
+
+            if (e.key === 'Backspace') {
+                activeCell.textContent = '';
+            } else if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+                const currentText = activeCell.textContent;
+                if (currentText.length < 2) {
+                    activeCell.textContent = (currentText + e.key.toUpperCase());
+                }
+            }
+            e.preventDefault();
+        });
+
+        // Click outside to deactivate cell
+        document.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('cell') && activeCell) {
+                // Check if clicking on a game piece over an editable cell
+                const clickedPiece = e.target.closest('.game-piece');
+                if (clickedPiece) {
+                    // Check if this piece is over an editable cell
+                    const boardCells = document.querySelectorAll('.cell.editable');
+                    for (const cell of boardCells) {
+                        const cellRect = cell.getBoundingClientRect();
+                        if (e.clientX >= cellRect.left && e.clientX <= cellRect.right &&
+                            e.clientY >= cellRect.top && e.clientY <= cellRect.bottom) {
+                            // Clicking on a piece over an editable cell - don't deactivate
+                            return;
+                        }
+                    }
+                }
+
+                activeCell.classList.remove('active');
+                activeCell = null;
+            }
+        });
+
+        function handlePieceMouseDown(e) {
+            e.preventDefault();
+
+            // Check if clicking over an editable cell
+            const boardCells = document.querySelectorAll('.cell.editable');
+            for (const cell of boardCells) {
+                const cellRect = cell.getBoundingClientRect();
+                if (e.clientX >= cellRect.left && e.clientX <= cellRect.right &&
+                    e.clientY >= cellRect.top && e.clientY <= cellRect.bottom) {
+                    // Clicking on an editable cell - activate it instead of dragging
+                    if (activeCell) {
+                        activeCell.classList.remove('active');
+                    }
+                    cell.classList.add('active');
+                    activeCell = cell;
+                    return; // Don't start dragging
+                }
+            }
+
+            draggedPiece = e.currentTarget;
+
+            const rect = draggedPiece.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+
+            draggedPiece.classList.add('dragging');
+            draggedPiece.classList.remove('placed');
+
+            // Remove from placed shapes if it was placed
+            const pieceId = parseInt(draggedPiece.dataset.pieceId);
+            placedShapes = placedShapes.filter(ps => ps.pieceId !== pieceId);
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleMouseMove(e) {
+            if (!draggedPiece) return;
+
+            draggedPiece.style.left = (e.clientX - dragOffset.x) + 'px';
+            draggedPiece.style.top = (e.clientY - dragOffset.y) + 'px';
+        }
+
+        function handleMouseUp(e) {
+            if (!draggedPiece) return;
+
+            draggedPiece.classList.remove('dragging');
+
+            // Try to snap to grid
+            const boardRect = document.getElementById('game-board').getBoundingClientRect();
+            const pieceRect = draggedPiece.getBoundingClientRect();
+
+            // Calculate grid position
+            const gridX = Math.round((pieceRect.left - boardRect.left - 3) / 62);
+            const gridY = Math.round((pieceRect.top - boardRect.top - 3) / 62);
+
+            const shapeData = JSON.parse(draggedPiece.dataset.shapeData);
+
+            // Check if piece is over the board and fits
+            if (canPlacePiece(gridX, gridY, shapeData)) {
+                snapPieceToGrid(draggedPiece, gridX, gridY, shapeData);
+            }
+
+            draggedPiece = null;
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        function canPlacePiece(gridX, gridY, shapeData) {
+            for (const cell of shapeData.cells) {
+                const targetRow = gridY + cell.row;
+                const targetCol = gridX + cell.col;
+
+                // Check bounds
+                if (targetRow < 0 || targetRow >= 6 || targetCol < 0 || targetCol >= 6) {
+                    return false;
+                }
+
+                // Check overlap with other pieces
+                const overlaps = placedShapes.some(ps =>
+                    ps.cells.some(c => c.gridRow === targetRow && c.gridCol === targetCol)
+                );
+
+                if (overlaps) return false;
+            }
+            return true;
+        }
+
+        function snapPieceToGrid(pieceEl, gridX, gridY, shapeData) {
+            const boardRect = document.getElementById('game-board').getBoundingClientRect();
+            const snapX = boardRect.left + gridX * 62 + 3;
+            const snapY = boardRect.top + gridY * 62 + 3;
+
+            pieceEl.style.left = snapX + 'px';
+            pieceEl.style.top = snapY + 'px';
+            pieceEl.classList.add('placed');
+
+            // Record placement
+            const pieceId = parseInt(pieceEl.dataset.pieceId);
+            placedShapes.push({
+                pieceId,
+                gridX,
+                gridY,
+                cells: shapeData.cells.map(c => ({
+                    gridRow: gridY + c.row,
+                    gridCol: gridX + c.col
+                }))
+            });
+        }
+
+        // Initialize game
+        parseGrid();
+        initBoard();
+        initPieces();
+    </script>
+</body>
+</html>
