@@ -1,0 +1,48 @@
+{
+  "projects": [
+    {
+      "title": "Puzzle 07",
+      "description": "A puzzle hunt that I created for fun to challenge my co-workers.",
+      "url": "https://ryanch.github.io/puzzle07/index.html",
+      "tags": ["puzzlehunt"],
+      "icon": "🧩"
+    },
+    {
+      "title": "Foam Dart Blaster Shooting Gallery",
+      "description": "A 3D Printed, ESP32 powered foam dart shooting gallery project.",
+      "url": "https://www.instructables.com/Foam-Dart-Blaster-Shooting-Gallery-DIY-Arcade-Styl/",
+      "tags": ["esp32","foamdart", "3dprinted"],
+      "icon": "🎯"
+    },
+    {
+      "title": "King of the Blaster",
+      "description": "A 3D Printed, ESP32 powered foam dart king of the hill device.",
+      "url": "https://www.instructables.com/EPS32-King-of-the-Blaster-Foam-Blaster-Game-Tracke/",
+      "tags": ["esp32","foamdart", "3dprinted"],
+      "icon": "🎯"
+    },
+    {
+      "title": "OpenScad Tutorial",
+      "description": "A tutorial for creating a 3d printed token holder for a board game using OpenScad.",
+      "url": "https://www.instructables.com/Guide-to-3D-Printing-Board-Game-Token-Containers/",
+      "tags": ["boardgame", "3dprinted"],
+      "icon": "🍩"
+    },
+    {
+      "title": "3D Printer Models",
+      "description": "A link to my 3D printed models avaiable for free on Printables.",
+      "url": "https://www.printables.com/@ryanchakajodda/models",
+      "tags": ["3dprinted"],
+      "icon": "🖨️"
+    },
+    {
+      "title": "Sora Prompt Builder",
+      "description": "A simple prompt builder for making Sora 2 videos.",
+      "url": "https://ryanch.github.io/sora_prompt_builder/index.html",
+      "tags": ["ai","video"],
+      "icon": "📼"
+    }
+
+    
+  ]
+}

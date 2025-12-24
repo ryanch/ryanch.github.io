@@ -1,3 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ryan's Stuff</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1a1410;
+            --card-bg: #2a1f1a;
+            --brass: #b8860b;
+            --brass-light: #d4af37;
+            --copper: #b87333;
+            --copper-light: #cb6d51;
+            --rust: #b7410e;
+            --metal-gray: #4a4a4a;
+            --text-light: #e8d5c4;
+        }
 
-<h1><a href="puzzle07/index.html">Puzzle 07</a></h1>
-<h1><a href="sora_prompt_builder/index.html">Sora Prompt Builder</a></h1>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier Prime', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0d0a08 0%, var(--bg-dark) 50%, #1f1712 100%);
+            background-attachment: fixed;
+            color: var(--text-light);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(184, 134, 11, 0.03) 2px, rgba(184, 134, 11, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(184, 134, 11, 0.03) 2px, rgba(184, 134, 11, 0.03) 4px);
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 2rem 2rem;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Rye', serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            color: var(--brass-light);
+            text-shadow:
+                2px 2px 4px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(212, 175, 55, 0.3);
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--copper-light);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 2px solid var(--metal-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow:
+                inset 0 1px 0 rgba(212, 175, 55, 0.1),
+                0 4px 6px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: cardEnter 0.6s ease forwards;
+        }
+
+        @keyframes cardEnter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .project-card:nth-child(1) { animation-delay: 0.1s; }
+        .project-card:nth-child(2) { animation-delay: 0.2s; }
+        .project-card:nth-child(3) { animation-delay: 0.3s; }
+        .project-card:nth-child(4) { animation-delay: 0.4s; }
+        .project-card:nth-child(5) { animation-delay: 0.5s; }
+        .project-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .project-card.hidden {
+            display: none;
+        }
+
+        .project-card:hover {
+            border-color: var(--brass);
+            box-shadow:
+                inset 0 1px 0 rgba(212, 175, 55, 0.2),
+                0 0 20px rgba(184, 134, 11, 0.4),
+                0 8px 16px rgba(0, 0, 0, 0.4);
+            filter: brightness(1.2);
+            transform: translateY(-6px) scale(1.02);
+        }
+
+        .card-icon-bg {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            font-size: 10rem;
+            opacity: 0.08;
+            pointer-events: none;
+            filter: sepia(1) saturate(2) hue-rotate(15deg);
+            user-select: none;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            filter: sepia(0.3) saturate(1.5);
+        }
+
+        .card-title {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--brass-light);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-description {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            font-size: 0.95rem;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tag {
+            background: linear-gradient(135deg, var(--metal-gray) 0%, #3a3a3a 100%);
+            color: var(--brass-light);
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid var(--brass);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-transform: lowercase;
+            letter-spacing: 0.05em;
+            box-shadow:
+                inset 0 1px 0 rgba(212, 175, 55, 0.2),
+                0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .tag:hover {
+            background: linear-gradient(135deg, var(--brass) 0%, var(--copper) 100%);
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 4px 8px rgba(184, 134, 11, 0.4);
+        }
+
+        .tag.active {
+            background: linear-gradient(135deg, var(--brass-light) 0%, var(--copper-light) 100%);
+            color: var(--bg-dark);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                0 0 12px rgba(212, 175, 55, 0.6);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+
+            .card-icon-bg {
+                font-size: 7rem;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .projects-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--copper);
+            font-size: 1.2rem;
+        }
+
+        .error {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--rust);
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Ryan's Stuff</h1>
+        <div class="subtitle">Projects & Tools</div>
+    </header>
+
+    <main>
+        <div class="projects-grid" id="projectsGrid">
+            <div class="loading">Firing up the boiler...</div>
+        </div>
+    </main>
+
+    <script>
+        let projects = [];
+        let activeTag = null;
+
+        async function loadProjects() {
+            try {
+                const response = await fetch('config.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load projects');
+                }
+                projects = await response.json();
+                renderCards(projects.projects);
+            } catch (error) {
+                document.getElementById('projectsGrid').innerHTML =
+                    '<div class="error">Failed to load projects. Make sure config.json is in the same directory.</div>';
+                console.error('Error loading projects:', error);
+            }
+        }
+
+        function renderCards(projectsList) {
+            const grid = document.getElementById('projectsGrid');
+            grid.innerHTML = '';
+
+            projectsList.forEach(project => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.dataset.tags = JSON.stringify(project.tags);
+
+                const bgIcon = document.createElement('div');
+                bgIcon.className = 'card-icon-bg';
+                bgIcon.textContent = project.icon;
+
+                const header = document.createElement('div');
+                header.className = 'card-header';
+
+                const icon = document.createElement('span');
+                icon.className = 'card-icon';
+                icon.textContent = project.icon;
+
+                const title = document.createElement('h2');
+                title.className = 'card-title';
+                title.textContent = project.title;
+
+                header.appendChild(icon);
+                header.appendChild(title);
+
+                const description = document.createElement('p');
+                description.className = 'card-description';
+                description.textContent = project.description;
+
+                const tagsContainer = document.createElement('div');
+                tagsContainer.className = 'card-tags';
+
+                project.tags.forEach(tagName => {
+                    const tag = document.createElement('span');
+                    tag.className = 'tag';
+                    tag.textContent = tagName;
+                    tag.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        filterByTag(tagName);
+                    });
+                    tagsContainer.appendChild(tag);
+                });
+
+                card.appendChild(bgIcon);
+                card.appendChild(header);
+                card.appendChild(description);
+                card.appendChild(tagsContainer);
+
+                card.addEventListener('click', () => {
+                    window.open(project.url, '_blank');
+                });
+
+                grid.appendChild(card);
+            });
+
+            updateActiveTagStyles();
+        }
+
+        function filterByTag(tagName) {
+            if (activeTag === tagName) {
+                // Toggle off - show all cards
+                activeTag = null;
+                document.querySelectorAll('.project-card').forEach(card => {
+                    card.classList.remove('hidden');
+                });
+            } else {
+                // Filter by this tag
+                activeTag = tagName;
+                document.querySelectorAll('.project-card').forEach(card => {
+                    const cardTags = JSON.parse(card.dataset.tags);
+                    if (cardTags.includes(tagName)) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            }
+
+            updateActiveTagStyles();
+        }
+
+        function updateActiveTagStyles() {
+            document.querySelectorAll('.tag').forEach(tag => {
+                if (activeTag && tag.textContent === activeTag) {
+                    tag.classList.add('active');
+                } else {
+                    tag.classList.remove('active');
+                }
+            });
+        }
+
+        // Load projects when page loads
+        document.addEventListener('DOMContentLoaded', loadProjects);
+    </script>
+</body>
+</html>
