@@ -36,6 +36,13 @@
       "icon": "🖨️"
     },
     {
+      "title": "ESP32 Configurer",
+      "description": "A tool for configuring ESP32 applications, primarly used for setting wifi settings.",
+      "url": "https://ryanch.github.io/esp32_config/index.html",
+      "tags": ["esp32","tool"],
+      "icon": "🎛️"
+    },
+    {
       "title": "Sora Prompt Builder",
       "description": "A simple prompt builder for making Sora 2 videos.",
       "url": "https://ryanch.github.io/sora_prompt_builder/index.html",

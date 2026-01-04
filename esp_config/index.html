@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 TERMINAL // DEVICE CONFIG</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a0e0a'/><rect x='15' y='15' width='70' height='70' fill='none' stroke='%2300ff41' stroke-width='2'/><circle cx='30' cy='30' r='3' fill='%2300ff41'/><circle cx='50' cy='30' r='3' fill='%2300ff41'/><circle cx='70' cy='30' r='3' fill='%2300ff41'/><path d='M 25 50 L 35 65 L 65 65 L 75 50 Z' fill='none' stroke='%2300ff41' stroke-width='2'/><rect x='45' y='70' width='10' height='8' fill='%2300ff41'/></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --bg-void: #0a0e0a;
+            --bg-terminal: #0d1b0d;
+            --matrix-green: #00ff41;
+            --matrix-dim: #008f11;
+            --matrix-dark: #003b00;
+            --cyan-accent: #00ffff;
+            --gray-dim: #1a3a1a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            45% { opacity: 0.97; }
+            50% { opacity: 0.95; }
+            55% { opacity: 0.98; }
+        }
+
+        @keyframes cursorBlink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--bg-void);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--matrix-green);
+            line-height: 1.7;
+            position: relative;
+            animation: flicker 4s infinite;
+        }
+
+        /* CRT scanline effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Moving scanline */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(
+                to bottom,
+                transparent,
+                rgba(0, 255, 65, 0.03),
+                transparent
+            );
+            pointer-events: none;
+            z-index: 9998;
+            animation: scanline 8s linear infinite;
+        }
+
+        .container {
+            background: rgba(13, 27, 13, 0.95);
+            padding: 50px;
+            border: 2px solid var(--matrix-green);
+            box-shadow:
+                0 0 20px rgba(0, 255, 65, 0.3),
+                inset 0 0 80px rgba(0, 255, 65, 0.02);
+            max-width: 750px;
+            width: 100%;
+            position: relative;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid var(--matrix-dim);
+            margin: 10px;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-family: 'VT323', monospace;
+            color: var(--matrix-green);
+            margin-bottom: 12px;
+            font-size: 64px;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--matrix-green);
+            padding-bottom: 16px;
+            animation: slideIn 0.8s ease-out;
+            text-shadow:
+                0 0 10px rgba(0, 255, 65, 0.8),
+                0 0 20px rgba(0, 255, 65, 0.4);
+            position: relative;
+        }
+
+        h1::after {
+            content: '_';
+            animation: cursorBlink 1s infinite;
+            margin-left: 8px;
+        }
+
+        .subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--matrix-dim);
+            margin-bottom: 40px;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+            animation: slideIn 0.8s ease-out 0.1s both;
+        }
+
+        .subtitle::before {
+            content: '> ';
+            color: var(--cyan-accent);
+        }
+
+        .field {
+            margin-bottom: 32px;
+            border-left: 2px solid var(--matrix-dim);
+            padding-left: 20px;
+            animation: slideIn 0.5s ease-out both;
+        }
+
+        .field:nth-child(1) { animation-delay: 0.1s; }
+        .field:nth-child(2) { animation-delay: 0.15s; }
+        .field:nth-child(3) { animation-delay: 0.2s; }
+        .field:nth-child(4) { animation-delay: 0.25s; }
+        .field:nth-child(5) { animation-delay: 0.3s; }
+
+        label {
+            display: block;
+            font-weight: 400;
+            margin-bottom: 8px;
+            color: var(--cyan-accent);
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'VT323', monospace;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        label::before {
+            content: '[ ';
+            color: var(--matrix-dim);
+        }
+
+        label::after {
+            content: ' ]';
+            color: var(--matrix-dim);
+        }
+
+        .description {
+            font-size: 15px;
+            color: var(--matrix-dim);
+            margin-bottom: 12px;
+            line-height: 1.6;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .description::before {
+            content: '// ';
+            color: var(--matrix-dark);
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--matrix-dim);
+            background: rgba(0, 0, 0, 0.6);
+            font-size: 16px;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--matrix-green);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.05);
+        }
+
+        input::placeholder {
+            color: var(--matrix-dark);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--matrix-green);
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow:
+                inset 0 0 10px rgba(0, 255, 65, 0.1),
+                0 0 15px rgba(0, 255, 65, 0.3);
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
+        }
+
+        button {
+            background: transparent;
+            color: var(--matrix-green);
+            border: 2px solid var(--matrix-green);
+            padding: 16px 36px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 400;
+            font-family: 'VT323', monospace;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: all 0.2s ease;
+            margin-right: 12px;
+            margin-bottom: 12px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+        }
+
+        button::before {
+            content: '>';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--cyan-accent);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--matrix-green);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: -1;
+        }
+
+        button:hover:not(:disabled)::before {
+            opacity: 1;
+        }
+
+        button:hover:not(:disabled)::after {
+            opacity: 0.1;
+        }
+
+        button:hover:not(:disabled) {
+            padding-left: 48px;
+            box-shadow:
+                0 0 20px rgba(0, 255, 65, 0.5),
+                inset 0 0 20px rgba(0, 255, 65, 0.1);
+            color: var(--bg-void);
+            background: var(--matrix-green);
+            text-shadow: none;
+        }
+
+        button:active:not(:disabled) {
+            box-shadow:
+                0 0 10px rgba(0, 255, 65, 0.3),
+                inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        button.secondary {
+            border-color: var(--matrix-dim);
+            color: var(--matrix-dim);
+            box-shadow: 0 0 5px rgba(0, 143, 17, 0.2);
+            text-shadow: none;
+        }
+
+        button.secondary::before {
+            color: var(--matrix-green);
+        }
+
+        button.secondary:hover:not(:disabled) {
+            border-color: var(--matrix-green);
+            color: var(--bg-void);
+            background: var(--matrix-dim);
+            box-shadow:
+                0 0 15px rgba(0, 143, 17, 0.4),
+                inset 0 0 20px rgba(0, 255, 65, 0.1);
+        }
+
+        .status {
+            padding: 18px 24px;
+            margin: 24px 0;
+            font-size: 16px;
+            font-family: 'Share Tech Mono', monospace;
+            border: 1px solid;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .status::before {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success {
+            background: rgba(0, 255, 65, 0.05);
+            color: var(--matrix-green);
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+        }
+
+        .status.success::before {
+            content: '[OK]';
+        }
+
+        .status.error {
+            background: rgba(255, 0, 0, 0.05);
+            color: #ff3333;
+            border-color: #ff3333;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+        }
+
+        .status.error::before {
+            content: '[ERR]';
+        }
+
+        .status.info {
+            background: rgba(0, 255, 255, 0.05);
+            color: var(--cyan-accent);
+            border-color: var(--cyan-accent);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        .status.info::before {
+            content: '[...]';
+        }
+
+        #config-section {
+            display: none;
+        }
+
+        .button-group {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--matrix-dim);
+        }
+
+        .info-box {
+            background: rgba(0, 255, 65, 0.03);
+            border: 1px solid var(--matrix-dim);
+            padding: 24px;
+            margin-bottom: 35px;
+            position: relative;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+            box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.02);
+        }
+
+        .info-box::before {
+            content: '[!]';
+            position: absolute;
+            top: 22px;
+            left: 24px;
+            font-size: 22px;
+            font-family: 'VT323', monospace;
+            color: var(--cyan-accent);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        .info-box-content {
+            padding-left: 50px;
+        }
+
+        .info-box p {
+            margin: 8px 0;
+            font-size: 15px;
+            color: var(--matrix-green);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .info-box p::before {
+            content: '> ';
+            color: var(--matrix-dim);
+        }
+
+        .info-box strong {
+            color: var(--cyan-accent);
+            font-weight: 400;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+        }
+
+        h2 {
+            font-family: 'VT323', monospace;
+            color: var(--matrix-green);
+            margin-bottom: 30px;
+            font-size: 38px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-bottom: 2px solid var(--matrix-green);
+            padding-bottom: 12px;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: 1px solid var(--matrix-dim);
+            color: var(--matrix-dim);
+            cursor: pointer;
+            padding: 6px 12px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'VT323', monospace;
+            margin: 0;
+            transition: all 0.2s ease;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        .password-toggle::before {
+            display: none !important;
+        }
+
+        .password-toggle::after {
+            display: none !important;
+        }
+
+        .password-toggle:hover {
+            color: var(--matrix-green);
+            border-color: var(--matrix-green);
+            background: rgba(0, 255, 65, 0.05);
+            transform: translateY(-50%) !important;
+            padding-left: 12px !important;
+        }
+
+        .password-toggle:active {
+            transform: translateY(-50%) !important;
+        }
+
+        .password-wrapper input[type="password"],
+        .password-wrapper input[type="text"] {
+            padding-right: 85px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ESP32 Configuration</h1>
+        <p class="subtitle">Configure your ESP32 device via USB serial</p>
+
+        <div id="status" class="status"></div>
+
+        <div id="connection-section">
+            <div class="info-box">
+                <div class="info-box-content">
+                    <p><strong>When connecting:</strong></p>
+                    <p>1. Connect your ESP32 device via USB</p>
+                    <p>2. Ensure the device is powered on</p>
+                    <p>Note: You have 120 seconds after boot to connect.</p>
+                </div>
+            </div>
+            <button id="connect-btn" onclick="connectSerial()">Connect to Device</button>
+        </div>
+
+        <div id="config-section">
+            <h2>Device Configuration</h2>
+            <form id="config-form">
+                <!-- Fields will be dynamically generated here -->
+            </form>
+            <div class="button-group">
+                <button onclick="saveConfig()">Save Configuration</button>
+                <button class="secondary" onclick="disconnect()">Disconnect</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Web Serial API handling
+        let port = null;
+        let reader = null;
+        let writer = null;
+        let readableStreamClosed = null;
+        let fields = [];
+
+        // Show status message
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.className = 'status ' + type + ' show';
+            status.textContent = message;
+        }
+
+        // Hide status message
+        function hideStatus() {
+            const status = document.getElementById('status');
+            status.className = 'status';
+        }
+
+        // Connect to serial port
+        async function connectSerial() {
+            try {
+                showStatus('Requesting serial port...', 'info');
+
+                // Request port from user
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 9600 });
+
+                showStatus('Connected! Setting up communication...', 'info');
+
+                // Set up text decoder for reading
+                const textDecoder = new TextDecoderStream();
+                readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+                reader = textDecoder.readable.getReader();
+
+                // Set up text encoder for writing
+                const textEncoder = new TextEncoderStream();
+                const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+                writer = textEncoder.writable.getWriter();
+
+                console.log('Streams set up, waiting for ESP32 to boot...');
+
+                // Wait for ESP32 to boot and initialize serial config
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Start reading responses
+                readLoop();
+
+                // Retry mechanism: try to get fields up to 3 times
+                let retries = 0;
+                const maxRetries = 30;
+                let fieldsReceived = false;
+
+                while (retries < maxRetries && !fieldsReceived) {
+                    console.log(`Sending get_fields command (attempt ${retries + 1}/${maxRetries})...`);
+                    showStatus(`Loading configuration (attempt ${retries + 1}/${maxRetries})...`, 'info');
+
+                    // Request field definitions from device
+                    await sendCommand({ cmd: 'get_fields' });
+
+                    console.log('get_fields command sent, waiting for response...');
+
+                    // Wait 1 second for response
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    // Check if we received fields (this will be set by handleResponse)
+                    if (fields.length > 0) {
+                        fieldsReceived = true;
+                        console.log('Fields received successfully!');
+                    } else {
+                        retries++;
+                        if (retries < maxRetries) {
+                            console.log('No response, retrying...');
+                        }
+                    }
+                }
+
+                if (!fieldsReceived) {
+                    showStatus('Failed to get configuration from device. Make sure the device is running the latest firmware.', 'error');
+                    console.error('Failed to receive fields after', maxRetries, 'attempts');
+                }
+
+            } catch (error) {
+                showStatus('Connection failed: ' + error.message, 'error');
+                console.error('Connection error:', error);
+            }
+        }
+
+        // Send JSON command to device
+        async function sendCommand(obj) {
+            if (!writer) {
+                console.error('Writer not available');
+                return;
+            }
+            try {
+                const json = JSON.stringify(obj) + '\n';
+                console.log('Sending:', json.trim());
+                await writer.write(json);
+                console.log('Command written to stream successfully');
+            } catch (error) {
+                console.error('Error sending command:', error);
+                showStatus('Error sending command: ' + error.message, 'error');
+            }
+        }
+
+        // Read responses from device
+        async function readLoop() {
+            let buffer = '';
+
+            try {
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    // Accumulate data in buffer
+                    buffer += value;
+
+                    // Process complete lines
+                    let newlineIndex;
+                    while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+                        const line = buffer.substring(0, newlineIndex).trim();
+                        buffer = buffer.substring(newlineIndex + 1);
+
+                        if (line) {
+                            console.log('Received:', line);
+                            try {
+                                const msg = JSON.parse(line);
+                                handleResponse(msg);
+                            } catch (e) {
+                                // Ignore non-JSON lines (ESP32 log messages)
+                                console.log('Non-JSON line:', line);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                showStatus('Read error: ' + error.message, 'error');
+                console.error('Read error:', error);
+            }
+        }
+
+        // Handle JSON responses from device
+        function handleResponse(msg) {
+            if (msg.error) {
+                showStatus('Device error: ' + msg.error, 'error');
+                return;
+            }
+
+            if (msg.fields) {
+                // Received field definitions
+                fields = msg.fields;
+                buildConfigForm(fields);
+
+                // Now request current values
+                sendCommand({ cmd: 'get_config' });
+            } else if (msg.config) {
+                // Received current configuration values
+                populateForm(msg.config);
+
+                // Show config section
+                document.getElementById('connection-section').style.display = 'none';
+                document.getElementById('config-section').style.display = 'block';
+                showStatus('Configuration loaded successfully', 'success');
+            } else if (msg.status === 'ok') {
+                showStatus('Configuration saved successfully! Changes will take effect on next reboot.', 'success');
+            }
+        }
+
+        // Dynamically build form from field definitions
+        function buildConfigForm(fields) {
+            const form = document.getElementById('config-form');
+            form.innerHTML = '';
+
+            fields.forEach(field => {
+                const div = document.createElement('div');
+                div.className = 'field';
+
+                const label = document.createElement('label');
+                label.textContent = field.label;
+                label.setAttribute('for', field.key);
+                div.appendChild(label);
+
+                if (field.description) {
+                    const desc = document.createElement('div');
+                    desc.className = 'description';
+                    desc.textContent = field.description;
+                    div.appendChild(desc);
+                }
+
+                const input = document.createElement('input');
+                input.id = field.key;
+                input.name = field.key;
+
+                const isPasswordField = field.type === 'string' && field.key.toLowerCase().includes('pass');
+
+                if (field.type === 'string') {
+                    input.type = 'text';
+                    // Use password field for fields with 'pass' in the name
+                    if (isPasswordField) {
+                        input.type = 'password';
+                    }
+                    if (field.max_length) {
+                        input.maxLength = field.max_length;
+                    }
+                } else if (field.type === 'uint8' || field.type === 'int32') {
+                    input.type = 'number';
+                    if (field.min !== undefined) {
+                        input.min = field.min;
+                    }
+                    if (field.max !== undefined) {
+                        input.max = field.max;
+                    }
+                } else if (field.type === 'bool') {
+                    input.type = 'checkbox';
+                }
+
+                // Wrap password fields with toggle button
+                if (isPasswordField) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'password-wrapper';
+
+                    const toggleBtn = document.createElement('button');
+                    toggleBtn.type = 'button';
+                    toggleBtn.className = 'password-toggle';
+                    toggleBtn.textContent = 'SHOW';
+                    toggleBtn.onclick = function() {
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            toggleBtn.textContent = 'HIDE';
+                        } else {
+                            input.type = 'password';
+                            toggleBtn.textContent = 'SHOW';
+                        }
+                    };
+
+                    wrapper.appendChild(input);
+                    wrapper.appendChild(toggleBtn);
+                    div.appendChild(wrapper);
+                } else {
+                    div.appendChild(input);
+                }
+
+                form.appendChild(div);
+            });
+        }
+
+        // Populate form with current values
+        function populateForm(config) {
+            for (const [key, value] of Object.entries(config)) {
+                const input = document.getElementById(key);
+                if (input) {
+                    if (input.type === 'checkbox') {
+                        input.checked = value;
+                    } else {
+                        input.value = value;
+                    }
+                }
+            }
+        }
+
+        // Save configuration to device
+        async function saveConfig() {
+            const form = document.getElementById('config-form');
+            const formData = new FormData(form);
+
+            const config = {};
+            for (const [key, value] of formData.entries()) {
+                const field = fields.find(f => f.key === key);
+                if (!field) continue;
+
+                if (field.type === 'uint8' || field.type === 'int32') {
+                    config[key] = parseInt(value);
+                } else if (field.type === 'bool') {
+                    config[key] = value === 'on';
+                } else {
+                    config[key] = value;
+                }
+            }
+
+            // Also handle checkboxes that weren't in formData (unchecked checkboxes)
+            fields.forEach(field => {
+                if (field.type === 'bool' && !(field.key in config)) {
+                    config[field.key] = false;
+                }
+            });
+
+            console.log('Saving config:', config);
+            showStatus('Saving configuration...', 'info');
+            await sendCommand({ cmd: 'set_config', config: config });
+        }
+
+        // Disconnect from serial port
+        async function disconnect() {
+            // Try to close everything we can, then reload to ensure clean state
+            try {
+                if (reader) {
+                    reader.cancel().catch(() => {});
+                }
+                if (writer) {
+                    writer.close().catch(() => {});
+                }
+                if (port) {
+                    port.close().catch(() => {});
+                }
+            } catch (error) {
+                // Ignore errors, we'll reload anyway
+            }
+
+            // Reload page to ensure clean disconnection
+            setTimeout(() => window.location.reload(), 100);
+        }
+
+        // Check Web Serial API support on page load
+        window.addEventListener('load', () => {
+            if (!('serial' in navigator)) {
+                document.getElementById('connect-btn').disabled = true;
+                showStatus('Web Serial API not supported. Please use Chrome or Edge browser (version 89+)', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
