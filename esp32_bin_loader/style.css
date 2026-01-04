@@ -1,0 +1,543 @@
+/* Industrial Steampunk Aesthetic - ESP32 Firmware Flasher */
+
+:root {
+  /* Base colors - dark circuit board */
+  --bg-primary: #0a0e12;
+  --bg-secondary: #151b23;
+  --bg-card: #1a2332;
+
+  /* Accent colors - copper traces & solder */
+  --copper: #d4722b;
+  --copper-light: #e89058;
+  --copper-dark: #a85a22;
+
+  /* Secondary accents - green PCB & gold contacts */
+  --pcb-green: #2d5e3f;
+  --gold-contact: #d4af37;
+  --solder-silver: #c0c5ce;
+
+  /* Status colors */
+  --status-ready: #4ea05e;
+  --status-active: #5b9bd5;
+  --status-error: #e74c3c;
+  --status-success: #2ecc71;
+  --status-warning: #f39c12;
+
+  /* Text */
+  --text-primary: #e8eaed;
+  --text-secondary: #9da5b4;
+  --text-dim: #6c7a89;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'IBM Plex Mono', 'Courier Prime', 'Courier New', monospace;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Circuit board background pattern */
+.circuit-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(45, 94, 63, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(212, 114, 43, 0.1) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+
+  /* Circuit trace pattern */
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212, 175, 55, 0.02) 2px, rgba(212, 175, 55, 0.02) 4px),
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(212, 175, 55, 0.02) 2px, rgba(212, 175, 55, 0.02) 4px);
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Header Styles */
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+}
+
+header h1 {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 400;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(212, 114, 43, 0.3);
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--copper-light);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* Main Layout */
+main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 900px) {
+  main {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .flash-interface {
+    grid-column: span 2;
+  }
+}
+
+/* Card Styles */
+.card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(21, 27, 35, 0.8) 100%);
+  border: 2px solid rgba(212, 114, 43, 0.3);
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+  animation: cardSlideIn 0.6s ease-out;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--copper-light), transparent);
+  opacity: 0.5;
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card h2 {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--copper-light);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid rgba(212, 114, 43, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+/* Project Selector */
+.select-container {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.select-container select {
+  width: 100%;
+  padding: 14px 40px 14px 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--copper);
+  border-radius: 4px;
+  color: var(--text-primary);
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.select-container select:hover {
+  border-color: var(--copper-light);
+  background: rgba(21, 27, 35, 0.9);
+}
+
+.select-container select:focus {
+  border-color: var(--copper-light);
+  box-shadow: 0 0 0 3px rgba(212, 114, 43, 0.2);
+}
+
+.select-container select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--copper);
+  pointer-events: none;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.select-container:hover .select-arrow {
+  transform: translateY(-50%) scale(1.2);
+  color: var(--copper-light);
+}
+
+/* Project Info Display */
+.project-info {
+  background: rgba(10, 14, 18, 0.5);
+  border: 1px solid rgba(212, 114, 43, 0.2);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.project-info.hidden {
+  display: none;
+}
+
+.project-info:not(.hidden) {
+  animation: fadeSlideDown 0.4s ease-out;
+}
+
+@keyframes fadeSlideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 300px;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    transform: translateY(0);
+  }
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-row:last-of-type {
+  border-bottom: none;
+}
+
+.info-row .label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.info-row .value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.description {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.description.hidden {
+  display: none;
+}
+
+/* Flash Interface */
+.instructions {
+  background: rgba(10, 14, 18, 0.3);
+  border-left: 3px solid var(--copper);
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.instructions ol {
+  margin-left: 1.2rem;
+  color: var(--text-secondary);
+}
+
+.instructions li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+/* Flash Controls */
+.flash-controls {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.flash-button {
+  position: relative;
+  padding: 18px 48px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--copper) 0%, var(--copper-dark) 100%);
+  border: none;
+  border-radius: 6px;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    0 0 0 0 rgba(212, 114, 43, 0);
+}
+
+.flash-button:not(:disabled):hover {
+  background: linear-gradient(135deg, var(--copper-light) 0%, var(--copper) 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.3),
+    0 8px 16px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(212, 114, 43, 0.4);
+}
+
+.flash-button:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.flash-button:disabled {
+  background: var(--bg-secondary);
+  color: var(--text-dim);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.error-message {
+  display: block;
+  color: var(--status-error);
+  font-size: 0.9rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+/* Status Display */
+.status-display {
+  background: #0a0e0a;
+  border: 2px solid var(--pcb-green);
+  border-radius: 4px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.status-header {
+  color: var(--pcb-green);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.status-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  padding: 0.5rem;
+}
+
+.status-indicator {
+  font-size: 1.5rem;
+  line-height: 1;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.indicator-ready { color: var(--solder-silver); }
+.indicator-active {
+  color: var(--status-active);
+  animation: pulse 1s ease-in-out infinite;
+}
+.indicator-success { color: var(--status-success); }
+.indicator-error {
+  color: var(--status-error);
+  animation: none;
+}
+.indicator-warning { color: var(--status-warning); }
+
+.status-text {
+  color: var(--text-primary);
+  flex: 1;
+}
+
+/* Status state classes */
+.status-content.status-ready {
+  border-left: 4px solid var(--solder-silver);
+}
+
+.status-content.status-active {
+  border-left: 4px solid var(--status-active);
+  background: rgba(91, 155, 213, 0.05);
+}
+
+.status-content.status-success {
+  border-left: 4px solid var(--status-success);
+  background: rgba(46, 204, 113, 0.05);
+}
+
+.status-content.status-error {
+  border-left: 4px solid var(--status-error);
+  background: rgba(231, 76, 60, 0.05);
+}
+
+.status-content.status-warning {
+  border-left: 4px solid var(--status-warning);
+  background: rgba(243, 156, 18, 0.05);
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+footer a {
+  color: var(--copper);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: var(--copper-light);
+  text-decoration: underline;
+}
+
+/* Utility Classes */
+.hidden {
+  display: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #app {
+    padding: 1rem;
+  }
+
+  header {
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+  }
+
+  header h1 {
+    font-size: clamp(1.5rem, 7vw, 2.5rem);
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .card h2 {
+    font-size: 1.2rem;
+  }
+
+  .flash-button {
+    padding: 14px 32px;
+    font-size: 1rem;
+  }
+
+  main {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #app {
+    padding: 0.75rem;
+  }
+
+  header h1 {
+    font-size: clamp(1.2rem, 8vw, 2rem);
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .flash-button {
+    padding: 12px 24px;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  .instructions {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .circuit-background,
+  .flash-controls,
+  footer {
+    display: none;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .card {
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+}

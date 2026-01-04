@@ -43,6 +43,13 @@
       "icon": "🎛️"
     },
     {
+      "title": "ESP32 Flasher",
+      "description": "A tool for configuring flashing ESP32 applications. Used to load my projects onto chips.",
+      "url": "https://ryanch.github.io/esp32_bin_loader/index.html",
+      "tags": ["esp32","tool"],
+      "icon": "🍭"
+    },
+    {
       "title": "Sora Prompt Builder",
       "description": "A simple prompt builder for making Sora 2 videos.",
       "url": "https://ryanch.github.io/sora_prompt_builder/index.html",

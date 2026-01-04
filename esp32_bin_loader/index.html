@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="esp32-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESP32 Firmware Flasher</title>
+
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js"></script>
+  </head>
+  <body>
+    <!-- Circuit pattern background -->
+    <div class="circuit-background"></div>
+
+    <div id="app">
+      <header>
+        <h1>ESP32 Firmware Flasher</h1>
+        <p class="subtitle">Hardware Programming Interface</p>
+      </header>
+
+      <main>
+        <!-- Project Selection Card -->
+        <section class="card project-selector">
+          <h2>Select Project</h2>
+          <div class="select-container">
+            <select id="projectSelect" disabled>
+              <option value="">Loading projects...</option>
+            </select>
+            <div class="select-arrow">▼</div>
+          </div>
+
+          <div id="projectInfo" class="project-info hidden">
+            <div class="info-row">
+              <span class="label">Project:</span>
+              <span id="projectName" class="value">—</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Chip Family:</span>
+              <span id="chipFamily" class="value">—</span>
+            </div>
+            <div id="projectDescription" class="description hidden"></div>
+          </div>
+        </section>
+
+        <!-- Flash Interface Card -->
+        <section class="card flash-interface">
+          <h2>Flash Firmware</h2>
+
+          <div class="instructions">
+            <ol>
+              <li>Connect your ESP32 device via USB</li>
+              <li>Select a project from the dropdown above</li>
+              <li>Click "Connect & Flash Firmware"</li>
+              <li>Choose your device from the browser dialog</li>
+              <li>Wait for the process to complete</li>
+            </ol>
+          </div>
+
+          <div class="flash-controls">
+            <esp-web-install-button
+              id="installButton"
+              manifest=""
+              hide-progress
+            >
+              <button slot="activate" class="flash-button" disabled>
+                <span class="button-text">Select a Project First</span>
+              </button>
+              <span slot="unsupported" class="error-message">
+                ⚠ Web Serial not supported. Use Chrome, Edge, or Opera.
+              </span>
+              <span slot="not-allowed" class="error-message">
+                ⚠ Enable Web Serial in browser settings.
+              </span>
+            </esp-web-install-button>
+          </div>
+
+          <div class="status-display">
+            <div class="status-header">Device Status</div>
+            <div id="status" class="status-content">
+              <span class="status-indicator">●</span>
+              <span class="status-text">Ready to connect</span>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>Powered by <a href="https://esphome.github.io/esp-web-tools/" target="_blank">ESP Web Tools</a></p>
+      </footer>
+    </div>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

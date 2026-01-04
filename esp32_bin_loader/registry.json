@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "projects": [
+    {
+      "slug": "pip-clock",
+      "name": "Pip Clock",
+      "chipFamily": "ESP32-C6",
+      "manifestPath": "projects/pip-clock/manifest.json",
+      "description": null,
+      "dateAdded": "2026-01-04"
+    }
+  ]
+}
