@@ -1,0 +1,5 @@
+Test quip one
+Test quip two
+Test quip three
+Test quip four with $time placeholder
+Test quip five - longer text to verify truncation behavior works correctly when text exceeds limits

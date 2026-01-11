@@ -1,0 +1,51 @@
+Line 1 - Testing large file handling
+Line 2 - This file should trigger byte-range request
+Line 3 - Testing that first 10KB is fetched
+Line 4 - Additional test content
+Line 5 - More quips for testing
+Line 6 - Device should handle this gracefully
+Line 7 - Testing the fetcher's limits
+Line 8 - Verifying proper truncation
+Line 9 - Should work without crashes
+Line 10 - More test content
+Line 11 - Additional line
+Line 12 - More quips
+Line 13 - Testing
+Line 14 - More content
+Line 15 - Additional quip
+Line 16 - Test line
+Line 17 - More testing
+Line 18 - Additional content
+Line 19 - Test quip
+Line 20 - More lines
+Line 21 - Testing
+Line 22 - Content
+Line 23 - More quips
+Line 24 - Test
+Line 25 - Additional
+Line 26 - More
+Line 27 - Testing
+Line 28 - Content
+Line 29 - More
+Line 30 - Test
+Line 31 - Additional line to ensure we have enough content
+Line 32 - More test content here
+Line 33 - Testing the external quip fetcher thoroughly
+Line 34 - This should work correctly
+Line 35 - More quips for comprehensive testing
+Line 36 - Additional test data
+Line 37 - Testing various scenarios
+Line 38 - More content for testing
+Line 39 - Additional quips
+Line 40 - Test content
+Line 41 - More testing data
+Line 42 - Additional content
+Line 43 - Test quip
+Line 44 - More data
+Line 45 - Testing
+Line 46 - Content
+Line 47 - More
+Line 48 - Test
+Line 49 - Additional
+Line 50 - More testing (max should be 50)
+Line 51 - This should be ignored (over 50 line limit)
