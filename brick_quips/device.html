@@ -27,6 +27,12 @@
             </svg>
         </div>
 
+        <!-- Back button (PC_Mode only) -->
+        <button id="backButton" class="back-btn" style="display: none;" onclick="goBack()">← BACK</button>
+
+        <!-- Device name display (PC_Mode only) -->
+        <div id="deviceNameDisplay" class="device-name-header" style="display: none;"></div>
+
         <!-- Main View -->
         <div id="main-view">
         <h1 id="primaryTitleOfPage">BRICK QUIP!</h1>
@@ -383,11 +389,28 @@
             }
         }
 
+        // Go back function (sends close_dialog to parent)
+        function goBack() {
+            window.parent.postMessage({xxx_local_command: 'close_dialog'}, '*');
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
 
             // show the page title based on mode
             document.getElementById("primaryTitleOfPage").style.display = isPC_Mode ? "none" : "block";
+
+            // In PC_Mode, show back button and device name if present
+            if (isPC_Mode) {
+                document.getElementById("backButton").style.display = "block";
+
+                const deviceName = urlParams.get('device_name');
+                if (deviceName) {
+                    const deviceNameDisplay = document.getElementById("deviceNameDisplay");
+                    deviceNameDisplay.textContent = deviceName;
+                    deviceNameDisplay.style.display = "block";
+                }
+            }
 
 
             // Display browser's current offset

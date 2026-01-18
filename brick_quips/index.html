@@ -38,9 +38,10 @@
         </div>
     </div>
 
-    <!-- Device Modal -->
+    <!-- Device Modal (fullscreen when connected) -->
     <div class="modal-overlay hidden" id="deviceModal">
-        <div class="modal-content" style="width: 90%; max-width: 600px; height: 85vh;">
+        <!-- Connection UI (shown during connecting) -->
+        <div class="modal-content" id="connectingContent" style="width: 90%; max-width: 600px;">
             <button class="modal-close" onclick="closeModal()">X</button>
             <div class="modal-header" id="modalDeviceName">Device</div>
             <div class="modal-status" id="modalStatus">
@@ -52,8 +53,9 @@
                     DISCONNECT
                 </button>
             </div>
-            <iframe id="configIframe" src="" style="width:100%; height:calc(100% - 120px); border:none; display:none;"></iframe>
         </div>
+        <!-- Fullscreen iframe (shown when connected) -->
+        <iframe id="configIframe" src="" style="width:100vw; height:100vh; border:none; display:none; position:fixed; top:0; left:0;"></iframe>
     </div>
 
     <script>
@@ -269,8 +271,8 @@
         }
 
         function updateModalConnecting() {
-
-            // show the connection details while connecting
+            // Show connecting content, hide iframe
+            document.getElementById("connectingContent").style.display = "block";
             document.getElementById("modalStatus").style.display = "block";
             document.getElementById("disconnectBtn").style.display = "block";
 
@@ -281,34 +283,33 @@
         }
 
         function updateModalConnected() {
-            document.getElementById('modalStatus').className = 'modal-status connected';
-            document.getElementById('modalStatusText').textContent = 'Connected';
-            document.getElementById('modalSpinner').style.display = 'none';
+            // Get device name for passing to iframe
+            const device = discoveredDevices.get(currentDeviceId);
+            const deviceName = device ? device.name : 'Device';
 
-            // Load the configuration page in the iframe with PC_Mode
+            // Hide connecting content, show fullscreen iframe
+            document.getElementById("connectingContent").style.display = "none";
+
+            // Load the configuration page in the iframe with PC_Mode and device_name
             const iframe = document.getElementById('configIframe');
 
             // when testing locally, use index.html from the root
             // when we host it on the web, we copy it to a sibling file, that is called device.html
             if (document.location.href.startsWith("file") ) {
-                iframe.src = '../index.html?mode=PC_Mode';
+                iframe.src = `../index.html?mode=PC_Mode&device_name=${encodeURIComponent(deviceName)}`;
             }
             else {
-                iframe.src = 'device.html?mode=PC_Mode';
+                iframe.src = `device.html?mode=PC_Mode&device_name=${encodeURIComponent(deviceName)}`;
             }
-            
-            
+
             iframe.style.display = 'block';
-            iframe.style.borderTop = "2px solid black";
-            iframe.style.borderBottom = "2px solid black";
-
-            // hide the connection details once connected 
-            document.getElementById("modalStatus").style.display = "none";
-            document.getElementById("disconnectBtn").style.display = "none";
-
         }
 
         function updateModalError(message) {
+            // Show connecting content with error state
+            document.getElementById("connectingContent").style.display = "block";
+            document.getElementById("modalStatus").style.display = "block";
+            document.getElementById("disconnectBtn").style.display = "block";
             document.getElementById('modalStatus').className = 'modal-status error';
             document.getElementById('modalStatusText').textContent = message;
             document.getElementById('modalSpinner').style.display = 'none';
@@ -327,6 +328,7 @@
             document.getElementById('deviceModal').classList.add('hidden');
             document.getElementById('configIframe').src = '';
             document.getElementById('configIframe').style.display = 'none';
+            document.getElementById('connectingContent').style.display = 'block';
             currentDeviceId = null;
         }
 
@@ -339,6 +341,12 @@
 
         // Handle postMessage requests from iframe for Bluetooth communication
         window.addEventListener('message', async (event) => {
+            // Handle close_dialog command from iframe
+            if (event.data && event.data.xxx_local_command === 'close_dialog') {
+                closeModal();
+                return;
+            }
+
             if (event.data && event.data.type === 'fetch') {
                 const { requestId, url, options } = event.data;
                 const iframe = document.getElementById('configIframe');
