@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brick Quip Config</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M50 10 H14 C9 10 5 14 5 19 V40 C5 45 9 49 14 49 H20 L24 58 L28 49 H50 C55 49 59 45 59 40 V19 C59 14 55 10 50 10 Z' fill='%23FFD93D' stroke='%23000' stroke-width='3'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="comic-star" style="top: 10%; left: 5%;">★</div>
+    <div class="comic-star" style="top: 80%; right: 10%;">★</div>
+    <div class="comic-star" style="top: 40%; left: 85%;">✦</div>
+
+    <div class="container">
+        <!-- Settings Icon -->
+        <div id="settings-icon-container" onclick="showSettings()">
+            <svg width="48" height="48" viewBox="0 0 64 64">
+                <!-- Bubble outline -->
+                <path d="M50 12 H14 C9 12 6 16 6 21 V38 C6 43 9 46 14 46 H18 L22 54 L26 46 H50 C55 46 58 43 58 38 V21 C58 16 55 12 50 12 Z"
+                      fill="white" stroke="black" stroke-width="4"/>
+                <!-- Three dots -->
+                <circle cx="20" cy="28" r="3" fill="black"/>
+                <circle cx="32" cy="28" r="3" fill="black"/>
+                <circle cx="44" cy="28" r="3" fill="black"/>
+            </svg>
+        </div>
+
+        <!-- Main View -->
+        <div id="main-view">
+        <h1 id="primaryTitleOfPage">BRICK QUIP!</h1>
+        <div class="subtitle">Configure your brick figure's speech bubbles</div>
+
+        <div class="status-bubble" id="status">
+            <span id="statusText">Ready to configure</span>
+        </div>
+
+        <div id="errorMessage" class="error-message hidden"></div>
+        <div id="successMessage" class="success-message hidden"></div>
+
+        <!-- Save Modal -->
+        <div id="saveModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2>SAVING...</h2>
+                <p>Saving configuration to device</p>
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <div id="quipsContainer"></div>
+
+        <button class="add-quip-btn" id="addQuipBtn" onclick="addQuip()">+ ADD QUIP</button>
+
+        <div class="action-buttons">
+            <button class="save-btn" onclick="saveConfig()">SAVE!</button>
+        </div>
+        </div>
+        <!-- End Main View -->
+
+        <!-- Settings View -->
+        <div id="settings-view" class="hidden">
+        <h1>Settings</h1>
+
+
+
+        <div class="slider-bubble">
+            <label class="slider-label">Rotation Speed</label>
+            <div class="interval-display">
+                <span id="intervalValue">30</span> seconds
+            </div>
+            <input type="range" id="intervalSlider" min="5" max="300" value="30" step="5">
+        </div>
+
+        <div class="slider-bubble">
+            <label class="slider-label">Display Brightness</label>
+            <div class="interval-display">
+                <span id="brightnessValue">100</span>%
+            </div>
+            <input type="range" id="brightnessSlider" min="0" max="100" value="100" step="5">
+        </div>
+
+        <div class="speech-bubble">
+            <div class="collapsible-header" onclick="toggleTimeSettings()">
+                <h2 style="margin: 0;">Time Settings</h2>
+                <span class="arrow">▶</span>
+            </div>
+
+            <div class="collapsible-content" id="timeSettingsContent">
+                <div class="input-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="useBrowserTimezone" checked>
+                        <span>Use browser timezone automatically (recommended)</span>
+                    </label>
+                    <div class="helper-text">Automatically syncs with your device timezone including DST changes</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="timezoneOffset">Timezone Offset (hours from UTC):</label>
+                    <input type="number" id="timezoneOffset" class="input-text"
+                           min="-12" max="14" step="1" value="-8" disabled>
+                    <div class="helper-text" id="browserOffsetHelp">
+                        Current browser: UTC<span id="browserOffset">-8</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Time Format:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="timeFormat" value="12h" checked>
+                            <span>12-hour (3:45 PM)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="timeFormat" value="24h">
+                            <span>24-hour (15:45)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="preview-time" id="timePreview">
+                    Current format: <strong id="timeExample">3:45 PM</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="speech-bubble">
+            <div class="collapsible-header" onclick="toggleWakeSleepSettings()">
+                <h2 style="margin: 0;">⏰ Wake and Sleep</h2>
+                <span class="arrow">▶</span>
+            </div>
+
+            <div class="collapsible-content" id="wakeSleepSettingsContent">
+                <div class="input-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="wakeSleepEnabled">
+                        <span>Enable Wake/Sleep Schedule</span>
+                    </label>
+                    <div class="helper-text">Device will enter deep sleep daily at the configured hours</div>
+                </div>
+
+                <div id="wakeSleepControls" style="display: none;">
+                    <div class="input-group">
+                        <label for="wakeHour">Wake Hour:</label>
+                        <select id="wakeHour" class="input-text">
+                            <!-- Options populated by JavaScript -->
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="sleepHour">Sleep Hour:</label>
+                        <select id="sleepHour" class="input-text">
+                            <!-- Options populated by JavaScript -->
+                        </select>
+                    </div>
+
+                    <div class="helper-text">
+                        Device will sleep from Sleep Hour until Wake Hour daily. Times use your configured timezone.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="speech-bubble">
+            <div class="collapsible-header" onclick="toggleExternalQuipSettings()">
+                <h2 style="margin: 0;">🌐 External Quips</h2>
+                <span class="arrow">▶</span>
+            </div>
+
+            <div class="collapsible-content" id="externalQuipSettingsContent">
+                <div class="input-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="externalQuipEnabled" checked>
+                        <span>Enable External Quips</span>
+                    </label>
+                    <div class="helper-text">When enabled, quips from the URL below will be included in rotation</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="externalQuipUrl">External Quip URL:</label>
+                    <textarea id="externalQuipUrl" class="input-text" rows="3" maxlength="256"></textarea>
+                    <div class="helper-text">URL to fetch external quips from. Must start with http:// or https://</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="externalQuipPollMinutes">Poll Interval (minutes):</label>
+                    <input type="number" id="externalQuipPollMinutes" class="input-text"
+                           min="10" max="1440" value="60">
+                    <div class="helper-text">How often to check for new external quips (10-1440 minutes)</div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="speech-bubble">
+            <div class="collapsible-header" onclick="toggleWifiSettings()">
+                <h2 style="margin: 0;">📡 Wi-Fi Settings</h2>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="collapsible-content" id="wifiSettingsContent">
+                <div class="input-group">
+                    <label for="new_ssid">Network Name (SSID):</label>
+                    <input type="text" id="new_ssid" class="input-text" placeholder="Enter new Wi-Fi SSID">
+                </div>
+                <div class="input-group">
+                    <label for="new_wifi_password">Password:</label>
+                    <input type="password" id="new_wifi_password" class="input-text" placeholder="Enter new Wi-Fi Password">
+                </div>
+                <div class="helper-text">
+                    Enter the new Wi-Fi network name (SSID) and password to connect the device.
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="save-btn" id="close-save-btn" onclick="saveAndClose()">Close and Save</button>
+        </div>
+        </div>
+        <!-- End Settings View -->
+    </div>
+
+    <script>
+        // Mode detection: PC_Mode uses postMessage, ESP32_Hosted_Mode uses fetch
+        const urlParams = new URLSearchParams(window.location.search);
+        const isPC_Mode = urlParams.get('mode') === 'PC_Mode';
+
+        // postMessage-based fetch for PC_Mode (communication via parent iframe)
+        const pendingRequests = new Map();
+        let requestIdCounter = 0;
+
+        function post_data_fetch(url, options = {}) {
+            return new Promise((resolve, reject) => {
+                const requestId = 'req_' + (++requestIdCounter);
+                pendingRequests.set(requestId, { resolve, reject });
+
+                window.parent.postMessage({
+                    type: 'fetch',
+                    requestId: requestId,
+                    url: url,
+                    options: options
+                }, '*');
+
+                // Timeout after 30 seconds
+                setTimeout(() => {
+                    if (pendingRequests.has(requestId)) {
+                        pendingRequests.delete(requestId);
+                        reject(new Error('Request timeout'));
+                    }
+                }, 30000);
+            });
+        }
+
+        // Listen for postMessage responses from parent
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'fetchResponse') {
+                const { requestId, ok, data, error } = event.data;
+                const pending = pendingRequests.get(requestId);
+                if (pending) {
+                    pendingRequests.delete(requestId);
+                    if (ok) {
+                        // Create a mock Response-like object
+                        pending.resolve({
+                            ok: true,
+                            json: () => Promise.resolve(data)
+                        });
+                    } else {
+                        pending.resolve({
+                            ok: false,
+                            statusText: error || 'Request failed'
+                        });
+                    }
+                }
+            }
+        });
+
+        // Unified fetch function - uses postMessage in PC_Mode, native fetch otherwise
+        function brick_data_fetch(url, options = {}) {
+            if (isPC_Mode) {
+                return post_data_fetch(url, options);
+            } else {
+                return fetch(url, options);
+            }
+        }
+
+        const MAX_QUIPS = 10;
+        const MAX_QUIP_LENGTH = 100;
+        const MIN_INTERVAL = 5;
+        const MAX_INTERVAL = 300;
+
+        let quips = [];
+        let interval = 30;
+        let useBrowserTimezone = true;
+        let timezoneOffset = -8;
+        let timeFormat = '12h';
+        let wakeSleepEnabled = false;
+        let wakeHour = 9;
+        let sleepHour = 21;
+        let externalQuipUrl = 'https://ryanch.github.io/brick_quips/external_quips.txt';
+        let externalQuipPollMinutes = 60;
+        let externalQuipEnabled = true;
+        let brightness = 100;
+        let new_ssid = '';
+        let new_wifi_password = '';
+        let currentView = 'main';
+
+        // View management functions
+        function showMain() {
+            document.getElementById('main-view').classList.remove('hidden');
+            document.getElementById('settings-view').classList.add('hidden');
+            currentView = 'main';
+        }
+
+        function showSettings() {
+            // If already in settings view, trigger save and close
+            if (currentView === 'settings') {
+                saveAndClose();
+                return;
+            }
+
+            // Otherwise, open settings view
+            document.getElementById('main-view').classList.add('hidden');
+            document.getElementById('settings-view').classList.remove('hidden');
+            currentView = 'settings';
+        }
+
+        async function saveAndClose() {
+            await saveConfig();
+            // Only close if save was successful (check if error message is not shown)
+            const errorEl = document.getElementById('errorMessage');
+            if (errorEl.classList.contains('hidden')) {
+                showMain();
+            }
+        }
+
+        // Default quips
+        const DEFAULT_QUIPS = [
+            "It is nice weather today.",
+            "Hope you are having a good day sir.",
+            "My sword is getting heavy.",
+            "Saying these phrases over and over again is tiring.",
+            "I'm tired looking at you sitting there all day."
+        ];
+
+        // Global variable to store the last successfully loaded/saved configuration
+        let baselineConfig = null;
+
+        // Get browser's timezone offset (in hours from UTC)
+        function getBrowserOffset() {
+            // getTimezoneOffset() returns minutes BEHIND UTC (reversed sign)
+            // Convert to hours and reverse sign: -480 (PST) becomes +8, then we negate to get -8
+            return -new Date().getTimezoneOffset() / 60;
+        }
+
+        // Format hour for display based on time format
+        function formatHour(hour, format) {
+            if (format === '12h') {
+                const h = hour % 12 || 12;
+                const ampm = hour < 12 ? 'AM' : 'PM';
+                return `${h} ${ampm}`;
+            } else {
+                return `${hour.toString().padStart(2, '0')}:00`;
+            }
+        }
+
+        // Populate hour dropdown options
+        function populateHourDropdowns() {
+            const wakeSelect = document.getElementById('wakeHour');
+            const sleepSelect = document.getElementById('sleepHour');
+
+            wakeSelect.innerHTML = '';
+            sleepSelect.innerHTML = '';
+
+            for (let hour = 0; hour < 24; hour++) {
+                const wakeOption = document.createElement('option');
+                wakeOption.value = hour;
+                wakeOption.textContent = formatHour(hour, timeFormat);
+                wakeSelect.appendChild(wakeOption);
+
+                const sleepOption = document.createElement('option');
+                sleepOption.value = hour;
+                sleepOption.textContent = formatHour(hour, timeFormat);
+                sleepSelect.appendChild(sleepOption);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // show the page title based on mode
+            document.getElementById("primaryTitleOfPage").style.display = isPC_Mode ? "none" : "block";
+
+
+            // Display browser's current offset
+            const browserOffset = getBrowserOffset();
+            document.getElementById('browserOffset').textContent = (browserOffset >= 0 ? '+' : '') + browserOffset;
+
+            loadConfig();
+            updateUI();
+
+            // Interval slider listener
+            document.getElementById('intervalSlider').addEventListener('input', (e) => {
+                interval = parseInt(e.target.value);
+                document.getElementById('intervalValue').textContent = interval;
+            });
+
+            // Brightness slider listener
+            document.getElementById('brightnessSlider').addEventListener('input', (e) => {
+                brightness = parseInt(e.target.value);
+                document.getElementById('brightnessValue').textContent = brightness;
+            });
+
+            // Browser timezone checkbox listener
+            document.getElementById('useBrowserTimezone').addEventListener('change', (e) => {
+                useBrowserTimezone = e.target.checked;
+                const offsetInput = document.getElementById('timezoneOffset');
+                offsetInput.disabled = useBrowserTimezone;
+
+                // If enabling auto mode, update offset to browser's current value
+                if (useBrowserTimezone) {
+                    timezoneOffset = getBrowserOffset();
+                    offsetInput.value = timezoneOffset;
+                }
+            });
+
+            // Timezone offset input listener
+            document.getElementById('timezoneOffset').addEventListener('input', (e) => {
+                timezoneOffset = parseInt(e.target.value);
+            });
+
+            // Time format radio listeners
+            document.querySelectorAll('input[name="timeFormat"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    timeFormat = e.target.value;
+                    updateTimePreview();
+                    populateHourDropdowns();  // Repopulate dropdowns with new format
+                });
+            });
+
+            // Populate hour dropdowns initially
+            populateHourDropdowns();
+
+            // Wake/sleep checkbox listener
+            document.getElementById('wakeSleepEnabled').addEventListener('change', (e) => {
+                wakeSleepEnabled = e.target.checked;
+                const controls = document.getElementById('wakeSleepControls');
+                controls.style.display = wakeSleepEnabled ? 'block' : 'none';
+            });
+
+            // Wake/sleep hour listeners
+            document.getElementById('wakeHour').addEventListener('change', (e) => {
+                wakeHour = parseInt(e.target.value);
+            });
+
+            document.getElementById('sleepHour').addEventListener('change', (e) => {
+                sleepHour = parseInt(e.target.value);
+            });
+
+            // External quip enabled listener
+            document.getElementById('externalQuipEnabled').addEventListener('change', (e) => {
+                externalQuipEnabled = e.target.checked;
+            });
+
+            // External quip URL listener
+            document.getElementById('externalQuipUrl').addEventListener('input', (e) => {
+                externalQuipUrl = e.target.value;
+            });
+
+            // External quip poll minutes listener
+            document.getElementById('externalQuipPollMinutes').addEventListener('input', (e) => {
+                externalQuipPollMinutes = parseInt(e.target.value);
+            });
+
+            // New Wi-Fi SSID listener
+            document.getElementById('new_ssid').addEventListener('input', (e) => {
+                new_ssid = e.target.value;
+            });
+
+            // New Wi-Fi Password listener
+            document.getElementById('new_wifi_password').addEventListener('input', (e) => {
+                new_wifi_password = e.target.value;
+            });
+
+
+            // Initial time preview update
+            updateTimePreview();
+            setInterval(updateTimePreview, 60000);  // Update every minute
+        });
+
+        // Update time format preview
+        function updateTimePreview() {
+            const format = document.querySelector('input[name="timeFormat"]:checked')?.value || '12h';
+            const now = new Date();
+            let example;
+
+            if (format === '12h') {
+                const hours = now.getHours() % 12 || 12;
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+                example = `${hours}:${minutes} ${ampm}`;
+            } else {
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                example = `${hours}:${minutes}`;
+            }
+
+            const exampleElement = document.getElementById('timeExample');
+            if (exampleElement) {
+                exampleElement.textContent = example;
+            }
+        }
+
+        // Load configuration (mock API or localStorage)
+        async function loadConfig() {
+            try {
+                // Try to fetch from API first (for ESP32 or PC_Mode via Bluetooth)
+                if (isPC_Mode || (window.location.hostname !== '' && window.location.hostname !== 'localhost')) {
+                    const response = await brick_data_fetch('/api/quips/load');
+                    if (response.ok) {
+                        const data = await response.json();
+                        quips = data.quips || DEFAULT_QUIPS;
+                        interval = data.interval_seconds || 30;
+
+                        // Load timezone settings (new format)
+                        if (data.use_browser_timezone !== undefined) {
+                            useBrowserTimezone = data.use_browser_timezone;
+                        }
+                        if (data.timezone_offset !== undefined) {
+                            timezoneOffset = data.timezone_offset;
+                        } else {
+                            // Default to browser's current offset if not set
+                            timezoneOffset = getBrowserOffset();
+                        }
+
+                        timeFormat = data.time_format || '12h';
+
+                        // Load wake/sleep settings
+                        wakeSleepEnabled = data.wake_sleep_enabled || false;
+                        wakeHour = data.wake_hour !== undefined ? data.wake_hour : 9;
+                        sleepHour = data.sleep_hour !== undefined ? data.sleep_hour : 21;
+
+                        // Load external quip settings
+                        externalQuipUrl = data.external_quip_url || 'https://ryanch.github.io/brick_quips/external_quips.txt';
+                        externalQuipPollMinutes = data.external_quip_poll_minutes !== undefined ? data.external_quip_poll_minutes : 60;
+                        externalQuipEnabled = data.external_quip_enabled !== undefined ? data.external_quip_enabled : true;
+
+                        // Load brightness
+                        brightness = data.brightness !== undefined ? data.brightness : 100;
+
+                        // Load new Wi-Fi settings
+                        new_ssid = data.new_ssid || '';
+                        new_wifi_password = data.new_wifi_password || '';
+
+                        // Store this as the baseline config, ensuring new_ssid and new_wifi_password are explicitly empty strings if not provided
+                        baselineConfig = JSON.parse(JSON.stringify(data));
+                        if (baselineConfig.new_ssid === undefined) baselineConfig.new_ssid = '';
+                        if (baselineConfig.new_wifi_password === undefined) baselineConfig.new_wifi_password = '';
+
+                        showStatus('Loaded from device', 'success');
+                        updateUI();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('API not available, using localStorage');
+            }
+
+            // Fallback to localStorage for local testing
+            const saved = localStorage.getItem('quipsConfig');
+            if (saved) {
+                const data = JSON.parse(saved);
+                quips = data.quips || DEFAULT_QUIPS;
+                interval = data.interval_seconds || 30;
+                useBrowserTimezone = data.use_browser_timezone !== undefined ? data.use_browser_timezone : true;
+                timezoneOffset = data.timezone_offset !== undefined ? data.timezone_offset : getBrowserOffset();
+                timeFormat = data.time_format || '12h';
+                wakeSleepEnabled = data.wake_sleep_enabled || false;
+                wakeHour = data.wake_hour !== undefined ? data.wake_hour : 9;
+                sleepHour = data.sleep_hour !== undefined ? data.sleep_hour : 21;
+                externalQuipUrl = data.external_quip_url || 'https://ryanch.github.io/brick_quips/external_quips.txt';
+                externalQuipPollMinutes = data.external_quip_poll_minutes !== undefined ? data.external_quip_poll_minutes : 60;
+                externalQuipEnabled = data.external_quip_enabled !== undefined ? data.external_quip_enabled : true;
+                brightness = data.brightness !== undefined ? data.brightness : 100;
+                new_ssid = data.new_ssid || '';
+                new_wifi_password = data.new_wifi_password || '';
+                // Store this as the baseline config
+                baselineConfig = JSON.parse(JSON.stringify(data));
+                if (baselineConfig.new_ssid === undefined) baselineConfig.new_ssid = '';
+                if (baselineConfig.new_wifi_password === undefined) baselineConfig.new_wifi_password = '';
+                showStatus('Loaded from local storage', 'success');
+            } else {
+                quips = [...DEFAULT_QUIPS];
+                timezoneOffset = getBrowserOffset();
+                // Initialize baseline config for the first time
+                baselineConfig = {
+                    quips: [...DEFAULT_QUIPS],
+                    interval_seconds: 30,
+                    use_browser_timezone: true,
+                    timezone_offset: getBrowserOffset(),
+                    time_format: '12h',
+                    wake_sleep_enabled: false,
+                    wake_hour: 9,
+                    sleep_hour: 21,
+                    external_quip_url: 'https://ryanch.github.io/brick_quips/external_quips.txt',
+                    external_quip_poll_minutes: 60,
+                    external_quip_enabled: true,
+                    brightness: 100,
+                    new_ssid: '',
+                    new_wifi_password: ''
+                };
+            }
+            updateUI();
+        }
+
+        /**
+         * Compares a baseline configuration with a new configuration and returns an object
+         * containing only the changed properties.
+         * Special rule: If any quip changes, the entire 'quips' array is included.
+         *
+         * @param {object} baseline - The original configuration.
+         * @param {object} newConfig - The new configuration.
+         * @returns {object} An object containing only the properties that have changed.
+         */
+        function buildChangesJson(baseline, newConfig) {
+            console.log('--- buildChangesJson Debug ---');
+            console.log('Baseline:', JSON.stringify(baseline));
+            console.log('New Config:', JSON.stringify(newConfig));
+
+            const changes = {};
+
+            // Compare simple properties
+            const simpleProps = [
+                'interval_seconds', 'use_browser_timezone', 'timezone_offset', 'time_format',
+                'wake_sleep_enabled', 'wake_hour', 'sleep_hour', 'brightness',
+                'external_quip_url', 'external_quip_poll_minutes', 'external_quip_enabled',
+                'new_ssid', 'new_wifi_password'
+            ];
+
+            simpleProps.forEach(prop => {
+                if (prop === 'new_ssid' || prop === 'new_wifi_password') {
+                    // Only include if the user has entered a value (it's not an empty string)
+                    if (newConfig[prop] !== '') {
+                        changes[prop] = newConfig[prop];
+                    }
+                } else if (baseline[prop] !== newConfig[prop]) {
+                    changes[prop] = newConfig[prop];
+                }
+            });
+
+            // Compare quips array (special rule: send all quips if any change)
+            let quipsChanged = false;
+            // Handle cases where quips might be undefined or null in baseline
+            const baselineQuips = baseline.quips || [];
+            const newConfigQuips = newConfig.quips || [];
+
+            if (baselineQuips.length !== newConfigQuips.length) {
+                quipsChanged = true;
+            } else {
+                for (let i = 0; i < newConfigQuips.length; i++) {
+                    if (baselineQuips[i] !== newConfigQuips[i]) {
+                        quipsChanged = true;
+                        break;
+                    }
+                }
+            }
+
+            if (quipsChanged) {
+                changes.quips = newConfigQuips;
+            }
+            console.log('Changes Payload:', JSON.stringify(changes));
+            console.log('--- End buildChangesJson Debug ---');
+
+            return changes;
+        }
+
+        // Save configuration
+        async function saveConfig() {
+            // Validate
+            const validation = validateConfig();
+            if (!validation.valid) {
+                showError(validation.error);
+                return;
+            }
+
+            // Remove empty quips
+            const cleanedQuips = quips.filter(q => q.trim() !== '');
+
+            if (cleanedQuips.length === 0) {
+                showError('You must have at least one quip!');
+                return;
+            }
+
+            // Get current time format from UI
+            const currentTimeFormat = document.querySelector('input[name="timeFormat"]:checked')?.value || '12h';
+
+            // If auto-update is enabled, use browser's current offset
+            const finalOffset = useBrowserTimezone ? getBrowserOffset() : timezoneOffset;
+
+            const newConfig = {
+                quips: cleanedQuips,
+                interval_seconds: interval,
+                use_browser_timezone: useBrowserTimezone,
+                timezone_offset: finalOffset,
+                time_format: currentTimeFormat,
+                wake_sleep_enabled: wakeSleepEnabled,
+                wake_hour: wakeHour,
+                sleep_hour: sleepHour,
+                external_quip_url: externalQuipUrl,
+                external_quip_poll_minutes: externalQuipPollMinutes,
+                external_quip_enabled: externalQuipEnabled,
+                brightness: brightness,
+                new_ssid: new_ssid,
+                new_wifi_password: new_wifi_password
+            };
+
+            let payload = newConfig;
+
+            if (baselineConfig) {
+                payload = buildChangesJson(baselineConfig, newConfig);
+                // If no changes, don't send anything
+                if (Object.keys(payload).length === 0) {
+                    hideSaveModal();
+                    showSuccess('No changes to save!');
+                    return;
+                }
+            }
+
+            // Show modal before starting save
+            showSaveModal();
+
+            try {
+                // Try to save to API first (for ESP32 or PC_Mode via Bluetooth)
+                if (isPC_Mode || (window.location.hostname !== '' && window.location.hostname !== 'localhost')) {
+                    const response = await brick_data_fetch('/api/quips/save', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.status === 'ok') {
+                            hideSaveModal();
+                            showSuccess('Saved to device! Your quips will update soon.');
+                            quips = cleanedQuips;
+                            // Update baseline after successful save, ensuring new_ssid and new_wifi_password are explicitly empty strings if not provided
+                            baselineConfig = JSON.parse(JSON.stringify(newConfig));
+                            if (baselineConfig.new_ssid === undefined) baselineConfig.new_ssid = '';
+                            if (baselineConfig.new_wifi_password === undefined) baselineConfig.new_wifi_password = '';
+                            // Clear new_ssid and new_wifi_password inputs and variables after successful submission
+                            new_ssid = '';
+                            new_wifi_password = '';
+                            document.getElementById('new_ssid').value = '';
+                            document.getElementById('new_wifi_password').value = '';
+                            updateUI();
+                            return;
+                        } else if (result.error) {
+                            hideSaveModal();
+                            showError(result.error);
+                            return;
+                        }
+                    } else {
+                        throw new Error('Failed to save to device');
+                    }
+                }
+            } catch (error) {
+                console.log('API not available, using localStorage');
+            }
+
+            // Fallback to localStorage for local testing
+            localStorage.setItem('quipsConfig', JSON.stringify(newConfig));
+            quips = cleanedQuips;
+            hideSaveModal();
+            showSuccess('Saved locally! (Test mode)');
+            // Update baseline after successful save, excluding new_ssid and new_wifi_password
+            const { new_ssid: _, new_wifi_password: __, ...restOfNewConfig } = newConfig;
+            baselineConfig = { ...restOfNewConfig };
+            // Clear new_ssid and new_wifi_password inputs and variables after successful submission
+            new_ssid = '';
+            new_wifi_password = '';
+            document.getElementById('new_ssid').value = '';
+            document.getElementById('new_wifi_password').value = '';
+            updateUI();
+        }
+
+        // Validate configuration
+        function validateConfig() {
+            // Check quip count
+            const nonEmptyQuips = quips.filter(q => q.trim() !== '');
+            if (nonEmptyQuips.length === 0) {
+                return { valid: false, error: 'You need at least one quip!' };
+            }
+            if (nonEmptyQuips.length > MAX_QUIPS) {
+                return { valid: false, error: `Maximum ${MAX_QUIPS} quips allowed!` };
+            }
+
+            // Check quip lengths
+            for (let i = 0; i < quips.length; i++) {
+                if (getUTF8Length(quips[i]) > MAX_QUIP_LENGTH) {
+                    return { valid: false, error: `Quip ${i + 1} exceeds ${MAX_QUIP_LENGTH} characters!` };
+                }
+            }
+
+            // Check interval
+            if (interval < MIN_INTERVAL || interval > MAX_INTERVAL) {
+                return { valid: false, error: `Interval must be between ${MIN_INTERVAL} and ${MAX_INTERVAL} seconds!` };
+            }
+
+            return { valid: true };
+        }
+
+        // Update UI
+        function updateUI() {
+            const container = document.getElementById('quipsContainer');
+            container.innerHTML = '';
+
+            quips.forEach((quip, index) => {
+                const bubble = createQuipBubble(quip, index);
+                container.appendChild(bubble);
+            });
+
+            // Update interval slider
+            document.getElementById('intervalSlider').value = interval;
+            document.getElementById('intervalValue').textContent = interval;
+
+            // Update brightness slider
+            document.getElementById('brightnessSlider').value = brightness;
+            document.getElementById('brightnessValue').textContent = brightness;
+
+            // Update timezone checkbox and offset
+            const useBrowserCheckbox = document.getElementById('useBrowserTimezone');
+            const offsetInput = document.getElementById('timezoneOffset');
+            useBrowserCheckbox.checked = useBrowserTimezone;
+            offsetInput.value = timezoneOffset;
+            offsetInput.disabled = useBrowserTimezone;
+
+            // Update time format radio buttons
+            const formatRadio = document.querySelector(`input[name="timeFormat"][value="${timeFormat}"]`);
+            if (formatRadio) {
+                formatRadio.checked = true;
+            }
+
+            // Update time preview
+            updateTimePreview();
+
+            // Update wake/sleep settings
+            const wakeSleepCheckbox = document.getElementById('wakeSleepEnabled');
+            wakeSleepCheckbox.checked = wakeSleepEnabled;
+            const wakeSleepControls = document.getElementById('wakeSleepControls');
+            wakeSleepControls.style.display = wakeSleepEnabled ? 'block' : 'none';
+
+            // Update hour dropdowns
+            const wakeSelect = document.getElementById('wakeHour');
+            const sleepSelect = document.getElementById('sleepHour');
+            wakeSelect.value = wakeHour;
+            sleepSelect.value = sleepHour;
+
+            // Update external quip settings
+            const externalEnabledCheckbox = document.getElementById('externalQuipEnabled');
+            externalEnabledCheckbox.checked = externalQuipEnabled;
+            const externalUrlInput = document.getElementById('externalQuipUrl');
+            const externalPollInput = document.getElementById('externalQuipPollMinutes');
+            externalUrlInput.value = externalQuipUrl;
+            externalPollInput.value = externalQuipPollMinutes;
+
+            // Update new Wi-Fi settings
+            document.getElementById('new_ssid').value = new_ssid;
+            document.getElementById('new_wifi_password').value = new_wifi_password;
+
+
+            // Update new Wi-Fi settings
+            document.getElementById('new_ssid').value = new_ssid;
+            document.getElementById('new_wifi_password').value = new_wifi_password;
+
+
+            // Update add button state
+            document.getElementById('addQuipBtn').disabled = quips.length >= MAX_QUIPS;
+        }
+
+        // Create quip bubble element
+        function createQuipBubble(text, index) {
+            const div = document.createElement('div');
+            div.className = 'speech-bubble tail-left';
+
+            const charCount = text.length;
+            const charClass = charCount > MAX_QUIP_LENGTH ? 'char-count warning' : 'char-count';
+
+            div.innerHTML = `
+                <div class="quip-header">
+                    <span class="quip-label">Quip #${index + 1}</span>
+                    <span class="${charClass}" id="charCount${index}">${charCount}/${MAX_QUIP_LENGTH}</span>
+                </div>
+                <input type="text"
+                       id="quip${index}"
+                       value="${escapeHtml(text)}"
+                       maxlength="${MAX_QUIP_LENGTH + 50}"
+                       placeholder="Enter a fun quip..."
+                       oninput="updateQuip(${index})">
+                <div style="margin-top: 10px; text-align: right;">
+                    <button class="remove-btn" onclick="removeQuip(${index})">REMOVE</button>
+                </div>
+            `;
+
+            return div;
+        }
+
+        // Add new quip
+        function addQuip() {
+            if (quips.length >= MAX_QUIPS) {
+                showError(`Maximum ${MAX_QUIPS} quips allowed!`);
+                return;
+            }
+            quips.push('');
+            updateUI();
+            // Focus on new input
+            setTimeout(() => {
+                document.getElementById(`quip${quips.length - 1}`).focus();
+            }, 100);
+        }
+
+        // Remove quip
+        function removeQuip(index) {
+            quips.splice(index, 1);
+            updateUI();
+        }
+
+        function getUTF8Length(str) {
+            let len = 0;
+            for (let i = 0; i < str.length; i++) {
+                let code = str.charCodeAt(i);
+                if (code < 0x80) {
+                    len += 1;
+                } else if (code < 0x800) {
+                    len += 2;
+                } else if (code < 0xD800 || code >= 0xE000) {
+                    len += 3;
+                } else {
+                    // Surrogate pair
+                    i++; // Skip the low surrogate
+                    len += 4;
+                }
+            }
+            return len;
+        }
+
+        // Update quip text
+        function updateQuip(index) {
+            const input = document.getElementById(`quip${index}`);
+            const charCountEl = document.getElementById(`charCount${index}`);
+
+            quips[index] = input.value;
+            const charCount = getUTF8Length(input.value);
+
+            charCountEl.textContent = `${charCount}/${MAX_QUIP_LENGTH}`;
+
+            if (charCount > MAX_QUIP_LENGTH) {
+                charCountEl.classList.add('warning');
+            } else {
+                charCountEl.classList.remove('warning');
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 5000);
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 5000);
+        }
+
+        // Show status
+        function showStatus(message, type) {
+            const el = document.getElementById('statusText');
+            el.textContent = message;
+        }
+
+        // Show save modal
+        function showSaveModal() {
+            const modal = document.getElementById('saveModal');
+            modal.classList.remove('hidden');
+        }
+
+        // Hide save modal
+        function hideSaveModal() {
+            const modal = document.getElementById('saveModal');
+            modal.classList.add('hidden');
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Toggle time settings section
+        function toggleTimeSettings() {
+            const content = document.getElementById('timeSettingsContent');
+            const arrow = event.currentTarget.querySelector('.arrow');
+
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('expanded');
+        }
+
+        // Toggle wake/sleep settings section
+        function toggleWakeSleepSettings() {
+            const content = document.getElementById('wakeSleepSettingsContent');
+            const arrow = event.currentTarget.querySelector('.arrow');
+
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('expanded');
+        }
+
+        // Toggle external quip settings section
+        function toggleExternalQuipSettings() {
+            const content = document.getElementById('externalQuipSettingsContent');
+            const arrow = event.currentTarget.querySelector('.arrow');
+
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('expanded');
+        }
+
+        // Toggle Wi-Fi settings section
+        function toggleWifiSettings() {
+            const content = document.getElementById('wifiSettingsContent');
+            const arrow = event.currentTarget.querySelector('.arrow');
+
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('expanded');
+        }
+    </script>
+</body>
+</html>

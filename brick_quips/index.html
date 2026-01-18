@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brick Quips Configuration</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M50 10 H14 C9 10 5 14 5 19 V40 C5 45 9 49 14 49 H20 L24 58 L28 49 H50 C55 49 59 45 59 40 V19 C59 14 55 10 50 10 Z' fill='%23FFD93D' stroke='%23000' stroke-width='3'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="comic-star" style="top: 10%; left: 5%;">*</div>
+    <div class="comic-star" style="top: 80%; right: 10%;">*</div>
+    <div class="comic-star" style="top: 40%; left: 85%;">+</div>
+
+    <div class="container">
+        <h1>BRICK QUIPS</h1>
+        <div class="subtitle">Bluetooth Configuration</div>
+
+        <div class="status-bubble" id="status">
+            <span id="statusText">Ready to discover devices</span>
+        </div>
+
+        <div id="bluetoothWarning" class="warning-bubble" style="display: none;">
+            <h3>Bluetooth Not Supported</h3>
+            <p>Web Bluetooth is not available in this browser. Please use Chrome, Edge, or Opera on a desktop/Android device.</p>
+        </div>
+
+        <button class="discover-btn" id="discoverBtn" onclick="discoverDevice()">
+            DISCOVER DEVICES
+        </button>
+
+        <div class="device-list" id="deviceList">
+            <h2>Discovered Devices</h2>
+            <div id="devicesContainer">
+                <div class="no-devices">No devices discovered yet. Click "Discover Devices" to scan.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Modal -->
+    <div class="modal-overlay hidden" id="deviceModal">
+        <div class="modal-content" style="width: 90%; max-width: 600px; height: 85vh;">
+            <button class="modal-close" onclick="closeModal()">X</button>
+            <div class="modal-header" id="modalDeviceName">Device</div>
+            <div class="modal-status" id="modalStatus">
+                <span id="modalStatusText">Connecting...</span>
+                <span class="spinner" id="modalSpinner"></span>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn disconnect" id="disconnectBtn" onclick="disconnectDevice()">
+                    DISCONNECT
+                </button>
+            </div>
+            <iframe id="configIframe" src="" style="width:100%; height:calc(100% - 120px); border:none; display:none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Bluetooth UUIDs
+        const SERVICE_UUID = '12345678-1234-5678-1234-56789abc0001';
+        const READ_CHAR_UUID = '12345678-1234-5678-1234-56789abc0002';
+        const WRITE_CHAR_UUID = '12345678-1234-5678-1234-56789abc0003';
+
+        // BluetoothManager class
+        class BluetoothManager {
+            constructor() {
+                this.device = null;
+                this.server = null;
+                this.service = null;
+                this.readCharacteristic = null;
+                this.writeCharacteristic = null;
+            }
+
+            async discover() {
+                try {
+                    const device = await navigator.bluetooth.requestDevice({
+                        filters: [{ namePrefix: 'BrickQuip' }],
+                        optionalServices: [SERVICE_UUID]
+                    });
+                    return device;
+                } catch (error) {
+                    if (error.name === 'NotFoundError') {
+                        throw new Error('No device selected');
+                    }
+                    throw error;
+                }
+            }
+
+            async connect(device) {
+                this.device = device;
+
+                // Listen for disconnection
+                device.addEventListener('gattserverdisconnected', () => {
+                    this.onDisconnected();
+                });
+
+                this.server = await device.gatt.connect();
+                this.service = await this.server.getPrimaryService(SERVICE_UUID);
+                this.readCharacteristic = await this.service.getCharacteristic(READ_CHAR_UUID);
+                this.writeCharacteristic = await this.service.getCharacteristic(WRITE_CHAR_UUID);
+
+                return true;
+            }
+
+            async readConfig() {
+                if (!this.readCharacteristic) {
+                    throw new Error('Not connected');
+                }
+
+                const value = await this.readCharacteristic.readValue();
+                const decoder = new TextDecoder('utf-8');
+                const jsonStr = decoder.decode(value);
+                return JSON.parse(jsonStr);
+            }
+
+            async writeConfig(config) {
+                if (!this.writeCharacteristic) {
+                    throw new Error('Not connected');
+                }
+
+                const encoder = new TextEncoder();
+                const data = encoder.encode(JSON.stringify(config));
+                await this.writeCharacteristic.writeValue(data);
+
+                // Read back confirmation
+                const response = await this.writeCharacteristic.readValue();
+                const decoder = new TextDecoder('utf-8');
+                return JSON.parse(decoder.decode(response));
+            }
+
+            disconnect() {
+                if (this.device && this.device.gatt.connected) {
+                    this.device.gatt.disconnect();
+                }
+                this.cleanup();
+            }
+
+            cleanup() {
+                this.server = null;
+                this.service = null;
+                this.readCharacteristic = null;
+                this.writeCharacteristic = null;
+            }
+
+            onDisconnected() {
+                this.cleanup();
+                updateModalForDisconnection();
+            }
+
+            isConnected() {
+                return this.device && this.device.gatt && this.device.gatt.connected;
+            }
+
+            getDeviceName() {
+                return this.device ? this.device.name : null;
+            }
+        }
+
+        // Global state
+        const btManager = new BluetoothManager();
+        const discoveredDevices = new Map();
+        let currentDeviceId = null;
+
+        // Check for Web Bluetooth support
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!navigator.bluetooth) {
+                document.getElementById('bluetoothWarning').style.display = 'block';
+                document.getElementById('discoverBtn').disabled = true;
+                updateStatus('Web Bluetooth not supported', true);
+            }
+        });
+
+        function updateStatus(message, isError = false) {
+            const statusBubble = document.getElementById('status');
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = message;
+            statusBubble.classList.toggle('error', isError);
+        }
+
+        async function discoverDevice() {
+            const btn = document.getElementById('discoverBtn');
+            btn.disabled = true;
+            btn.textContent = 'SCANNING...';
+            updateStatus('Scanning for BrickQuip devices...');
+
+            try {
+                const device = await btManager.discover();
+
+                // Store device reference
+                discoveredDevices.set(device.id, device);
+
+                // Update UI
+                updateDeviceList();
+                updateStatus('Device found: ' + device.name);
+
+                // Open modal for this device
+                openDeviceModal(device.id);
+
+            } catch (error) {
+                if (error.message !== 'No device selected') {
+                    updateStatus('Error: ' + error.message, true);
+                    console.error('Discovery error:', error);
+                } else {
+                    updateStatus('Discovery cancelled');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'DISCOVER DEVICES';
+            }
+        }
+
+        function updateDeviceList() {
+            const container = document.getElementById('devicesContainer');
+
+            if (discoveredDevices.size === 0) {
+                container.innerHTML = '<div class="no-devices">No devices discovered yet. Click "Discover Devices" to scan.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            discoveredDevices.forEach((device, id) => {
+                const isConnected = btManager.device && btManager.device.id === id && btManager.isConnected();
+                const card = document.createElement('div');
+                card.className = 'device-card' + (isConnected ? ' connected' : '');
+                card.onclick = () => openDeviceModal(id);
+                card.innerHTML = `
+                    <span class="device-name">${device.name}</span>
+                    <span class="device-status ${isConnected ? 'connected' : ''}">${isConnected ? 'Connected' : 'Click to connect'}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function openDeviceModal(deviceId) {
+            currentDeviceId = deviceId;
+            const device = discoveredDevices.get(deviceId);
+            if (!device) return;
+
+            // Show modal
+            document.getElementById('deviceModal').classList.remove('hidden');
+            document.getElementById('modalDeviceName').textContent = device.name;
+            document.getElementById('configIframe').style.display = 'none';
+
+            // Check if already connected to this device
+            if (btManager.device && btManager.device.id === deviceId && btManager.isConnected()) {
+                updateModalConnected();
+                return;
+            }
+
+            // If connected to different device, disconnect first
+            if (btManager.isConnected()) {
+                btManager.disconnect();
+            }
+
+            // Connect to this device
+            updateModalConnecting();
+
+            
+            try {
+                await btManager.connect(device);
+                updateModalConnected();
+                updateDeviceList();
+            } catch (error) {
+                updateModalError('Connection failed: ' + error.message);
+                console.error('Connection error:', error);
+            }
+            
+        }
+
+        function updateModalConnecting() {
+
+            // show the connection details while connecting
+            document.getElementById("modalStatus").style.display = "block";
+            document.getElementById("disconnectBtn").style.display = "block";
+
+            document.getElementById('modalStatus').className = 'modal-status';
+            document.getElementById('modalStatusText').textContent = 'Connecting...';
+            document.getElementById('modalSpinner').style.display = 'inline-block';
+            document.getElementById('configIframe').style.display = 'none';
+        }
+
+        function updateModalConnected() {
+            document.getElementById('modalStatus').className = 'modal-status connected';
+            document.getElementById('modalStatusText').textContent = 'Connected';
+            document.getElementById('modalSpinner').style.display = 'none';
+
+            // Load the configuration page in the iframe with PC_Mode
+            const iframe = document.getElementById('configIframe');
+
+            // when testing locally, use index.html from the root
+            // when we host it on the web, we copy it to a sibling file, that is called device.html
+            if (document.location.href.startsWith("file") ) {
+                iframe.src = '../index.html?mode=PC_Mode';
+            }
+            else {
+                iframe.src = 'device.html?mode=PC_Mode';
+            }
+            
+            
+            iframe.style.display = 'block';
+            iframe.style.borderTop = "2px solid black";
+            iframe.style.borderBottom = "2px solid black";
+
+            // hide the connection details once connected 
+            document.getElementById("modalStatus").style.display = "none";
+            document.getElementById("disconnectBtn").style.display = "none";
+
+        }
+
+        function updateModalError(message) {
+            document.getElementById('modalStatus').className = 'modal-status error';
+            document.getElementById('modalStatusText').textContent = message;
+            document.getElementById('modalSpinner').style.display = 'none';
+            document.getElementById('configIframe').style.display = 'none';
+        }
+
+        function updateModalForDisconnection() {
+            if (document.getElementById('deviceModal').classList.contains('hidden')) {
+                return;
+            }
+            updateModalError('Disconnected');
+            updateDeviceList();
+        }
+
+        function closeModal() {
+            document.getElementById('deviceModal').classList.add('hidden');
+            document.getElementById('configIframe').src = '';
+            document.getElementById('configIframe').style.display = 'none';
+            currentDeviceId = null;
+        }
+
+        function disconnectDevice() {
+            btManager.disconnect();
+            updateModalError('Disconnected');
+            updateDeviceList();
+            updateStatus('Disconnected from device');
+        }
+
+        // Handle postMessage requests from iframe for Bluetooth communication
+        window.addEventListener('message', async (event) => {
+            if (event.data && event.data.type === 'fetch') {
+                const { requestId, url, options } = event.data;
+                const iframe = document.getElementById('configIframe');
+
+                try {
+                    let data;
+                    let ok = true;
+
+                    if (url === '/api/quips/load') {
+                        // Route to Bluetooth read
+                        data = await btManager.readConfig();
+                        updateStatus('Configuration loaded via Bluetooth');
+                    } else if (url === '/api/quips/save') {
+                        // Route to Bluetooth write
+                        const payload = JSON.parse(options.body);
+                        data = await btManager.writeConfig(payload);
+                        updateStatus('Configuration saved via Bluetooth');
+                    } else {
+                        throw new Error('Unknown endpoint: ' + url);
+                    }
+
+                    iframe.contentWindow.postMessage({
+                        type: 'fetchResponse',
+                        requestId: requestId,
+                        ok: true,
+                        data: data
+                    }, '*');
+                } catch (error) {
+                    console.error('Bluetooth operation failed:', error);
+                    updateStatus('Bluetooth error: ' + error.message, true);
+
+                    iframe.contentWindow.postMessage({
+                        type: 'fetchResponse',
+                        requestId: requestId,
+                        ok: false,
+                        error: error.message
+                    }, '*');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
