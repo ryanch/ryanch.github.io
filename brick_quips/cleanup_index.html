@@ -218,15 +218,30 @@
 
             disconnect() {
                 console.log("UnReliable: Disconnecting...");
-
                 this.readLoopActive = false;
+
+                // Abort the readable pipe first
+                if (this.abortController) {
+                    this.abortController.abort();
+                    this.abortController = null;
+                }
+
                 if (this.responseResolver) {
                     this.responseResolver(null, false);
                     this.responseResolver = null;
                 }
-                try { this.reader?.cancel().catch(() => {}); } catch (e) {}
-                try { this.writer?.close().catch(() => {}); } catch (e) {}
+
+                try {
+                    this.reader?.cancel().catch(() => {});
+                    this.reader?.releaseLock();
+                } catch (e) {}
+
+                try {
+                    this.writer?.releaseLock();
+                } catch (e) {}
+
                 try { this.port?.close().catch(() => {}); } catch (e) {}
+
                 this.port = null;
                 this.reader = null;
                 this.writer = null;
