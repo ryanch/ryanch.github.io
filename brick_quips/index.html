@@ -216,22 +216,84 @@
                 }
             }
 
+
+            /*
+            // not clean:
             disconnect() {
                 console.log("UnReliable: Disconnecting...");
-
                 this.readLoopActive = false;
+
+                // Abort the readable pipe first
+                if (this.abortController) {
+                    this.abortController.abort();
+                    this.abortController = null;
+                }
+
                 if (this.responseResolver) {
                     this.responseResolver(null, false);
                     this.responseResolver = null;
                 }
-                try { this.reader?.cancel().catch(() => {}); } catch (e) {}
-                try { this.writer?.close().catch(() => {}); } catch (e) {}
+
+                try {
+                    this.reader?.cancel().catch(() => {});
+                    this.reader?.releaseLock();
+                } catch (e) {}
+
+                try {
+                    this.writer?.releaseLock();
+                } catch (e) {}
+
                 try { this.port?.close().catch(() => {}); } catch (e) {}
+
                 this.port = null;
                 this.reader = null;
                 this.writer = null;
                 this.readBuffer = '';
             }
+            */
+
+            async disconnect() {  // Make async
+                console.log("UnReliable: Disconnecting...");
+                this.readLoopActive = false;
+
+                if (this.abortController) {
+                    this.abortController.abort();
+                    this.abortController = null;
+                }
+                if (this.responseResolver) {
+                    this.responseResolver(null, false);
+                    this.responseResolver = null;
+                }
+
+                // Sequential cleanup - CRITICAL for pipeTo() chains
+                try {
+                    // 1. Cancel reader FIRST (unblocks pipeTo)
+                    if (this.reader) {
+                        await this.reader.cancel({ flush: false });
+                        this.reader.releaseLock();
+                    }
+                } catch (e) { console.error("Reader cancel:", e); }
+
+                try {
+                    // 2. Close writer (propagates through textEncoder -> port.writable)
+                    if (this.writer) {
+                        await this.writer.close();
+                        this.writer.releaseLock();
+                    }
+                } catch (e) { console.error("Writer close:", e); }
+
+                try {
+                    // 3. Port close LAST
+                    if (this.port) {
+                        await this.port.close();
+                    }
+                } catch (e) { console.error("Port close:", e); }
+
+                // Cleanup
+                this.port = null; this.reader = null; this.writer = null; 
+                this.readBuffer = '';
+            }
+
 
             async startReadLoop() {
                 try {
@@ -278,7 +340,7 @@
                 }
 
                 // Clear buffer before sending
-                //this.readBuffer = '';
+                // this.readBuffer = '';
 
                 const timeout = setTimeout(() => {
                     console.log("UnReliable: Response timeout");
@@ -320,6 +382,12 @@
                 this.deviceId = null;
                 this.currentPort = null;
                 this.maxRetries = 10;
+
+                window.addEventListener('beforeunload', () => {
+                    this.connectionManager.disconnect();
+                }, { once: true });
+
+
             }
 
             async discover() {
