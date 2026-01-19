@@ -176,8 +176,45 @@
                 this.readBuffer = '';
                 this.readLoopActive = false;
                 this.responseResolver = null;
+                this.readableStreamClosed = null; 
+                this.writableStreamClosed = null; 
             }
 
+            async connect(port) {
+                try {
+                    this.port = port;
+                    await this.port.open({ baudRate: 115200 });
+
+                    const textDecoder = new TextDecoderStream();
+                    const textEncoder = new TextEncoderStream();
+
+                    // Store pipe promises for later cleanup
+                    this.abortController = new AbortController();
+                    this.readableStreamClosed = this.port.readable.pipeTo(
+                        textDecoder.writable,
+                        { signal: this.abortController.signal }
+                    ).catch(e => console.error("Readable pipe error:", e));
+
+                    this.writableStreamClosed = textEncoder.readable.pipeTo(
+                        this.port.writable
+                    ).catch(e => console.error("Writable pipe error:", e));
+
+                    this.reader = textDecoder.readable.getReader();
+                    this.writer = textEncoder.writable.getWriter();
+
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    this.readLoopActive = true;
+                    this.startReadLoop();
+
+                    return { success: true };
+                } catch (error) {
+                    // Cleanup on connect failure
+                    await this.disconnect();
+                    return { success: false, error: error.message };
+                }
+            }
+
+            /*
             async connect(port) {
                 try {
                     this.port = port;
@@ -215,7 +252,7 @@
                     return { success: false, error: error.message };
                 }
             }
-
+            */
 
             /*
             // not clean:
@@ -252,6 +289,7 @@
             }
             */
 
+            /*
             async disconnect() {  // Make async
                 console.log("UnReliable: Disconnecting...");
                 this.readLoopActive = false;
@@ -293,6 +331,71 @@
                 this.port = null; this.reader = null; this.writer = null; 
                 this.readBuffer = '';
             }
+            */
+
+            async disconnect() {
+                console.log("UnReliable: Disconnecting...");
+                this.readLoopActive = false;
+
+                if (this.responseResolver) {
+                    this.responseResolver(null, false);
+                    this.responseResolver = null;
+                }
+
+                if (this.abortController) {
+                    this.abortController.abort();
+                    this.abortController = null;
+                }
+
+                // 1. Cancel reader (unblocks readable pipe)
+                try {
+                    if (this.reader) {
+                        await this.reader.cancel();
+                        this.reader.releaseLock();
+                    }
+                } catch (e) {
+                    console.error("Reader cancel:", e);
+                }
+
+                // 2. Close writer (propagates through textEncoder -> port.writable)
+                try {
+                    if (this.writer) {
+                        await this.writer.close();
+                        this.writer.releaseLock();
+                    }
+                } catch (e) {
+                    console.error("Writer close:", e);
+                }
+
+                // 3. Wait for pipeTo chains to fully terminate
+                try {
+                    if (this.readableStreamClosed) {
+                        await this.readableStreamClosed.catch(() => {});  // Ignore abort errors
+                    }
+                    if (this.writableStreamClosed) {
+                        await this.writableStreamClosed;
+                    }
+                } catch (e) {
+                    console.error("Stream close wait:", e);
+                }
+
+                // 4. NOW port.close() succeeds
+                try {
+                    if (this.port) {
+                        await this.port.close();
+                    }
+                } catch (e) {
+                    console.error("Port close:", e);
+                }
+
+                // Full cleanup
+                this.port = null;
+                this.reader = null;
+                this.writer = null;
+                this.readBuffer = '';
+                this.readableStreamClosed = null;
+                this.writableStreamClosed = null;
+            }
 
 
             async startReadLoop() {
@@ -307,16 +410,11 @@
                                 const response = this.readBuffer.substring(0, newlineIdx);
                                 this.readBuffer = this.readBuffer.substring(newlineIdx + 1);
                                 if (response.trim() && this.responseResolver) {
-                                    try {
-                                        const data = JSON.parse(response);
-                                        console.log("UnReliable: Parsed JSON response:", data);
-                                        const resolver = this.responseResolver;
-                                        this.responseResolver = null;
-                                        resolver(data, true);
-                                    } catch (e) {
-                                        console.log("UnReliable: Non-JSON response (ignored):", response.substring(0, 100));
-                                        // Don't call resolver for non-JSON - keep waiting
-                                    }
+                                    // Pass raw text to resolver - let USBManager decide if it's valid
+                                    console.log("UnReliable: Received response:", response.substring(0, 100));
+                                    const resolver = this.responseResolver;
+                                    this.responseResolver = null;
+                                    resolver(response, true);
                                 }
                             }
                         }
@@ -458,14 +556,21 @@
                     }
 
                     const result = await new Promise((resolve) => {
-                        this.connectionManager.sendRequest(jsonData, (data, wasSuccess) => {
-                            resolve({ data, wasSuccess });
+                        this.connectionManager.sendRequest(jsonData, (response, wasSuccess) => {
+                            resolve({ response, wasSuccess });
                         });
                     });
 
-                    if (result.wasSuccess) {
-                        console.log("USBManager: Success on attempt", attempt);
-                        return result.data;
+                    if (result.wasSuccess && result.response) {
+                        try {
+                            const data = JSON.parse(result.response);
+                            console.log("USBManager: Valid JSON response:", data);
+                            return data;
+                        } catch (e) {
+                            console.log("USBManager: Non-JSON response (will retry):", result.response.substring(0, 100));
+                            // Continue to next attempt - non-JSON response (likely boot messages)
+                            continue;
+                        }
                     }
 
                     console.log("USBManager: Attempt failed, will disconnect and retry...");
@@ -496,12 +601,12 @@
                 return await this.sendWithRetry({ cmd: 'save', ...config });
             }
 
-            disconnect() {
+            async disconnect() {
                 this.connectionManager.disconnect();
                 this.currentPort = null;
             }
 
-            onDisconnected() {
+            async onDisconnected() {
                 this.connectionManager.disconnect();
                 this.currentPort = null;
                 updateModalForDisconnection();
