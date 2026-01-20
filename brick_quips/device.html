@@ -79,6 +79,14 @@
         </div>
 
         <div class="slider-bubble">
+            <label class="slider-label">Number of Random Quips</label>
+            <div class="interval-display">
+                <span id="numRandQuipsValue">0</span>
+            </div>
+            <input type="range" id="numRandQuipsSlider" min="0" max="20" value="0" step="1">
+        </div>
+
+        <div class="slider-bubble">
             <label class="slider-label">Display Brightness</label>
             <div class="interval-display">
                 <span id="brightnessValue">100</span>%
@@ -304,6 +312,7 @@
         let externalQuipUrl = 'https://ryanch.github.io/brick_quips/external_quips.txt';
         let externalQuipPollMinutes = 60;
         let externalQuipEnabled = true;
+        let numRandQuips = 0;
         let brightness = 100;
         let new_ssid = '';
         let new_wifi_password = '';
@@ -424,6 +433,12 @@
             document.getElementById('intervalSlider').addEventListener('input', (e) => {
                 interval = parseInt(e.target.value);
                 document.getElementById('intervalValue').textContent = interval;
+            });
+
+            // Number of random quips slider listener
+            document.getElementById('numRandQuipsSlider').addEventListener('input', (e) => {
+                numRandQuips = parseInt(e.target.value);
+                document.getElementById('numRandQuipsValue').textContent = numRandQuips;
             });
 
             // Brightness slider listener
@@ -566,6 +581,9 @@
                         externalQuipPollMinutes = data.external_quip_poll_minutes !== undefined ? data.external_quip_poll_minutes : 60;
                         externalQuipEnabled = data.external_quip_enabled !== undefined ? data.external_quip_enabled : true;
 
+                        // Load number of random quips
+                        numRandQuips = data.num_rand_quips !== undefined ? data.num_rand_quips : 0;
+
                         // Load brightness
                         brightness = data.brightness !== undefined ? data.brightness : 100;
 
@@ -602,6 +620,7 @@
                 externalQuipUrl = data.external_quip_url || 'https://ryanch.github.io/brick_quips/external_quips.txt';
                 externalQuipPollMinutes = data.external_quip_poll_minutes !== undefined ? data.external_quip_poll_minutes : 60;
                 externalQuipEnabled = data.external_quip_enabled !== undefined ? data.external_quip_enabled : true;
+                numRandQuips = data.num_rand_quips !== undefined ? data.num_rand_quips : 0;
                 brightness = data.brightness !== undefined ? data.brightness : 100;
                 new_ssid = data.new_ssid || '';
                 new_wifi_password = data.new_wifi_password || '';
@@ -626,6 +645,7 @@
                     external_quip_url: 'https://ryanch.github.io/brick_quips/external_quips.txt',
                     external_quip_poll_minutes: 60,
                     external_quip_enabled: true,
+                    num_rand_quips: 0,
                     brightness: 100,
                     new_ssid: '',
                     new_wifi_password: ''
@@ -653,7 +673,7 @@
             // Compare simple properties
             const simpleProps = [
                 'interval_seconds', 'use_browser_timezone', 'timezone_offset', 'time_format',
-                'wake_sleep_enabled', 'wake_hour', 'sleep_hour', 'brightness',
+                'wake_sleep_enabled', 'wake_hour', 'sleep_hour', 'num_rand_quips', 'brightness',
                 'external_quip_url', 'external_quip_poll_minutes', 'external_quip_enabled',
                 'new_ssid', 'new_wifi_password'
             ];
@@ -731,6 +751,7 @@
                 external_quip_poll_minutes: externalQuipPollMinutes,
                 external_quip_enabled: externalQuipEnabled,
                 brightness: brightness,
+                num_rand_quips: numRandQuips,
                 new_ssid: new_ssid,
                 new_wifi_password: new_wifi_password
             };
@@ -848,6 +869,10 @@
             // Update interval slider
             document.getElementById('intervalSlider').value = interval;
             document.getElementById('intervalValue').textContent = interval;
+
+            // Update number of random quips slider
+            document.getElementById('numRandQuipsSlider').value = numRandQuips;
+            document.getElementById('numRandQuipsValue').textContent = numRandQuips;
 
             // Update brightness slider
             document.getElementById('brightnessSlider').value = brightness;
