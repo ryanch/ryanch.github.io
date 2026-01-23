@@ -236,6 +236,13 @@
                 </div>
 
                 <div class="input-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="enableOta" checked>
+                        <span>enable automatic updates</span>
+                    </label>
+                </div>
+
+                <div class="input-group">
                     <label for="new_ssid">Network Name (SSID):</label>
                     <input type="text" id="new_ssid" class="input-text" placeholder="Enter new Wi-Fi SSID">
                 </div>
@@ -342,6 +349,7 @@
         let powerMan = 0;
         let bluetoothEnabled = true;
         let wifiEnabled = true;
+        let enableOta = true;
         let currentView = 'main';
 
         // View management functions
@@ -559,6 +567,11 @@
                 wifiEnabled = e.target.checked;
             });
 
+            // OTA enabled listener
+            document.getElementById('enableOta').addEventListener('change', (e) => {
+                enableOta = e.target.checked;
+            });
+
             // Initial time preview update
             updateTimePreview();
             setInterval(updateTimePreview, 60000);  // Update every minute
@@ -635,6 +648,7 @@
                         powerMan = data.power_man !== undefined ? data.power_man : 0;
                         bluetoothEnabled = data.bluetooth_enabled !== undefined ? data.bluetooth_enabled : true;
                         wifiEnabled = data.wifi_enabled !== undefined ? data.wifi_enabled : true;
+                        enableOta = data.enable_ota !== undefined ? data.enable_ota : true;
 
                         // Store this as the baseline config, ensuring new_ssid and new_wifi_password are explicitly empty strings if not provided
                         baselineConfig = JSON.parse(JSON.stringify(data));
@@ -672,6 +686,7 @@
                 powerMan = data.power_man !== undefined ? data.power_man : 0;
                 bluetoothEnabled = data.bluetooth_enabled !== undefined ? data.bluetooth_enabled : true;
                 wifiEnabled = data.wifi_enabled !== undefined ? data.wifi_enabled : true;
+                enableOta = data.enable_ota !== undefined ? data.enable_ota : true;
                 // Store this as the baseline config
                 baselineConfig = JSON.parse(JSON.stringify(data));
                 if (baselineConfig.new_ssid === undefined) baselineConfig.new_ssid = '';
@@ -699,7 +714,8 @@
                     new_wifi_password: '',
                     power_man: 0,
                     bluetooth_enabled: true,
-                    wifi_enabled: true
+                    wifi_enabled: true,
+                    enable_ota: true
                 };
             }
             updateUI();
@@ -726,7 +742,7 @@
                 'interval_seconds', 'use_browser_timezone', 'timezone_offset', 'time_format',
                 'wake_sleep_enabled', 'wake_hour', 'sleep_hour', 'num_rand_quips', 'brightness',
                 'external_quip_url', 'external_quip_poll_minutes', 'external_quip_enabled',
-                'new_ssid', 'new_wifi_password', 'power_man', 'bluetooth_enabled', 'wifi_enabled'
+                'new_ssid', 'new_wifi_password', 'power_man', 'bluetooth_enabled', 'wifi_enabled', 'enable_ota'
             ];
 
             simpleProps.forEach(prop => {
@@ -807,7 +823,8 @@
                 new_wifi_password: new_wifi_password,
                 power_man: powerMan,
                 bluetooth_enabled: bluetoothEnabled,
-                wifi_enabled: wifiEnabled
+                wifi_enabled: wifiEnabled,
+                enable_ota: enableOta
             };
 
             let payload = newConfig;
@@ -976,6 +993,7 @@
             document.getElementById('powerMan').value = powerMan;
             document.getElementById('bluetoothEnabled').checked = bluetoothEnabled;
             document.getElementById('wifiEnabled').checked = wifiEnabled;
+            document.getElementById('enableOta').checked = enableOta;
 
             // Update add button state
             document.getElementById('addQuipBtn').disabled = quips.length >= MAX_QUIPS;
