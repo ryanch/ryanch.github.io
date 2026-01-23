@@ -259,6 +259,7 @@
         <div class="action-buttons">
             <button class="save-btn" id="close-save-btn" onclick="saveAndClose()">Close and Save</button>
         </div>
+        <div id="appVersion" style="text-align: center; margin-top: 20px; font-size: 0.8em; color: #555;"></div>
         </div>
         <!-- End Settings View -->
     </div>
@@ -649,6 +650,11 @@
                         bluetoothEnabled = data.bluetooth_enabled !== undefined ? data.bluetooth_enabled : true;
                         wifiEnabled = data.wifi_enabled !== undefined ? data.wifi_enabled : true;
                         enableOta = data.enable_ota !== undefined ? data.enable_ota : true;
+
+                        // Display app version
+                        if (data.app_ver) {
+                            document.getElementById('appVersion').textContent = `App Version: ${data.app_ver}`;
+                        }
 
                         // Store this as the baseline config, ensuring new_ssid and new_wifi_password are explicitly empty strings if not provided
                         baselineConfig = JSON.parse(JSON.stringify(data));
