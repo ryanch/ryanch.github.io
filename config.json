@@ -55,6 +55,13 @@
       "url": "https://ryanch.github.io/sora_prompt_builder/index.html",
       "tags": ["ai","video"],
       "icon": "📼"
+    },
+    {
+      "title": "OpenPrintTag Scanner",
+      "description": "NFC device that reads and stores data in the OpenPrintTag format using PrusaLinkAPI",
+      "url": "https://www.printables.com/model/1581648-openprinttag-scanner",
+      "tags": ["esp32","3dprinted"],
+      "icon": "🧮"
     }
 
     
