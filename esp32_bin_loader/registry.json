@@ -16,6 +16,14 @@
       "manifestPath": "projects/coffee-bean-scanner/manifest.json",
       "description": "The custom coffee bean scanner for Matt.",
       "dateAdded": "2026-01-16"
+    },
+    {
+      "slug": "openprinttag-scanner",
+      "name": "OpenPrintTag Scanner",
+      "chipFamily": "ESP32",
+      "manifestPath": "projects/openprinttag-scanner/manifest.json",
+      "description": "More info: https://github.com/ryanch/openprinttag_scanner",
+      "dateAdded": "2026-02-14"
     }
   ]
 }
