@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESP32 Serial Monitor</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a0a08' rx='8'/><rect x='10' y='15' width='80' height='55' fill='none' stroke='%23ffb000' stroke-width='2' rx='4'/><line x1='10' y1='42' x2='90' y2='42' stroke='%23ffb00033' stroke-width='1'/><line x1='50' y1='15' x2='50' y2='70' stroke='%23ffb00033' stroke-width='1'/><polyline points='15,50 25,35 35,50 45,30 55,55 65,25 75,50 85,45' fill='none' stroke='%23ffb000' stroke-width='2'/><rect x='25' y='78' width='50' height='6' fill='%23ffb000' rx='1'/></svg>">
+
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Fragment+Mono&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Browser support warning overlay -->
+    <div id="browserWarning" class="browser-warning hidden">
+      <div class="warning-box">
+        <div class="warning-icon">&#9888;</div>
+        <h2>Unsupported Browser</h2>
+        <p>Web Serial API is not available in this browser.</p>
+        <p>Please use <strong>Chrome 89+</strong> or <strong>Edge 89+</strong> on desktop.</p>
+      </div>
+    </div>
+
+    <div id="app">
+      <header>
+        <div class="nameplate">
+          <h1>ESP32 Serial Monitor</h1>
+          <span class="model-designation">MODEL SM-32 // DIAGNOSTIC CONSOLE</span>
+        </div>
+      </header>
+
+      <main>
+        <!-- Control Panel Bar -->
+        <div class="control-panel">
+          <!-- Connection cluster -->
+          <div class="control-cluster">
+            <span class="cluster-label">CONNECTION</span>
+            <div class="cluster-controls">
+              <button id="connectBtn" class="panel-btn primary">Connect</button>
+              <button id="disconnectBtn" class="panel-btn" disabled>Disconnect</button>
+            </div>
+          </div>
+
+          <!-- Status cluster -->
+          <div class="control-cluster">
+            <span class="cluster-label">STATUS</span>
+            <div class="cluster-controls status-row">
+              <span id="statusLed" class="led off"></span>
+              <span id="statusText" class="status-text">Disconnected</span>
+            </div>
+          </div>
+
+          <!-- Settings cluster -->
+          <div class="control-cluster">
+            <span class="cluster-label">SETTINGS</span>
+            <div class="cluster-controls settings-row">
+              <div class="setting-item">
+                <label for="baudRate">BAUD</label>
+                <select id="baudRate">
+                  <option value="9600">9600</option>
+                  <option value="19200">19200</option>
+                  <option value="38400">38400</option>
+                  <option value="57600">57600</option>
+                  <option value="115200" selected>115200</option>
+                  <option value="230400">230400</option>
+                  <option value="460800">460800</option>
+                  <option value="921600">921600</option>
+                </select>
+              </div>
+              <div class="setting-item">
+                <label for="timestampToggle">TIME</label>
+                <button id="timestampToggle" class="toggle-btn" aria-pressed="false">OFF</button>
+              </div>
+              <div class="setting-item">
+                <label for="autoscrollToggle">SCROLL</label>
+                <button id="autoscrollToggle" class="toggle-btn active" aria-pressed="true">ON</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions cluster -->
+          <div class="control-cluster">
+            <span class="cluster-label">ACTIONS</span>
+            <div class="cluster-controls">
+              <button id="clearBtn" class="panel-btn">Clear</button>
+              <button id="saveBtn" class="panel-btn">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Display Area -->
+        <div class="display-bezel">
+          <div class="display-screen">
+            <!-- Graticule grid overlay -->
+            <div class="graticule"></div>
+            <!-- Vignette overlay -->
+            <div class="vignette"></div>
+
+            <!-- Welcome message (before connecting) -->
+            <div id="welcomeMessage" class="welcome-message">
+              <div class="welcome-art">
+&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+&#9474;  ESP32 SERIAL MONITOR  v1.0     &#9474;
+&#9474;  MODEL SM-32 DIAGNOSTIC CONSOLE  &#9474;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9508;
+&#9474;                                        &#9474;
+&#9474;  Connect an ESP32 device via USB  &#9474;
+&#9474;  to begin monitoring serial output &#9474;
+&#9474;                                        &#9474;
+&#9474;  1. Click [Connect]               &#9474;
+&#9474;  2. Select your serial port        &#9474;
+&#9474;  3. View real-time console data    &#9474;
+&#9474;                                        &#9474;
+&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</div>
+            </div>
+
+            <!-- Serial output container (shown when connected) -->
+            <div id="serialOutput" class="serial-output hidden"></div>
+          </div>
+
+          <!-- Readouts bar -->
+          <div class="readouts-bar">
+            <div class="readout">
+              <span class="readout-label">LINES</span>
+              <span id="lineCount" class="readout-value">0</span>
+            </div>
+            <div class="readout">
+              <span class="readout-label">BYTES</span>
+              <span id="byteCount" class="readout-value">0</span>
+            </div>
+            <div class="readout">
+              <span class="readout-label">ELAPSED</span>
+              <span id="elapsedTime" class="readout-value">00:00:00</span>
+            </div>
+            <div class="readout">
+              <span class="readout-label">PORT</span>
+              <span id="portName" class="readout-value">---</span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <p>ESP32 Serial Monitor v1.0 // Web Serial API</p>
+      </footer>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,623 @@
+/* ESP32 Serial Monitor — Vintage Oscilloscope / Lab Instrument Aesthetic */
+
+:root {
+  /* Amber phosphor palette */
+  --amber: #ffb000;
+  --amber-bright: #ffc940;
+  --amber-dim: #cc8d00;
+  --amber-faint: #664700;
+  --amber-glow: rgba(255, 176, 0, 0.4);
+
+  /* Instrument body */
+  --chassis-dark: #1a1a1e;
+  --chassis-mid: #252529;
+  --chassis-light: #2e2e33;
+  --bezel: #333338;
+  --bezel-edge: #3d3d42;
+
+  /* Screen */
+  --screen-bg: #0a0a08;
+  --screen-tint: #0d0c08;
+
+  /* Status */
+  --green: #22c55e;
+  --green-glow: rgba(34, 197, 94, 0.5);
+  --red: #ef4444;
+  --red-glow: rgba(239, 68, 68, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Chakra Petch', sans-serif;
+  line-height: 1.6;
+  color: var(--amber);
+  background: var(--chassis-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ─── Header / Nameplate ─── */
+
+header {
+  margin-bottom: 1.5rem;
+}
+
+.nameplate {
+  background: linear-gradient(180deg, var(--chassis-light) 0%, var(--chassis-mid) 100%);
+  border: 1px solid var(--bezel-edge);
+  border-bottom: 2px solid var(--amber-faint);
+  padding: 1.25rem 2rem;
+  text-align: center;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.nameplate h1 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--amber-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 12px var(--amber-glow);
+  margin-bottom: 0.2rem;
+}
+
+.model-designation {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+  font-weight: 500;
+  color: var(--amber-dim);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+/* ─── Control Panel ─── */
+
+.control-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: #111114;
+  border: 1px solid var(--bezel-edge);
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.control-cluster {
+  flex: 1;
+  min-width: 160px;
+  background: var(--chassis-mid);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cluster-label {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--amber-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--amber-faint);
+  padding-bottom: 0.25rem;
+}
+
+.cluster-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Panel Buttons */
+.panel-btn {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  background: linear-gradient(180deg, #2a2a2f 0%, #1e1e22 100%);
+  border: 1px solid var(--amber-faint);
+  border-bottom: 2px solid #0f0f11;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.panel-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #333338 0%, #28282d 100%);
+  border-color: var(--amber);
+  color: var(--amber-bright);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    0 0 8px rgba(255, 176, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.panel-btn:active:not(:disabled) {
+  background: linear-gradient(180deg, #1a1a1e 0%, #222226 100%);
+  border-bottom: 1px solid #0f0f11;
+  border-top: 2px solid #0f0f11;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  transform: translateY(1px);
+}
+
+.panel-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.panel-btn.primary {
+  border-color: var(--amber);
+  color: var(--amber-bright);
+}
+
+/* Toggle Buttons */
+.toggle-btn {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--amber-faint);
+  background: #1a1a1e;
+  border: 1px solid var(--amber-faint);
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.toggle-btn.active {
+  color: var(--amber-bright);
+  background: rgba(255, 176, 0, 0.12);
+  border-color: var(--amber);
+  text-shadow: 0 0 6px var(--amber-glow);
+}
+
+.toggle-btn:hover {
+  border-color: var(--amber-dim);
+}
+
+/* Status row */
+.status-row {
+  gap: 0.5rem;
+}
+
+.status-text {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--amber-dim);
+  letter-spacing: 0.03em;
+}
+
+/* LED Indicator */
+.led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.led.off {
+  background: #333;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.led.connected {
+  background: var(--green);
+  box-shadow:
+    0 0 4px var(--green-glow),
+    0 0 12px var(--green-glow),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+  animation: ledPulse 2s ease-in-out infinite;
+}
+
+.led.error {
+  background: var(--red);
+  box-shadow:
+    0 0 4px var(--red-glow),
+    0 0 12px var(--red-glow);
+}
+
+@keyframes ledPulse {
+  0%, 100% { box-shadow: 0 0 4px var(--green-glow), 0 0 12px var(--green-glow); }
+  50% { box-shadow: 0 0 6px var(--green-glow), 0 0 20px var(--green-glow); }
+}
+
+/* Settings */
+.settings-row {
+  gap: 0.75rem;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.setting-item label {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--amber-dim);
+  letter-spacing: 0.1em;
+}
+
+.setting-item select {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: #1a1a1e;
+  color: var(--amber);
+  border: 1px solid var(--amber-faint);
+  padding: 0.25rem 0.4rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.setting-item select:hover {
+  border-color: var(--amber-dim);
+}
+
+.setting-item select:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 4px rgba(255, 176, 0, 0.2);
+}
+
+/* ─── Display Bezel ─── */
+
+.display-bezel {
+  background: var(--bezel);
+  border: 2px solid var(--bezel-edge);
+  padding: 1rem;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.6),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.display-screen {
+  position: relative;
+  background: var(--screen-bg);
+  border: 1px solid #222;
+  flex: 1;
+  min-height: 400px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 4px rgba(255, 176, 0, 0.03);
+}
+
+/* Graticule grid */
+.graticule {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent calc(100% / 8 - 1px),
+      rgba(255, 176, 0, 0.06) calc(100% / 8 - 1px),
+      rgba(255, 176, 0, 0.06) calc(100% / 8),
+      transparent calc(100% / 8)
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent calc(100% / 10 - 1px),
+      rgba(255, 176, 0, 0.06) calc(100% / 10 - 1px),
+      rgba(255, 176, 0, 0.06) calc(100% / 10),
+      transparent calc(100% / 10)
+    );
+}
+
+/* Vignette overlay */
+.vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+}
+
+/* Welcome Message */
+.welcome-message {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.welcome-art {
+  font-family: 'Fragment Mono', monospace;
+  font-size: clamp(0.55rem, 1.2vw, 0.78rem);
+  color: var(--amber);
+  white-space: pre;
+  line-height: 1.5;
+  text-shadow: 0 0 6px var(--amber-glow);
+  opacity: 0.8;
+}
+
+/* Serial Output */
+.serial-output {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  padding: 0.5rem 0.75rem;
+  z-index: 3;
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--amber);
+  text-shadow: 0 0 4px rgba(255, 176, 0, 0.3);
+}
+
+.serial-output::-webkit-scrollbar {
+  width: 8px;
+}
+
+.serial-output::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.serial-output::-webkit-scrollbar-thumb {
+  background: var(--amber-faint);
+  border-radius: 4px;
+}
+
+.serial-output::-webkit-scrollbar-thumb:hover {
+  background: var(--amber-dim);
+}
+
+.serial-line {
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 1.45em;
+}
+
+.serial-line .timestamp {
+  color: var(--amber-dim);
+  margin-right: 0.5em;
+  user-select: all;
+}
+
+/* ─── Readouts Bar ─── */
+
+.readouts-bar {
+  display: flex;
+  gap: 1px;
+  background: #111114;
+  margin-top: 0.75rem;
+  border: 1px solid var(--bezel-edge);
+}
+
+.readout {
+  flex: 1;
+  background: var(--chassis-mid);
+  padding: 0.4rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.readout-label {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: var(--amber-faint);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.readout-value {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--amber);
+  text-shadow: 0 0 4px rgba(255, 176, 0, 0.25);
+}
+
+/* ─── Footer ─── */
+
+footer {
+  text-align: center;
+  padding: 1rem 0 0.5rem;
+  color: var(--amber-faint);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+/* ─── Browser Warning Overlay ─── */
+
+.browser-warning {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 8, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.warning-box {
+  background: var(--chassis-mid);
+  border: 2px solid var(--red);
+  padding: 2.5rem;
+  max-width: 480px;
+  text-align: center;
+  box-shadow: 0 0 40px var(--red-glow);
+}
+
+.warning-icon {
+  font-size: 3rem;
+  color: var(--red);
+  margin-bottom: 1rem;
+}
+
+.warning-box h2 {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 1.4rem;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.warning-box p {
+  font-size: 0.9rem;
+  color: var(--amber-dim);
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.warning-box strong {
+  color: var(--amber);
+}
+
+/* ─── Utility ─── */
+
+.hidden {
+  display: none !important;
+}
+
+/* ─── Responsive: Tablet ─── */
+
+@media (max-width: 768px) {
+  #app {
+    padding: 1rem;
+  }
+
+  .nameplate {
+    padding: 1rem 1.25rem;
+  }
+
+  .nameplate h1 {
+    font-size: 1.4rem;
+  }
+
+  .model-designation {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+  }
+
+  .control-panel {
+    gap: 1px;
+  }
+
+  .control-cluster {
+    min-width: 140px;
+    flex: 1 1 45%;
+  }
+
+  .display-screen {
+    min-height: 350px;
+  }
+
+  .display-bezel {
+    padding: 0.75rem;
+  }
+}
+
+/* ─── Responsive: Phone ─── */
+
+@media (max-width: 480px) {
+  #app {
+    padding: 0.5rem;
+  }
+
+  .nameplate {
+    padding: 0.75rem 1rem;
+  }
+
+  .nameplate h1 {
+    font-size: 1.1rem;
+    letter-spacing: 0.06em;
+  }
+
+  .model-designation {
+    font-size: 0.5rem;
+  }
+
+  .control-cluster {
+    flex: 1 1 100%;
+  }
+
+  .display-screen {
+    min-height: 300px;
+  }
+
+  .display-bezel {
+    padding: 0.5rem;
+  }
+
+  .serial-output {
+    font-size: 0.7rem;
+  }
+
+  .welcome-art {
+    font-size: 0.45rem;
+  }
+
+  .readouts-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .panel-btn {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.7rem;
+  }
+}

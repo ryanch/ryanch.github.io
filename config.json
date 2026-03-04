@@ -62,8 +62,13 @@
       "url": "https://www.printables.com/model/1581648-openprinttag-scanner",
       "tags": ["esp32","3dprinted"],
       "icon": "🧮"
+    },
+    {
+      "title": "ESP32 Serial Monitor",
+      "description": "A serial monitor for viewing ESP32 console output in the browser via Web Serial API.",
+      "url": "https://ryanch.github.io/serial_monitor/index.html",
+      "tags": ["esp32", "tool"],
+      "icon": "📟"
     }
-
-    
   ]
 }
