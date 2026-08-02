@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hex Pixel Editor</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    overflow:hidden;
+}
+
+#toolbar{
+    padding:10px;
+    background:#ddd;
+    display:flex;
+    gap:20px;
+    align-items:center;
+    border-bottom:1px solid #999;
+}
+
+#toolbar button{
+    padding:6px 12px;
+}
+
+.active{
+    background:#4CAF50;
+    color:white;
+}
+
+.palette{
+    display:flex;
+    gap:6px;
+}
+
+.swatch{
+    width:28px;
+    height:28px;
+    border:2px solid #444;
+    cursor:pointer;
+}
+
+.selected{
+    outline:4px solid black;
+}
+
+#container{
+    overflow:auto;
+    width:100vw;
+    height:calc(100vh - 55px);
+    background:#f0f0f0;
+}
+
+canvas{
+    background:white;
+}
+</style>
+
+</head>
+<body>
+
+<div id="toolbar">
+
+Width
+<input id="w" type="number" value="30" min="1" style="width:70px;">
+
+Height
+<input id="h" type="number" value="20" min="1" style="width:70px;">
+
+<button id="resize">Resize</button>
+
+<button id="paintBtn" class="active">Paint</button>
+<button id="selectBtn">Select</button>
+
+<div class="palette" id="palette"></div>
+
+</div>
+
+<div id="container">
+<canvas id="canvas"></canvas>
+</div>
+
+<script>
+
+const colors=[
+"#ffffff",
+"#000000",
+"#ff0000",
+"#00ff00",
+"#0000ff",
+"#ffff00",
+"#ff00ff",
+"#00ffff",
+"#ff8800",
+"#8844ff",
+"#888888",
+"#8B4513"
+];
+
+let currentColor=colors[2];
+
+const palette=document.getElementById("palette");
+
+colors.forEach(c=>{
+    let d=document.createElement("div");
+    d.className="swatch";
+    d.style.background=c;
+    if(c==currentColor)d.classList.add("selected");
+    d.onclick=()=>{
+        currentColor=c;
+        document.querySelectorAll(".swatch").forEach(s=>s.classList.remove("selected"));
+        d.classList.add("selected");
+    };
+    palette.appendChild(d);
+});
+
+let cols=30;
+let rows=20;
+
+const SIZE=20;
+
+let grid=[];
+
+function makeGrid(){
+
+cols=parseInt(document.getElementById("w").value);
+rows=parseInt(document.getElementById("h").value);
+
+grid=[];
+
+for(let r=0;r<rows;r++){
+
+grid[r]=[];
+
+for(let c=0;c<cols;c++)
+grid[r][c]=null;
+}
+
+resizeCanvas();
+draw();
+}
+
+document.getElementById("resize").onclick=makeGrid;
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+function resizeCanvas(){
+
+let w=Math.sqrt(3)*SIZE*(cols+0.5)+40;
+let h=SIZE*1.5*(rows+1)+40;
+
+canvas.width=w;
+canvas.height=h;
+}
+
+function hexCenter(c,r){
+
+let x=30+Math.sqrt(3)*SIZE*(c+0.5*(r&1));
+let y=30+SIZE*1.5*r;
+
+return{x,y};
+}
+
+function polygon(center){
+
+let pts=[];
+
+for(let i=0;i<6;i++){
+
+let a=(60*i-30)*Math.PI/180;
+
+pts.push({
+x:center.x+SIZE*Math.cos(a),
+y:center.y+SIZE*Math.sin(a)
+});
+}
+
+return pts;
+}
+
+function drawHex(c,r,color,outline){
+
+let center=hexCenter(c,r);
+
+let pts=polygon(center);
+
+ctx.beginPath();
+
+ctx.moveTo(pts[0].x,pts[0].y);
+
+pts.forEach(p=>ctx.lineTo(p.x,p.y));
+
+ctx.closePath();
+
+ctx.fillStyle=color||"#fff";
+ctx.fill();
+
+ctx.lineWidth=outline?3:1;
+
+ctx.strokeStyle=outline?"red":"#999";
+
+ctx.stroke();
+}
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+for(let r=0;r<rows;r++)
+for(let c=0;c<cols;c++){
+
+let outline=false;
+
+if(selection){
+
+outline=selection.cells.some(v=>v.c==c&&v.r==r);
+}
+
+drawHex(c,r,grid[r][c],outline);
+
+}
+
+if(selection&&dragging){
+
+selection.cells.forEach(cell=>{
+
+let cc=cell.c+dragDX;
+let rr=cell.r+dragDY;
+
+drawHex(cc,rr,cell.color,true);
+
+});
+
+}
+
+}
+
+function hit(mx,my){
+
+for(let r=0;r<rows;r++)
+for(let c=0;c<cols;c++){
+
+let pts=polygon(hexCenter(c,r));
+
+ctx.beginPath();
+ctx.moveTo(pts[0].x,pts[0].y);
+pts.forEach(p=>ctx.lineTo(p.x,p.y));
+ctx.closePath();
+
+if(ctx.isPointInPath(mx,my))
+return{c,r};
+}
+
+return null;
+}
+
+let tool="paint";
+
+paintBtn.onclick=()=>{
+tool="paint";
+paintBtn.classList.add("active");
+selectBtn.classList.remove("active");
+selection=null;
+draw();
+};
+
+selectBtn.onclick=()=>{
+tool="select";
+selectBtn.classList.add("active");
+paintBtn.classList.remove("active");
+};
+
+let selection=null;
+let dragging=false;
+let dragDX=0;
+let dragDY=0;
+let startCell=null;
+
+const dirsEven=[
+[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1]
+];
+
+const dirsOdd=[
+[-1,0],[1,0],[0,-1],[0,1],[1,-1],[1,1]
+];
+
+function flood(c,r){
+
+let color=grid[r][c];
+
+if(!color)return null;
+
+let visited={};
+
+let stack=[[c,r]];
+
+let cells=[];
+
+while(stack.length){
+
+let [x,y]=stack.pop();
+
+let key=x+","+y;
+
+if(visited[key])continue;
+
+visited[key]=1;
+
+if(x<0||y<0||x>=cols||y>=rows)continue;
+
+if(grid[y][x]!=color)continue;
+
+cells.push({c:x,r:y,color});
+
+let dirs=(y&1)?dirsOdd:dirsEven;
+
+dirs.forEach(d=>stack.push([x+d[0],y+d[1]]));
+
+}
+
+return{cells,color};
+
+}
+
+canvas.onmousedown=e=>{
+
+let rect=canvas.getBoundingClientRect();
+
+let p=hit(e.clientX-rect.left,e.clientY-rect.top);
+
+if(!p)return;
+
+if(tool=="paint"){
+
+if(grid[p.r][p.c]==currentColor)
+grid[p.r][p.c]=null;
+else
+grid[p.r][p.c]=currentColor;
+
+draw();
+
+return;
+}
+
+if(selection){
+
+let inside=selection.cells.some(v=>v.c==p.c&&v.r==p.r);
+
+if(inside){
+
+dragging=true;
+startCell=p;
+return;
+}
+
+}
+
+selection=flood(p.c,p.r);
+
+draw();
+
+};
+
+canvas.onmousemove=e=>{
+
+if(!dragging)return;
+
+let rect=canvas.getBoundingClientRect();
+
+let p=hit(e.clientX-rect.left,e.clientY-rect.top);
+
+if(!p)return;
+
+dragDX=p.c-startCell.c;
+dragDY=p.r-startCell.r;
+
+draw();
+
+};
+
+canvas.onmouseup=e=>{
+
+if(!dragging)return;
+
+dragging=false;
+
+let occupied=new Set();
+
+for(let r=0;r<rows;r++)
+for(let c=0;c<cols;c++)
+if(grid[r][c])
+occupied.add(c+","+r);
+
+selection.cells.forEach(v=>{
+occupied.delete(v.c+","+v.r);
+});
+
+let ok=true;
+
+for(let cell of selection.cells){
+
+let nc=cell.c+dragDX;
+let nr=cell.r+dragDY;
+
+if(nc<0||nr<0||nc>=cols||nr>=rows){ok=false;break;}
+
+if(occupied.has(nc+","+nr)){ok=false;break;}
+
+}
+
+if(ok){
+
+selection.cells.forEach(v=>grid[v.r][v.c]=null);
+
+selection.cells.forEach(v=>{
+
+v.c+=dragDX;
+v.r+=dragDY;
+
+grid[v.r][v.c]=v.color;
+
+});
+
+}
+
+dragDX=0;
+dragDY=0;
+
+draw();
+
+};
+
+makeGrid();
+
+</script>
+
+</body>
+</html>
